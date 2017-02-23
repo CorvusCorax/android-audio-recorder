@@ -36,7 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
-import com.github.axet.androidlibrary.app.LibraryApplication;
+import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupShareActionProvider;
 import com.github.axet.audiorecorder.R;
@@ -180,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
             time.setText(s.format(new Date(f.lastModified())));
 
             TextView dur = (TextView) convertView.findViewById(R.id.recording_duration);
-            dur.setText(LibraryApplication.formatDuration(getContext(), durations.get(f)));
+            dur.setText(MainLibrary.formatDuration(getContext(), durations.get(f)));
 
             TextView size = (TextView) convertView.findViewById(R.id.recording_size);
-            size.setText(LibraryApplication.formatSize(getContext(), f.length()));
+            size.setText(MainLibrary.formatSize(getContext(), f.length()));
 
             final View playerBase = convertView.findViewById(R.id.recording_player);
             playerBase.setOnClickListener(new View.OnClickListener() {
@@ -448,11 +448,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.OnScr
                 }
             });
 
-            start.setText(LibraryApplication.formatDuration(getContext(), c));
+            start.setText(MainLibrary.formatDuration(getContext(), c));
             bar.setMax(d);
             bar.setKeyProgressIncrement(1);
             bar.setProgress(c);
-            end.setText("-" + LibraryApplication.formatDuration(getContext(), d - c));
+            end.setText("-" + MainLibrary.formatDuration(getContext(), d - c));
 
             return playing;
         }

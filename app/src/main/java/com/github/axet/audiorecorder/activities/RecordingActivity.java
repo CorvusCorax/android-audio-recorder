@@ -35,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
-import com.github.axet.androidlibrary.app.LibraryApplication;
+import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.app.RawSamples;
@@ -717,7 +717,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     void updateSamples(long samplesTime) {
         long ms = samplesTime / sampleRate * 1000;
-        time.setText(LibraryApplication.formatDuration(this, ms));
+        time.setText(MainLibrary.formatDuration(this, ms));
     }
 
     @Override

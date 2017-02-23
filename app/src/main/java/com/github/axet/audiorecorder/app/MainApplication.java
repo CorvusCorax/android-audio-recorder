@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.preference.PreferenceManager;
 
-import com.github.axet.androidlibrary.app.LibraryApplication;
+import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiorecorder.R;
 
@@ -70,7 +70,7 @@ public class MainApplication extends Application {
             str = getResources().getQuantityString(R.plurals.seconds, diffSeconds, diffSeconds);
         }
 
-        return getString(R.string.title_header, LibraryApplication.formatSize(this, free), str);
+        return getString(R.string.title_header, MainLibrary.formatSize(this, free), str);
     }
 
     public static int getChannels(Context context) {
