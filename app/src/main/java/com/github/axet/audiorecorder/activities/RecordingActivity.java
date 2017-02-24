@@ -764,7 +764,6 @@ public class RecordingActivity extends AppCompatActivity {
     EncoderInfo getInfo() {
         final int channels = MainApplication.getChannels(this);
         final int bps = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
-
         return new EncoderInfo(channels, sampleRate, bps);
     }
 
@@ -859,7 +858,6 @@ public class RecordingActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-
         MainActivity.startActivity(this);
     }
 }
