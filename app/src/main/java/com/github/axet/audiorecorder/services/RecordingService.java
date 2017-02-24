@@ -138,6 +138,7 @@ public class RecordingService extends Service {
                     R.layout.notifictaion_recording_light,
                     R.layout.notifictaion_recording_dark));
 
+            String title = getString(R.string.recording_title);
             String text = ".../" + targetFile;
 
             view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
@@ -147,8 +148,9 @@ public class RecordingService extends Service {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)
-                    .setContentTitle(getString(R.string.recording_title))
+                    .setContentTitle(title)
                     .setContentText(text)
+                    .setTicker(title)
                     .setSmallIcon(R.drawable.ic_mic_24dp)
                     .setContent(view);
 
