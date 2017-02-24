@@ -38,15 +38,15 @@ import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
-import com.github.axet.audiorecorder.app.RawSamples;
-import com.github.axet.audiorecorder.app.Sound;
-import com.github.axet.audiorecorder.app.Storage;
-import com.github.axet.audiorecorder.encoders.Encoder;
-import com.github.axet.audiorecorder.encoders.EncoderInfo;
-import com.github.axet.audiorecorder.encoders.Factory;
-import com.github.axet.audiorecorder.encoders.FileEncoder;
+import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Sound;
+import com.github.axet.audiolibrary.app.Storage;
+import com.github.axet.audiolibrary.encoders.Encoder;
+import com.github.axet.audiolibrary.encoders.EncoderInfo;
+import com.github.axet.audiolibrary.encoders.Factory;
+import com.github.axet.audiolibrary.encoders.FileEncoder;
 import com.github.axet.audiorecorder.services.RecordingService;
-import com.github.axet.audiorecorder.widgets.PitchView;
+import com.github.axet.audiolibrary.widgets.PitchView;
 
 import java.io.File;
 
@@ -439,7 +439,7 @@ public class RecordingActivity extends AppCompatActivity {
         final ImageView playButton = (ImageView) box.findViewById(R.id.recording_play);
 
         if (show) {
-            playButton.setImageResource(R.drawable.pause);
+            playButton.setImageResource(R.drawable.ic_pause_24dp);
 
             playIndex = editSample;
 
@@ -478,7 +478,7 @@ public class RecordingActivity extends AppCompatActivity {
                 play = null;
             }
             pitch.play(-1);
-            playButton.setImageResource(R.drawable.play);
+            playButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
         }
     }
 
