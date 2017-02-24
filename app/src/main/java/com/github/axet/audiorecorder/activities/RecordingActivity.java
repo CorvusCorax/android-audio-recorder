@@ -439,7 +439,7 @@ public class RecordingActivity extends AppCompatActivity {
         final ImageView playButton = (ImageView) box.findViewById(R.id.recording_play);
 
         if (show) {
-            playButton.setImageResource(R.drawable.ic_pause_24dp);
+            playButton.setImageResource(R.drawable.ic_pause_black_24dp);
 
             playIndex = editSample;
 
@@ -563,7 +563,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         sound.silent();
 
-        pause.setImageResource(R.drawable.ic_pause_24dp);
+        pause.setImageResource(R.drawable.ic_pause_black_24dp);
 
         pitch.record();
 

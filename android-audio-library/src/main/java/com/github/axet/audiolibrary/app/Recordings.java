@@ -112,8 +112,12 @@ public class Recordings extends ArrayAdapter<File> implements AbsListView.OnScro
             }
         }
 
-        sort(new SortFiles());
+        sort();
         notifyDataSetChanged();
+    }
+
+    public void sort() {
+        sort(new SortFiles());
     }
 
     public void close() {
@@ -387,7 +391,7 @@ public class Recordings extends ArrayAdapter<File> implements AbsListView.OnScro
 
         final boolean playing = player != null && player.isPlaying();
 
-        i.setImageResource(playing ? R.drawable.ic_pause_24dp : R.drawable.ic_play_arrow_black_24dp);
+        i.setImageResource(playing ? R.drawable.ic_pause_black_24dp : R.drawable.ic_play_arrow_black_24dp);
 
         TextView start = (TextView) v.findViewById(R.id.recording_player_start);
         SeekBar bar = (SeekBar) v.findViewById(R.id.recording_player_seek);

@@ -26,7 +26,7 @@ public class Storage {
     public static final String TMP_REC = "recorind.data";
     public static final String RECORDINGS = "recordings";
 
-    Context context;
+    protected Context context;
 
     public Storage(Context context) {
         this.context = context;
@@ -144,7 +144,7 @@ public class Storage {
         return getNextFile(parent, fileName, extension);
     }
 
-    File getNextFile(File parent, String name, String ext) {
+    protected File getNextFile(File parent, String name, String ext) {
         String fileName;
         if (ext.isEmpty())
             fileName = name;
