@@ -6,6 +6,7 @@ import android.os.Build;
 
 import com.github.axet.audiolibrary.R;
 import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Sound;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class Factory {
         }
 
         // default raw
-        int c = RawSamples.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
+        int c = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
         return c * rate;
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Sound;
 
 public class FFTChartView extends FFTView {
     public static final String TAG = FFTChartView.class.getSimpleName();
@@ -66,7 +67,7 @@ public class FFTChartView extends FFTView {
             min = Math.min(v, min);
             max = Math.max(v, max);
 
-            v = (RawSamples.MAXIMUM_DB + v) / RawSamples.MAXIMUM_DB;
+            v = (Sound.MAXIMUM_DB + v) / Sound.MAXIMUM_DB;
 
             float endX = startX;
             float endY = (float) (h - h * v);

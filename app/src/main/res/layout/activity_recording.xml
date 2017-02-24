@@ -117,7 +117,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_done" />
+                android:tint="@android:color/white"
+                android:src="@drawable/ic_done_black_24dp" />
 
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </LinearLayout>

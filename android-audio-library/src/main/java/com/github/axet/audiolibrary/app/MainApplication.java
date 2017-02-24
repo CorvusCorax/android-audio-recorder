@@ -19,7 +19,6 @@ public class MainApplication extends Application {
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_CHANNELS = "channels";
 
-
     @Override
     public void onCreate() {
         super.onCreate();

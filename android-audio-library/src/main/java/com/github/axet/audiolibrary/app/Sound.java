@@ -8,6 +8,11 @@ import android.media.AudioTrack;
 import android.preference.PreferenceManager;
 
 public class Sound extends com.github.axet.androidlibrary.sound.Sound {
+    public static int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+    // quite root gives me 20db
+    public static int NOISE_DB = 20;
+    // max 90 dB detection for android mic
+    public static int MAXIMUM_DB = 90;
 
     public Sound(Context context) {
         super(context);
@@ -47,9 +52,7 @@ public class Sound extends com.github.axet.androidlibrary.sound.Sound {
         // http://stackoverflow.com/questions/27602492
         //
         // with MODE_STATIC setNotificationMarkerPosition not called
-        AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-                c, RawSamples.AUDIO_FORMAT,
-                len * (Short.SIZE / 8), AudioTrack.MODE_STREAM);
+        AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, c, AUDIO_FORMAT, len * (Short.SIZE / 8), AudioTrack.MODE_STREAM);
         track.write(buf, 0, len);
         if (track.setNotificationMarkerPosition(end) != AudioTrack.SUCCESS)
             throw new RuntimeException("unable to set marker");

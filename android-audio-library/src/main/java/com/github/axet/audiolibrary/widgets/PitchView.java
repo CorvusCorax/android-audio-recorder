@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.R;
 import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Sound;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -338,7 +339,7 @@ public class PitchView extends ViewGroup {
         }
 
         void update(int end) {
-            dB = getDB(end) / RawSamples.MAXIMUM_DB;
+            dB = getDB(end) / Sound.MAXIMUM_DB;
 
             String str = "";
 
@@ -420,7 +421,7 @@ public class PitchView extends ViewGroup {
 
         if (isInEditMode()) {
             for (int i = 0; i < 3000; i++) {
-                data.add(-Math.sin(i) * RawSamples.MAXIMUM_DB);
+                data.add(-Math.sin(i) * Sound.MAXIMUM_DB);
             }
         }
 
@@ -495,7 +496,7 @@ public class PitchView extends ViewGroup {
     public double getDB(int i) {
         double db = data.get(i);
 
-        db = RawSamples.MAXIMUM_DB + db;
+        db = Sound.MAXIMUM_DB + db;
 
         return db;
     }
@@ -504,12 +505,12 @@ public class PitchView extends ViewGroup {
         double db = getDB(i);
 
         // do not show below NOISE_DB
-        db = db - RawSamples.NOISE_DB;
+        db = db - Sound.NOISE_DB;
 
         if (db < 0)
             db = 0;
 
-        int rest = RawSamples.MAXIMUM_DB - RawSamples.NOISE_DB;
+        int rest = Sound.MAXIMUM_DB - Sound.NOISE_DB;
 
         db = db / rest;
 

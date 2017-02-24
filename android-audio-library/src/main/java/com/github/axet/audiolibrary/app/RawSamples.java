@@ -1,13 +1,6 @@
 package com.github.axet.audiolibrary.app;
 
 import android.media.AudioFormat;
-import android.util.Log;
-
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.transform.DftNormalization;
-import org.apache.commons.math3.transform.FastFourierTransformer;
-import org.apache.commons.math3.transform.TransformType;
-import org.apache.commons.math3.util.MathArrays;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,13 +14,6 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 public class RawSamples {
-    public static int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-
-    // quite root gives me 20db
-    public static int NOISE_DB = 20;
-    // max 90 dB detection for android mic
-    public static int MAXIMUM_DB = 90;
-
     File in;
 
     InputStream is;
@@ -69,7 +55,7 @@ public class RawSamples {
         try {
             readBuffer = new byte[(int) getBufferLen(bufReadSize)];
             is = new FileInputStream(in);
-            is.skip(offset * (AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1));
+            is.skip(offset * (Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -109,11 +95,11 @@ public class RawSamples {
     }
 
     public static long getSamples(long len) {
-        return len / (AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1);
+        return len / (Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1);
     }
 
     public static long getBufferLen(long samples) {
-        return samples * (AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1);
+        return samples * (Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1);
     }
 
     public void trunk(long pos) {
