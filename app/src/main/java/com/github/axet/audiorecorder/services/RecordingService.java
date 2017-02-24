@@ -68,7 +68,6 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-
         receiver = new RecordingReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_ON);
@@ -139,14 +138,19 @@ public class RecordingService extends Service {
                     R.layout.notifictaion_recording_light,
                     R.layout.notifictaion_recording_dark));
 
+            String title = getString(R.string.recording_title);
+            String text = ".../" + targetFile;
+
             view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-            view.setTextViewText(R.id.notification_text, ".../" + targetFile);
+            view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_pause, pe);
-            view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.play : R.drawable.pause);
+            view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)
-                    .setContentTitle(getString(R.string.recording_title))
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setTicker(title)
                     .setSmallIcon(R.drawable.ic_mic_24dp)
                     .setContent(view);
 

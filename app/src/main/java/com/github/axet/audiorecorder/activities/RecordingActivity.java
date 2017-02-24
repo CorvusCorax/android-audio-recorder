@@ -35,18 +35,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
-import com.github.axet.androidlibrary.app.LibraryApplication;
+import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
-import com.github.axet.audiorecorder.app.RawSamples;
-import com.github.axet.audiorecorder.app.Sound;
-import com.github.axet.audiorecorder.app.Storage;
-import com.github.axet.audiorecorder.encoders.Encoder;
-import com.github.axet.audiorecorder.encoders.EncoderInfo;
-import com.github.axet.audiorecorder.encoders.Factory;
-import com.github.axet.audiorecorder.encoders.FileEncoder;
+import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Sound;
+import com.github.axet.audiolibrary.app.Storage;
+import com.github.axet.audiolibrary.encoders.Encoder;
+import com.github.axet.audiolibrary.encoders.EncoderInfo;
+import com.github.axet.audiolibrary.encoders.Factory;
+import com.github.axet.audiolibrary.encoders.FileEncoder;
 import com.github.axet.audiorecorder.services.RecordingService;
-import com.github.axet.audiorecorder.widgets.PitchView;
+import com.github.axet.audiolibrary.widgets.PitchView;
 
 import java.io.File;
 
@@ -426,7 +426,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         int rate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         int m = MainApplication.getChannels(this);
-        int c = RawSamples.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
+        int c = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
         long sec = free / perSec * 1000;
@@ -439,7 +439,7 @@ public class RecordingActivity extends AppCompatActivity {
         final ImageView playButton = (ImageView) box.findViewById(R.id.recording_play);
 
         if (show) {
-            playButton.setImageResource(R.drawable.pause);
+            playButton.setImageResource(R.drawable.ic_pause_black_24dp);
 
             playIndex = editSample;
 
@@ -478,7 +478,7 @@ public class RecordingActivity extends AppCompatActivity {
                 play = null;
             }
             pitch.play(-1);
-            playButton.setImageResource(R.drawable.play);
+            playButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
         }
     }
 
@@ -563,7 +563,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         sound.silent();
 
-        pause.setImageResource(R.drawable.ic_pause_24dp);
+        pause.setImageResource(R.drawable.ic_pause_black_24dp);
 
         pitch.record();
 
@@ -588,12 +588,12 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getMode(RecordingActivity.this), RawSamples.AUDIO_FORMAT);
+                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getMode(RecordingActivity.this), Sound.AUDIO_FORMAT);
                     if (min <= 0) {
                         throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
                     }
 
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getMode(RecordingActivity.this), RawSamples.AUDIO_FORMAT, min * 2);
+                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getMode(RecordingActivity.this), Sound.AUDIO_FORMAT, min * 2);
                     if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
                         throw new RuntimeException("Unable to initialize AudioRecord");
                     }
@@ -630,7 +630,7 @@ public class RecordingActivity extends AppCompatActivity {
                         if (stableRefresh || diff >= s) {
                             stableRefresh = true;
 
-                            rs.write(buffer);
+                            rs.write(buffer, readSize);
 
                             int ps = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
                             for (int i = 0; i < readSize; i += ps) {
@@ -717,13 +717,12 @@ public class RecordingActivity extends AppCompatActivity {
 
     void updateSamples(long samplesTime) {
         long ms = samplesTime / sampleRate * 1000;
-        time.setText(LibraryApplication.formatDuration(this, ms));
+        time.setText(MainLibrary.formatDuration(this, ms));
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         switch (requestCode) {
             case 1:
                 if (permitted(permissions)) {
@@ -764,8 +763,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     EncoderInfo getInfo() {
         final int channels = MainApplication.getChannels(this);
-        final int bps = RawSamples.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
-
+        final int bps = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
         return new EncoderInfo(channels, sampleRate, bps);
     }
 
@@ -860,7 +858,6 @@ public class RecordingActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-
         MainActivity.startActivity(this);
     }
 }

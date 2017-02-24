@@ -34,7 +34,7 @@
 
     </LinearLayout>
 
-    <com.github.axet.audiorecorder.widgets.PitchView
+    <com.github.axet.audiolibrary.widgets.PitchView
         android:id="@+id/recording_pitch"
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -65,7 +65,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/play" />
+                android:src="@drawable/ic_play_arrow_black_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_edit_done"
@@ -110,14 +110,15 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_pause_24dp" />
+                android:src="@drawable/ic_pause_black_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_done"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_done" />
+                android:tint="@android:color/white"
+                android:src="@drawable/ic_done_black_24dp" />
 
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </LinearLayout>

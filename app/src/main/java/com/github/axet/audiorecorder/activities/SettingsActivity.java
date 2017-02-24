@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
-import com.github.axet.audiorecorder.encoders.Factory;
+import com.github.axet.audiolibrary.encoders.Factory;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
