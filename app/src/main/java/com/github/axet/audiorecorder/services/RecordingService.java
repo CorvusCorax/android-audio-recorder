@@ -138,14 +138,17 @@ public class RecordingService extends Service {
                     R.layout.notifictaion_recording_light,
                     R.layout.notifictaion_recording_dark));
 
+            String text = ".../" + targetFile;
+
             view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-            view.setTextViewText(R.id.notification_text, ".../" + targetFile);
+            view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_pause, pe);
             view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)
                     .setContentTitle(getString(R.string.recording_title))
+                    .setContentText(text)
                     .setSmallIcon(R.drawable.ic_mic_24dp)
                     .setContent(view);
 
