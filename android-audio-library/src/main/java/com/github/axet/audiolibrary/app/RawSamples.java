@@ -84,8 +84,8 @@ public class RawSamples {
         }
     }
 
-    public void write(short[] buf) {
-        for (int i = 0; i < buf.length; i++) {
+    public void write(short[] buf, int len) {
+        for (int i = 0; i < len; i++) {
             write(buf[i]);
         }
     }

@@ -630,7 +630,7 @@ public class RecordingActivity extends AppCompatActivity {
                         if (stableRefresh || diff >= s) {
                             stableRefresh = true;
 
-                            rs.write(buffer);
+                            rs.write(buffer, readSize);
 
                             int ps = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
                             for (int i = 0; i < readSize; i += ps) {
