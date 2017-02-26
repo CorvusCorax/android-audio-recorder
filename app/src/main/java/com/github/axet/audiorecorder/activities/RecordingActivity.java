@@ -36,8 +36,6 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.app.MainLibrary;
-import com.github.axet.audiorecorder.R;
-import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.app.Storage;
@@ -45,8 +43,10 @@ import com.github.axet.audiolibrary.encoders.Encoder;
 import com.github.axet.audiolibrary.encoders.EncoderInfo;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
-import com.github.axet.audiorecorder.services.RecordingService;
 import com.github.axet.audiolibrary.widgets.PitchView;
+import com.github.axet.audiorecorder.R;
+import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
 
@@ -323,7 +323,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         boolean recording = thread != null;
 
-        RecordingService.startService(this, targetFile.getName(), recording);
+        RecordingService.startService(this, targetFile.getName(), recording, encoder != null);
 
         if (recording) {
             pitch.record();
@@ -348,7 +348,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, targetFile.getName(), thread != null);
+        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
 
         pitch.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -553,6 +553,11 @@ public class RecordingActivity extends AppCompatActivity {
             tm.listen(pscl, PhoneStateListener.LISTEN_NONE);
             pscl = null;
         }
+
+        if (encoder != null) {
+            encoder.close();
+            encoder = null;
+        }
     }
 
     void startRecording() {
@@ -686,7 +691,7 @@ public class RecordingActivity extends AppCompatActivity {
         }, "RecordingThread");
         thread.start();
 
-        RecordingService.startService(this, targetFile.getName(), thread != null);
+        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
     }
 
     // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
@@ -789,6 +794,8 @@ public class RecordingActivity extends AppCompatActivity {
         e = Factory.getEncoder(ext, info, out);
 
         encoder = new FileEncoder(this, in, e);
+
+        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(getString(R.string.encoding_title));

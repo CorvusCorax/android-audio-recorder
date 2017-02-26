@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.github.axet.audiorecorder.R;
@@ -38,6 +39,7 @@ public class RecordingService extends Service {
 
     String targetFile;
     boolean recording;
+    boolean encoding;
 
     public class RecordingReceiver extends BroadcastReceiver {
         @Override
@@ -51,10 +53,12 @@ public class RecordingService extends Service {
         }
     }
 
-    public static void startService(Context context, String targetFile, boolean recording) {
+    public static void startService(Context context, String targetFile, boolean recording, boolean encoding) {
         context.startService(new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
-                .putExtra("recording", recording));
+                .putExtra("recording", recording)
+                .putExtra("encoding", encoding)
+        );
     }
 
     public static void stopService(Context context) {
@@ -85,6 +89,7 @@ public class RecordingService extends Service {
             if (a == null) {
                 targetFile = intent.getStringExtra("targetFile");
                 recording = intent.getBooleanExtra("recording", false);
+                encoding = intent.getBooleanExtra("encoding", false);
                 showNotificationAlarm(true);
             } else if (a.equals(PAUSE_BUTTON)) {
                 Intent i = new Intent(RecordingActivity.PAUSE_BUTTON);
@@ -141,7 +146,13 @@ public class RecordingService extends Service {
             String title = getString(R.string.recording_title);
             String text = ".../" + targetFile;
 
+            if (encoding) {
+                view.setViewVisibility(R.id.notification_pause, View.GONE);
+                title = getString(R.string.encoding_title);
+            }
+
             view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
+            view.setTextViewText(R.id.notification_title, title);
             view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_pause, pe);
             view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
