@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         list.setAdapter(recordings);
         list.setEmptyView(findViewById(R.id.empty_list));
 
-        if (permitted()) {
+        if (Storage.permitted(MainActivity.this, PERMISSIONS, 1)) {
             storage.migrateLocalStorage();
         }
     }
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (permitted(PERMISSIONS))
+        if (Storage.permitted(this, PERMISSIONS))
             recordings.load();
         else
             recordings.load();
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1:
-                if (permitted(permissions)) {
+                if (Storage.permitted(MainActivity.this, permissions)) {
                     storage.migrateLocalStorage();
                     recordings.load();
                     checkPending();
@@ -221,29 +221,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE"; // Manifest.permission.READ_EXTERNAL_STORAGE
 
     public static final String[] PERMISSIONS = new String[]{READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-    boolean permitted(String[] ss) {
-        if (Build.VERSION.SDK_INT < 16)
-            return true;
-        for (String s : ss) {
-            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    boolean permitted() {
-        if (Build.VERSION.SDK_INT < 16)
-            return true;
-        for (String s : PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS, 1);
-                return false;
-            }
-        }
-        return true;
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
