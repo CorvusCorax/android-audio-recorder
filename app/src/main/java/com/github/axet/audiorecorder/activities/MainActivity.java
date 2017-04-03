@@ -33,6 +33,7 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
@@ -95,7 +96,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         list = (ListView) findViewById(R.id.list);
-        recordings = new Recordings(this, list);
+        recordings = new Recordings(this, list) {
+            @Override
+            public void sort() {
+                sort(Collections.reverseOrder(new SortFiles()));
+            }
+        };
         list.setAdapter(recordings);
         list.setEmptyView(findViewById(R.id.empty_list));
 
