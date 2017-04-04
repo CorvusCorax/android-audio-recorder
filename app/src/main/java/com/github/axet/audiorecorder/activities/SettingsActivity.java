@@ -18,6 +18,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -130,6 +131,33 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                         .getString(preference.getKey(), ""));
     }
 
+    static void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
+        Context context = screen.getContext();
+        ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
+        String v = enc.getValue();
+        CharSequence[] ee = Factory.getEncodingTexts(context);
+        CharSequence[] vv = Factory.getEncodingValues(context);
+        if (ee.length > 1) {
+            enc.setEntries(ee);
+            enc.setEntryValues(vv);
+
+            int i = enc.findIndexOfValue(v);
+            if (i == -1) {
+                enc.setValueIndex(0);
+            } else {
+                enc.setValueIndex(i);
+            }
+
+            bindPreferenceSummaryToValue(enc);
+        } else {
+            screen.removePreference(enc);
+        }
+
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,30 +169,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
         if (Build.VERSION.SDK_INT < 11) {
             addPreferencesFromResource(R.xml.pref_general);
-
-            ListPreference enc = (ListPreference) findPreference(MainApplication.PREFERENCE_ENCODING);
-            String v = enc.getValue();
-            CharSequence[] ee = Factory.getEncodingTexts(this);
-            CharSequence[] vv = Factory.getEncodingValues(this);
-            if (ee.length > 1) {
-                enc.setEntries(ee);
-                enc.setEntryValues(vv);
-
-                int i = enc.findIndexOfValue(v);
-                if (i == -1) {
-                    enc.setValueIndex(0);
-                } else {
-                    enc.setValueIndex(i);
-                }
-
-                bindPreferenceSummaryToValue(enc);
-            } else {
-                getPreferenceScreen().removePreference(enc);
-            }
-
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_RATE));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_CHANNELS));
+            initPrefs(getPreferenceManager(), getPreferenceScreen());
         } else {
             getFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
         }
@@ -213,6 +218,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
      * This method stops fragment injection in malicious applications.
      * Make sure to deny any unknown fragments here.
      */
+    @TargetApi(11)
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
@@ -266,32 +272,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
-
-            ListPreference enc = (ListPreference) findPreference(MainApplication.PREFERENCE_ENCODING);
-            String v = enc.getValue();
-            CharSequence[] ee = Factory.getEncodingTexts(getActivity());
-            CharSequence[] vv = Factory.getEncodingValues(getActivity());
-            if (ee.length > 1) {
-                enc.setEntries(ee);
-                enc.setEntryValues(vv);
-
-                int i = enc.findIndexOfValue(v);
-                if (i == -1) {
-                    enc.setValueIndex(0);
-                } else {
-                    enc.setValueIndex(i);
-                }
-
-                bindPreferenceSummaryToValue(enc);
-            } else {
-                getPreferenceScreen().removePreference(enc);
-            }
-
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_RATE));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_CHANNELS));
+            addPreferencesFromResource(R.xml.pref_general);
+            initPrefs(getPreferenceManager(), getPreferenceScreen());
         }
 
         @Override
