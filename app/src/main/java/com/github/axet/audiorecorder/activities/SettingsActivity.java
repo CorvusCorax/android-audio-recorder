@@ -144,8 +144,13 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
     }
 
+    public static int getAppTheme(Context context) {
+        return MainApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(getAppTheme(this));
         super.onCreate(savedInstanceState);
 
         setupActionBar();

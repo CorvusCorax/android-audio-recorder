@@ -64,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
         themeId = id;
     }
 
-    int getAppTheme() {
-        return MainApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
+    public static int getAppTheme(Context context) {
+        return MainApplication.getTheme(context, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setAppTheme(getAppTheme());
+        setAppTheme(getAppTheme(this));
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, "onResume");
 
-        if (themeId != getAppTheme()) {
+        if (themeId != getAppTheme(this)) {
             finish();
             MainActivity.startActivity(this);
             return;
