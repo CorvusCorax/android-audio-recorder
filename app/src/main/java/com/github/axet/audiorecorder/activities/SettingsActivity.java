@@ -13,14 +13,16 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -45,7 +47,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static <T> T[] removeElement(Class<T> c, T[] aa, int i) {
         List<T> ll = Arrays.asList(aa);
@@ -76,21 +78,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                                 ? listPreference.getEntries()[index]
                                 : null);
 
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                Ringtone ringtone = RingtoneManager.getRingtone(
-                        preference.getContext(), Uri.parse(stringValue));
-
-                if (ringtone == null) {
-                    // Clear the summary if there was a lookup error.
-                    preference.setSummary(null);
-                } else {
-                    // Set the summary to reflect the new ringtone display
-                    // name.
-                    String name = ringtone.getTitle(preference.getContext());
-                    preference.setSummary(name);
-                }
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -130,6 +117,33 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                         .getString(preference.getKey(), ""));
     }
 
+    static void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
+        Context context = screen.getContext();
+        ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
+        String v = enc.getValue();
+        CharSequence[] ee = Factory.getEncodingTexts(context);
+        CharSequence[] vv = Factory.getEncodingValues(context);
+        if (ee.length > 1) {
+            enc.setEntries(ee);
+            enc.setEntryValues(vv);
+
+            int i = enc.findIndexOfValue(v);
+            if (i == -1) {
+                enc.setValueIndex(0);
+            } else {
+                enc.setValueIndex(i);
+            }
+
+            bindPreferenceSummaryToValue(enc);
+        } else {
+            screen.removePreference(enc);
+        }
+
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,35 +153,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         shared.registerOnSharedPreferenceChangeListener(this);
 
-        if (Build.VERSION.SDK_INT < 11) {
-            addPreferencesFromResource(R.xml.pref_general);
-
-            ListPreference enc = (ListPreference) findPreference(MainApplication.PREFERENCE_ENCODING);
-            String v = enc.getValue();
-            CharSequence[] ee = Factory.getEncodingTexts(this);
-            CharSequence[] vv = Factory.getEncodingValues(this);
-            if (ee.length > 1) {
-                enc.setEntries(ee);
-                enc.setEntryValues(vv);
-
-                int i = enc.findIndexOfValue(v);
-                if (i == -1) {
-                    enc.setValueIndex(0);
-                } else {
-                    enc.setValueIndex(i);
-                }
-
-                bindPreferenceSummaryToValue(enc);
-            } else {
-                getPreferenceScreen().removePreference(enc);
-            }
-
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_RATE));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_CHANNELS));
-        } else {
-            getFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
-        }
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
     }
 
     /**
@@ -180,23 +166,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             actionBar.setDisplayHomeAsUpEnabled(true);
 //            actionBar.setBackgroundDrawable(new ColorDrawable(MainApplication.getActionbarColor(this)));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-//        loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
     @Override
@@ -213,6 +182,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
      * This method stops fragment injection in malicious applications.
      * Make sure to deny any unknown fragments here.
      */
+    @TargetApi(11)
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
@@ -258,40 +228,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi(11)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
+    public static class GeneralPreferenceFragment extends PreferenceFragmentCompat {
         public GeneralPreferenceFragment() {
         }
 
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setHasOptionsMenu(true);
-
-            ListPreference enc = (ListPreference) findPreference(MainApplication.PREFERENCE_ENCODING);
-            String v = enc.getValue();
-            CharSequence[] ee = Factory.getEncodingTexts(getActivity());
-            CharSequence[] vv = Factory.getEncodingValues(getActivity());
-            if (ee.length > 1) {
-                enc.setEntries(ee);
-                enc.setEntryValues(vv);
-
-                int i = enc.findIndexOfValue(v);
-                if (i == -1) {
-                    enc.setValueIndex(0);
-                } else {
-                    enc.setValueIndex(i);
-                }
-
-                bindPreferenceSummaryToValue(enc);
-            } else {
-                getPreferenceScreen().removePreference(enc);
-            }
-
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_RATE));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_THEME));
-            bindPreferenceSummaryToValue(findPreference(MainApplication.PREFERENCE_CHANNELS));
+            addPreferencesFromResource(R.xml.pref_general);
+            initPrefs(getPreferenceManager(), getPreferenceScreen());
         }
 
         @Override
