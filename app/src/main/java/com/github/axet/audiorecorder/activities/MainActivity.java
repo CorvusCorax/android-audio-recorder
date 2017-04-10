@@ -66,9 +66,6 @@ public class MainActivity extends AppCompatActivity {
         setAppTheme(getAppTheme(this));
         super.onCreate(savedInstanceState);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-
         setContentView(R.layout.activity_main);
 
         storage = new Storage(this);
