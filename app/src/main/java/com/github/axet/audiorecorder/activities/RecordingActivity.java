@@ -35,7 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
-import com.github.axet.androidlibrary.app.MainLibrary;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.app.Storage;
@@ -721,7 +720,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     void updateSamples(long samplesTime) {
         long ms = samplesTime / sampleRate * 1000;
-        time.setText(MainLibrary.formatDuration(this, ms));
+        time.setText(MainApplication.formatDuration(this, ms));
     }
 
     @Override
@@ -790,7 +789,7 @@ public class RecordingActivity extends AppCompatActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
 
-        e = Factory.getEncoder(ext, info, out);
+        e = Factory.getEncoder(this, ext, info, out);
 
         encoder = new FileEncoder(this, in, e);
 
