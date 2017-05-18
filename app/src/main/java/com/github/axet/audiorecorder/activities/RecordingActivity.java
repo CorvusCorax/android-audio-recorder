@@ -48,6 +48,7 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -78,12 +79,10 @@ public class RecordingActivity extends AppCompatActivity {
     // current cut position in samples from begining of file
     long editSample = -1;
 
-    // current sample index in edit mode while playing;
-    long playIndex;
-    // send ui update every 'playUpdate' samples.
-    int playUpdate;
     // current play sound track
     AudioTrack play;
+
+    Runnable playInterval;
 
     TextView title;
     TextView time;
@@ -94,6 +93,7 @@ public class RecordingActivity extends AppCompatActivity {
     Storage storage;
     Sound sound;
     RecordingReceiver receiver;
+    Handler handler = new Handler();
 
     public static void startActivity(Context context, boolean pause) {
         Intent i = new Intent(context, RecordingActivity.class);
@@ -265,7 +265,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         RawSamples rs = new RawSamples(storage.getTempRecording());
-        samplesTime = rs.getSamples();
+        samplesTime = rs.getSamples() / MainApplication.getChannels(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -283,8 +283,12 @@ public class RecordingActivity extends AppCompatActivity {
         rs.close();
 
         pitch.clear(cut / samplesUpdate);
-        for (int i = 0; i < len; i += samplesUpdate) {
-            double dB = RawSamples.getDB(buf, i, samplesUpdate);
+        for (int i = 0; i < len; i += samplesUpdate * MainApplication.getChannels(this)) {
+            double dB = 0;
+            for (int c = 0; c < MainApplication.getChannels(this); c++) {
+                dB += RawSamples.getDB(buf, i + samplesUpdate * c, samplesUpdate);
+            }
+            dB = dB / MainApplication.getChannels(this);
             pitch.add(dB);
         }
         updateSamples(samplesTime);
@@ -355,7 +359,7 @@ public class RecordingActivity extends AppCompatActivity {
                 float x = event.getX();
                 if (x < 0)
                     x = 0;
-                editSample = pitch.edit(x) * samplesUpdate;
+                editSample = pitch.edit(x) * samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
                 return true;
             }
         });
@@ -439,13 +443,26 @@ public class RecordingActivity extends AppCompatActivity {
         if (show) {
             playButton.setImageResource(R.drawable.ic_pause_black_24dp);
 
-            playIndex = editSample;
+            int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
-            playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
+            RawSamples rs = new RawSamples(storage.getTempRecording());
+            int len = (int) (rs.getSamples() - editSample);
 
-            final Handler handler = new Handler();
+            final long playStart = System.currentTimeMillis();
+            final long playEnd;
 
-            AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
+            switch (MainApplication.getChannels(this)) {
+                case 1:
+                    playEnd = playStart + len * 1000 / sampleRate;
+                    break;
+                case 2:
+                    playEnd = playStart + len * 1000 / 2 / sampleRate;
+                    break;
+                default:
+                    throw new RuntimeException("unknown mode");
+            }
+
+            final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
                     editPlay(false);
@@ -454,23 +471,47 @@ public class RecordingActivity extends AppCompatActivity {
                 @Override
                 public void onPeriodicNotification(AudioTrack track) {
                     if (play != null) {
-                        playIndex += playUpdate;
-                        float p = playIndex / (float) samplesUpdate;
-                        pitch.play(p);
+                        long now = System.currentTimeMillis();
+                        long playIndex = editSample / MainApplication.getChannels(RecordingActivity.this) + (now - playStart) * sampleRate / 1000;
+                        pitch.play(playIndex / (float) samplesUpdate);
                     }
                 }
             };
 
-            RawSamples rs = new RawSamples(storage.getTempRecording());
-            int len = (int) (rs.getSamples() - editSample);
             short[] buf = new short[len];
             rs.open(editSample, buf.length);
             int r = rs.read(buf);
             play = sound.generateTrack(sampleRate, buf, r);
             play.play();
-            play.setPositionNotificationPeriod(playUpdate);
-            play.setPlaybackPositionUpdateListener(listener, handler);
+
+            int mark = 0;
+            try {
+                mark = play.getNotificationMarkerPosition();
+            } catch (IllegalStateException ignore) { // Unable to retrieve AudioTrack pointer for getMarkerPosition()
+            }
+            if (mark <= 0) { // some old bugged phones unable to set markers
+                handler.removeCallbacks(playInterval);
+                playInterval = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (System.currentTimeMillis() >= playEnd) {
+                            listener.onMarkerReached(play);
+                            return;
+                        }
+                        listener.onPeriodicNotification(play);
+                        handler.postDelayed(playInterval, PitchView.UPDATE_SPEED);
+                    }
+                };
+                playInterval.run();
+            } else {
+                play.setPositionNotificationPeriod(playUpdate);
+                play.setPlaybackPositionUpdateListener(listener, handler);
+            }
         } else {
+            if (playInterval != null) {
+                handler.removeCallbacks(playInterval);
+                playInterval = null;
+            }
             if (play != null) {
                 play.release();
                 play = null;
@@ -485,7 +526,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
 
         RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.trunk(editSample + samplesUpdate);
+        rs.trunk(editSample + samplesUpdate * MainApplication.getChannels(this));
         rs.close();
 
         edit(false, true);
@@ -833,7 +874,14 @@ public class RecordingActivity extends AppCompatActivity {
     void Error(Throwable e) {
         String msg = e.getMessage();
         if (msg == null || msg.isEmpty()) {
-            Throwable t = encoder.getException();
+            Throwable t;
+            if (encoder == null) {
+                t = e;
+            } else {
+                t = encoder.getException();
+                if (t == null)
+                    t = e;
+            }
             while (t.getCause() != null)
                 t = t.getCause();
             msg = t.getClass().getSimpleName();
