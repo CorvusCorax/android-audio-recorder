@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
+import com.github.axet.androidlibrary.app.AudioTrack;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.app.Storage;
@@ -48,7 +48,6 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -448,31 +447,17 @@ public class RecordingActivity extends AppCompatActivity {
             RawSamples rs = new RawSamples(storage.getTempRecording());
             int len = (int) (rs.getSamples() - editSample);
 
-            final long playStart = System.currentTimeMillis();
-            final long playEnd;
-
-            switch (MainApplication.getChannels(this)) {
-                case 1:
-                    playEnd = playStart + len * 1000 / sampleRate;
-                    break;
-                case 2:
-                    playEnd = playStart + len * 1000 / 2 / sampleRate;
-                    break;
-                default:
-                    throw new RuntimeException("unknown mode");
-            }
-
             final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
-                public void onMarkerReached(AudioTrack track) {
+                public void onMarkerReached(android.media.AudioTrack track) {
                     editPlay(false);
                 }
 
                 @Override
-                public void onPeriodicNotification(AudioTrack track) {
+                public void onPeriodicNotification(android.media.AudioTrack track) {
                     if (play != null) {
                         long now = System.currentTimeMillis();
-                        long playIndex = editSample / MainApplication.getChannels(RecordingActivity.this) + (now - playStart) * sampleRate / 1000;
+                        long playIndex = editSample / MainApplication.getChannels(RecordingActivity.this) + (now - play.playStart) * sampleRate / 1000;
                         pitch.play(playIndex / (float) samplesUpdate);
                     }
                 }
@@ -483,30 +468,8 @@ public class RecordingActivity extends AppCompatActivity {
             int r = rs.read(buf);
             play = sound.generateTrack(sampleRate, buf, r);
             play.play();
-
-            int mark = 0;
-            try {
-                mark = play.getNotificationMarkerPosition();
-            } catch (IllegalStateException ignore) { // Unable to retrieve AudioTrack pointer for getMarkerPosition()
-            }
-            if (mark <= 0) { // some old bugged phones unable to set markers
-                handler.removeCallbacks(playInterval);
-                playInterval = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (System.currentTimeMillis() >= playEnd) {
-                            listener.onMarkerReached(play);
-                            return;
-                        }
-                        listener.onPeriodicNotification(play);
-                        handler.postDelayed(playInterval, PitchView.UPDATE_SPEED);
-                    }
-                };
-                playInterval.run();
-            } else {
-                play.setPositionNotificationPeriod(playUpdate);
-                play.setPlaybackPositionUpdateListener(listener, handler);
-            }
+            play.setPositionNotificationPeriod(playUpdate);
+            play.setPlaybackPositionUpdateListener(listener, handler);
         } else {
             if (playInterval != null) {
                 handler.removeCallbacks(playInterval);
