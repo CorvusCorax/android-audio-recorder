@@ -81,8 +81,6 @@ public class RecordingActivity extends AppCompatActivity {
     // current play sound track
     AudioTrack play;
 
-    Runnable playInterval;
-
     TextView title;
     TextView time;
     TextView state;
@@ -467,14 +465,10 @@ public class RecordingActivity extends AppCompatActivity {
             rs.open(editSample, buf.length);
             int r = rs.read(buf);
             play = sound.generateTrack(sampleRate, buf, r);
-            play.play();
             play.setPositionNotificationPeriod(playUpdate);
             play.setPlaybackPositionUpdateListener(listener, handler);
+            play.play();
         } else {
-            if (playInterval != null) {
-                handler.removeCallbacks(playInterval);
-                playInterval = null;
-            }
             if (play != null) {
                 play.release();
                 play = null;
