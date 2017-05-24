@@ -226,7 +226,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        MainActivity.startActivity(this);
+        finish();
     }
 
     /**
