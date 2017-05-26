@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (Standard)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (Telefon)</item>
+    </string-array>
+
+    <string-array name="sample_rate_values" translatable="false">
+        <item>48000</item>
+        <item>44100</item>
+        <item>32000</item>
+        <item>22050</item>
+        <item>16000</item>
+        <item>11025</item>
+        <item>8000</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Theme White (Standard)</item>
+        <item>Theme Dark</item>
+    </string-array>
+
+    <string-array name="themes_values" translatable="false">
+        <item>Theme_White</item>
+        <item>Theme_Dark</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (default)</item>
+        <item>Stereo</item>
+    </string-array>
+
+    <string-array name="channels_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string name="action_settings">Einstellungen</string>
+    <string name="not_permitted">Nicht erlaubt</string>
+    <string name="no_folder_app">Keine App zur Anzeige von Ordnern installiert</string>
+    <string name="hold_by_call">Pause (bei Anruf)</string>
+    <string name="encoding">Encoding</string>
+    <string name="pause">Pause</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="confirm_cancel">Bestätige Abbruch</string>
+    <string name="are_you_sure_cancel">Willst du wirklich abbrechen?</string>
+    <string name="recording">Aufnehmen</string>
+    <string name="encoding_title">Encoding...</string>
+    <string name="recording_title">Aufnahme</string>
+    <string name="open_recording_folder">Öffne Aufnahme-Ordner</string>
+    <string name="recording_list_is_empty">Aufnahmeliste ist leer\n\nDrücke 'Aufnehmen' um die Aufnahme zu starten</string>
+</resources>
