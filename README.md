@@ -20,5 +20,5 @@ If you want to translate 'Audio Recorder' to your language  please read this:
 
 # Contributors
 
-  * japanese translation thanks to @naofum
+  * japanese translation thanks to @naofumi
   * german translation thanks to @vv01f
