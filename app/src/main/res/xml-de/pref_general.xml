@@ -45,7 +45,7 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="silence"
-        android:summary="Aktiviere Audio-Profil 'Nicht Stören' während Aufnahmen"
+        android:summary="Aktiviere Audio-Profil \'Nicht Stören\' während Aufnahmen"
         android:title="Ruhe-Modus" />
 
     <ListPreference
