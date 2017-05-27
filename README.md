@@ -17,3 +17,8 @@ If you want to translate 'Audio Recorder' to your language  please read this:
 # Screenshots
 
 ![shot](/docs/shot.png)
+
+# Contributors
+
+  * japanese translation thanks to @naofumi
+  * german translation thanks to @vv01f
