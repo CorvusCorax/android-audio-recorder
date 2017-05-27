@@ -16,4 +16,4 @@ Also, add Google Play translation for:
   * Short Description
   * Full description
 
-Then add those files to the repository using "New Issue" or create pull request.
+Then add those files to the repository using "New Issue" or "Merge Request" (GitLab's name for "Pull Request" if you come from GitHub) against the `dev` branch.
