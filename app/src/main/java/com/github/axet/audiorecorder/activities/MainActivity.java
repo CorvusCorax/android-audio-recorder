@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     ListView list;
     Recordings recordings;
     Storage storage;
+    View progressEmpty;
+    View progressText;
 
     int themeId;
 
@@ -62,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        progressEmpty = findViewById(R.id.progress_empty);
+        progressText = findViewById(R.id.progress_text);
 
         storage = new Storage(this);
 
@@ -148,19 +153,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (Storage.permitted(this, PERMISSIONS))
-            recordings.load();
-        else
-            recordings.load();
-
-        checkPending();
-
-        updateHeader();
-
         final int selected = getLastRecording();
-        handler.post(new Runnable() {
+        Runnable done = new Runnable() {
             @Override
             public void run() {
+                progressEmpty.setVisibility(View.GONE);
+                progressText.setVisibility(View.VISIBLE);
                 if (selected != -1) {
                     recordings.select(selected);
                     list.smoothScrollToPosition(selected);
@@ -172,7 +170,17 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
             }
-        });
+        };
+        progressEmpty.setVisibility(View.VISIBLE);
+        progressText.setVisibility(View.GONE);
+        if (Storage.permitted(this, PERMISSIONS))
+            recordings.load(done);
+        else
+            recordings.load(done);
+
+        checkPending();
+
+        updateHeader();
     }
 
     int getLastRecording() {
@@ -200,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 if (Storage.permitted(MainActivity.this, permissions)) {
                     storage.migrateLocalStorage();
-                    recordings.load();
+                    recordings.load(null);
                     checkPending();
                 } else {
                     Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
