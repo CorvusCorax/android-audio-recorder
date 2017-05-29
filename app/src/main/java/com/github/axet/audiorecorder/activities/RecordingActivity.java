@@ -180,7 +180,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
-        sampleRate = Sound.getValidRecordRate(MainApplication.getMode(this), sampleRate);
+        sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -443,7 +443,7 @@ public class RecordingActivity extends AppCompatActivity {
             int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
             RawSamples rs = new RawSamples(storage.getTempRecording());
-            int len = (int) (rs.getSamples() - editSample);
+            int len = (int) (rs.getSamples() - editSample); // in samples
 
             final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
@@ -461,10 +461,12 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             };
 
-            short[] buf = new short[len];
-            rs.open(editSample, buf.length);
-            int r = rs.read(buf);
-            play = sound.generateTrack(sampleRate, buf, r);
+            AudioTrack.AudioBuffer buffer = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.AUDIO_FORMAT, len);
+            rs.open(editSample, len); // len in samples
+            int r = rs.read(buffer.buffer); // r in samples
+            if (r != buffer.len)
+                throw new RuntimeException("unable to read data");
+            play = sound.generateTrack(buffer);
             play.setPositionNotificationPeriod(playUpdate);
             play.setPlaybackPositionUpdateListener(listener, handler);
             play.play();
@@ -589,12 +591,12 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getMode(RecordingActivity.this), Sound.AUDIO_FORMAT);
+                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.AUDIO_FORMAT);
                     if (min <= 0) {
                         throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
                     }
 
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getMode(RecordingActivity.this), Sound.AUDIO_FORMAT, min * 2);
+                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.AUDIO_FORMAT, min * 2);
                     if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
                         throw new RuntimeException("Unable to initialize AudioRecord");
                     }
