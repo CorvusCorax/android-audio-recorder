@@ -41,6 +41,18 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="format_text" translatable="false">
+        <item>2017-02-01 09.08.01.wav</item>
+        <item>1487926249.wav</item>
+        <item>20170528T043902.wav</item>
+    </string-array>
+
+    <string-array name="format_values" formatted="false" translatable="false">
+        <item>%s</item>
+        <item>%T</item>
+        <item>%I</item>
+    </string-array>
+
     <string name="action_settings">Settings</string>
     <string name="not_permitted">Not permitted</string>
     <string name="no_folder_app">No folder view application installed</string>
