@@ -106,11 +106,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    Intent showIntent() {
+        Uri selectedUri = Uri.fromFile(storage.getStoragePath());
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(selectedUri, "resource/folder");
+        return intent;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem item = menu.findItem(R.id.action_show_folder);
+        Intent intent = showIntent();
+        if (intent.resolveActivityInfo(getPackageManager(), 0) == null) {
+            item.setVisible(false);
+        }
 
         return true;
     }
@@ -129,9 +142,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_show_folder) {
-            Uri selectedUri = Uri.fromFile(storage.getStoragePath());
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(selectedUri, "resource/folder");
+            Intent intent = showIntent();
             if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
                 startActivity(intent);
             } else {
