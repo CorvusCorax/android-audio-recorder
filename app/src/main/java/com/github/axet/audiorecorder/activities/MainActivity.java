@@ -1,7 +1,9 @@
 package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -95,7 +97,11 @@ public class MainActivity extends AppCompatActivity {
         list.setEmptyView(findViewById(R.id.empty_list));
 
         if (Storage.permitted(MainActivity.this, PERMISSIONS, 1)) {
-            storage.migrateLocalStorage();
+            try {
+                storage.migrateLocalStorage();
+            } catch (RuntimeException e) {
+                Error(e);
+            }
         }
     }
 
@@ -218,7 +224,11 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1:
                 if (Storage.permitted(MainActivity.this, permissions)) {
-                    storage.migrateLocalStorage();
+                    try {
+                        storage.migrateLocalStorage();
+                    } catch (RuntimeException e) {
+                        Error(e);
+                    }
                     recordings.load(null);
                     checkPending();
                 } else {
@@ -256,5 +266,34 @@ public class MainActivity extends AppCompatActivity {
         long sec = storage.average(free);
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(((MainApplication) getApplication()).formatFree(free, sec));
+    }
+
+
+    public void Error(Throwable e) {
+        String msg = e.getMessage();
+        if (msg == null || msg.isEmpty()) {
+            Throwable t = e;
+            while (t.getCause() != null)
+                t = t.getCause();
+            msg = t.getClass().getSimpleName();
+        }
+        Error(msg);
+    }
+
+    public void Error(String msg) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Error");
+        builder.setMessage(msg);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.show();
     }
 }
