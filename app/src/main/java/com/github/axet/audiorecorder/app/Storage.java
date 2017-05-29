@@ -10,9 +10,6 @@ import java.util.Date;
 
 public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
-    SimpleDateFormat SIMPLE = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-    SimpleDateFormat ISO8601 = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-
     public Storage(Context context) {
         super(context);
     }
