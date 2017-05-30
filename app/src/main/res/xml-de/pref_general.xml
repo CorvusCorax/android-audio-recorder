@@ -44,7 +44,7 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="2015-11"
-        android:title="Name Format" />
+        android:title="Format für Name" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
