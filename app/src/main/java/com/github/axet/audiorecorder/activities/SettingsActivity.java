@@ -142,6 +142,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
         bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
         bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
+        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
     }
 
     public static int getAppTheme(Context context) {
