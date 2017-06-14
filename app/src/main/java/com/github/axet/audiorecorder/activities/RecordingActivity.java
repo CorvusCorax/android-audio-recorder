@@ -181,6 +181,8 @@ public class RecordingActivity extends AppCompatActivity {
 
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
+        if (sampleRate == -1)
+            sampleRate = Sound.DEFAULT_RATE;
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
