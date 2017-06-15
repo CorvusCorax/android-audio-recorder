@@ -181,6 +181,8 @@ public class RecordingActivity extends AppCompatActivity {
 
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
+        if (sampleRate == -1)
+            sampleRate = Sound.DEFAULT_RATE;
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -425,7 +427,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         int rate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         int m = MainApplication.getChannels(this);
-        int c = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
+        int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
         long sec = free / perSec * 1000;
@@ -461,7 +463,7 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             };
 
-            AudioTrack.AudioBuffer buffer = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.AUDIO_FORMAT, len);
+            AudioTrack.AudioBuffer buffer = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
             rs.open(editSample, len); // len in samples
             int r = rs.read(buffer.buffer); // r in samples
             if (r != buffer.len)
@@ -591,12 +593,12 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.AUDIO_FORMAT);
+                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT);
                     if (min <= 0) {
                         throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
                     }
 
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.AUDIO_FORMAT, min * 2);
+                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT, min * 2);
                     if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
                         throw new RuntimeException("Unable to initialize AudioRecord");
                     }
@@ -766,7 +768,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     EncoderInfo getInfo() {
         final int channels = MainApplication.getChannels(this);
-        final int bps = Sound.AUDIO_FORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
+        final int bps = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
         return new EncoderInfo(channels, sampleRate, bps);
     }
 
