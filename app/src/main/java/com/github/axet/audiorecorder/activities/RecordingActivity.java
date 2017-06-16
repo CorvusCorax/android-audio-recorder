@@ -182,7 +182,7 @@ public class RecordingActivity extends AppCompatActivity {
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
         if (sampleRate == -1)
-            sampleRate = Sound.DEFAULT_RATE;
+            throw new RuntimeException("Unable to initailze audio");
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -222,7 +222,8 @@ public class RecordingActivity extends AppCompatActivity {
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                done.setClickable(false);
+                if (encoder != null)
+                    return;
                 stopRecording(getString(R.string.encoding));
                 try {
                     encoding(new Runnable() {
@@ -593,14 +594,16 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT);
-                    if (min <= 0) {
-                        throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
-                    }
 
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT, min * 2);
+                    int c = MainApplication.getInMode(RecordingActivity.this);
+                    int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
+                    if (min <= 0)
+                        throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
+                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
                     if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-                        throw new RuntimeException("Unable to initialize AudioRecord");
+                        recorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+                        if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
+                            throw new RuntimeException("Unable to initialize AudioRecord");
                     }
 
                     long start = System.currentTimeMillis();
@@ -798,7 +801,7 @@ public class RecordingActivity extends AppCompatActivity {
         RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
-        d.setTitle(getString(R.string.encoding_title));
+        d.setTitle(R.string.encoding_title);
         d.setMessage(".../" + targetFile.getName());
         d.setMax(100);
         d.setCancelable(false);
