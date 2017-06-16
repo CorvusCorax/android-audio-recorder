@@ -222,7 +222,8 @@ public class RecordingActivity extends AppCompatActivity {
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                done.setClickable(false);
+                if (encoder != null)
+                    return;
                 stopRecording(getString(R.string.encoding));
                 try {
                     encoding(new Runnable() {
@@ -800,7 +801,7 @@ public class RecordingActivity extends AppCompatActivity {
         RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
-        d.setTitle(getString(R.string.encoding_title));
+        d.setTitle(R.string.encoding_title);
         d.setMessage(".../" + targetFile.getName());
         d.setMax(100);
         d.setCancelable(false);
