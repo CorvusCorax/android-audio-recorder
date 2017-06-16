@@ -182,7 +182,7 @@ public class RecordingActivity extends AppCompatActivity {
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
         if (sampleRate == -1)
-            sampleRate = Sound.DEFAULT_RATE;
+            throw new RuntimeException("Unable to initailze audio");
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -593,14 +593,16 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-                    int min = AudioRecord.getMinBufferSize(sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT);
-                    if (min <= 0) {
-                        throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
-                    }
 
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, MainApplication.getInMode(RecordingActivity.this), Sound.DEFAULT_AUDIOFORMAT, min * 2);
+                    int c = MainApplication.getInMode(RecordingActivity.this);
+                    int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
+                    if (min <= 0)
+                        throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
+                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
                     if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-                        throw new RuntimeException("Unable to initialize AudioRecord");
+                        recorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+                        if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
+                            throw new RuntimeException("Unable to initialize AudioRecord");
                     }
 
                     long start = System.currentTimeMillis();
