@@ -464,12 +464,14 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             };
 
-            AudioTrack.AudioBuffer buffer = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
-            rs.open(editSample, len); // len in samples
-            int r = rs.read(buffer.buffer); // r in samples
-            if (r != buffer.len)
+            AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
+            rs.open(editSample, buf.len); // len in samples
+            int r = rs.read(buf.buffer); // r in samples
+            if (r != buf.len)
                 throw new RuntimeException("unable to read data");
-            play = sound.generateTrack(buffer);
+            int last = buf.len / buf.getChannels() - 1;
+            play = AudioTrack.create(Sound.SOUND_STREAM, Sound.SOUND_CHANNEL, Sound.SOUND_TYPE, buf);
+            play.setNotificationMarkerPosition(last);
             play.setPositionNotificationPeriod(playUpdate);
             play.setPlaybackPositionUpdateListener(listener, handler);
             play.play();
