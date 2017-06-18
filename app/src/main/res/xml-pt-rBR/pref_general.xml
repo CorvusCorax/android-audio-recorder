@@ -61,8 +61,8 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="controls"
-        android:summary="Show controls when phone is locked"
-        android:title="Lockscreen Controls" />
+        android:summary="Mostrar controles quando a tela estiver bloqueada"
+        android:title="Controle da tela bloqueada" />
 
     <ListPreference
         android:defaultValue="Theme_White"
