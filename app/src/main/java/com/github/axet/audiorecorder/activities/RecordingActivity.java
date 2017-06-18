@@ -48,6 +48,7 @@ import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.nio.ShortBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -615,13 +616,17 @@ public class RecordingActivity extends AppCompatActivity {
 
                     boolean stableRefresh = false;
 
+                    int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
+
+                    ShortBuffer dbBuffer = null;
+
                     while (!Thread.currentThread().isInterrupted()) {
                         synchronized (bufferSizeLock) {
                             if (buffer == null || buffer.length != bufferSize)
                                 buffer = new short[bufferSize];
                         }
 
-                        final int readSize = recorder.read(buffer, 0, buffer.length);
+                        int readSize = recorder.read(buffer, 0, buffer.length);
                         if (readSize <= 0) {
                             break;
                         }
@@ -631,16 +636,25 @@ public class RecordingActivity extends AppCompatActivity {
 
                         start = end;
 
-                        int s = readSize / MainApplication.getChannels(RecordingActivity.this);
+                        int samples = readSize / MainApplication.getChannels(RecordingActivity.this);
 
-                        if (stableRefresh || diff >= s) {
+                        if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
 
                             rs.write(buffer, readSize);
 
-                            int ps = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
-                            for (int i = 0; i < readSize; i += ps) {
-                                final double dB = RawSamples.getDB(buffer, i, ps);
+                            short[] dbBuf;
+                            int readSizeUpdate;
+                            if (dbBuffer != null) {
+                                dbBuffer.put(buffer, 0, readSize);
+                                readSizeUpdate = dbBuffer.position() / samplesUpdateStereo * samplesUpdateStereo;
+                                dbBuf = dbBuffer.array();
+                            } else {
+                                dbBuf = buffer;
+                                readSizeUpdate = readSize / samplesUpdateStereo * samplesUpdateStereo;
+                            }
+                            for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
+                                final double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
                                 handle.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -648,9 +662,14 @@ public class RecordingActivity extends AppCompatActivity {
                                     }
                                 });
                             }
+                            int readSizeLen = readSize - readSizeUpdate;
+                            if (readSizeLen > 0) {
+                                dbBuffer = ShortBuffer.allocate(samplesUpdateStereo);
+                                dbBuffer.put(dbBuf, readSizeUpdate, readSizeLen);
+                            }
 
-                            samplesTime += s;
-                            samplesTimeCount += s;
+                            samplesTime += samples;
+                            samplesTimeCount += samples;
                             if (samplesTimeCount > samplesTimeUpdate) {
                                 final long m = samplesTime;
                                 handle.post(new Runnable() {
