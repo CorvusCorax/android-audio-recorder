@@ -282,13 +282,11 @@ public class RecordingActivity extends AppCompatActivity {
         int len = rs.read(buf);
         rs.close();
 
-        pitch.clear(cut / samplesUpdate);
-        for (int i = 0; i < len; i += samplesUpdate * MainApplication.getChannels(this)) {
-            double dB = 0;
-            for (int c = 0; c < MainApplication.getChannels(this); c++) {
-                dB += RawSamples.getDB(buf, i + samplesUpdate * c, samplesUpdate);
-            }
-            dB = dB / MainApplication.getChannels(this);
+        int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
+        pitch.clear(cut / samplesUpdateStereo);
+        len = len / samplesUpdateStereo * samplesUpdateStereo; // cut right overs (leftovers from right)
+        for (int i = 0; i < len; i += samplesUpdateStereo) {
+            double dB = RawSamples.getDB(buf, i, samplesUpdateStereo);
             pitch.add(dB);
         }
         updateSamples(samplesTime);
