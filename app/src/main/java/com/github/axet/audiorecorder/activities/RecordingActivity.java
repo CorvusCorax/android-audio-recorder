@@ -93,6 +93,8 @@ public class RecordingActivity extends AppCompatActivity {
     RecordingReceiver receiver;
     Handler handler = new Handler();
 
+    ShortBuffer dbBuffer = null;
+
     public static void startActivity(Context context, boolean pause) {
         Intent i = new Intent(context, RecordingActivity.class);
         if (pause) {
@@ -288,12 +290,18 @@ public class RecordingActivity extends AppCompatActivity {
 
         int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
         pitch.clear(cut / samplesUpdateStereo);
-        len = len / samplesUpdateStereo * samplesUpdateStereo; // cut right overs (leftovers from right)
-        for (int i = 0; i < len; i += samplesUpdateStereo) {
+        int lenUpdate = len / samplesUpdateStereo * samplesUpdateStereo; // cut right overs (leftovers from right)
+        for (int i = 0; i < lenUpdate; i += samplesUpdateStereo) {
             double dB = RawSamples.getDB(buf, i, samplesUpdateStereo);
             pitch.add(dB);
         }
         updateSamples(samplesTime);
+
+        int diff = len - lenUpdate;
+        if (diff > 0) {
+            dbBuffer = ShortBuffer.allocate(samplesUpdateStereo);
+            dbBuffer.put(buf, lenUpdate, diff);
+        }
     }
 
     void pauseButton() {
@@ -617,8 +625,6 @@ public class RecordingActivity extends AppCompatActivity {
                     boolean stableRefresh = false;
 
                     int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
-
-                    ShortBuffer dbBuffer = null;
 
                     while (!Thread.currentThread().isInterrupted()) {
                         synchronized (bufferSizeLock) {
