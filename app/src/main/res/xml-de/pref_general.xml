@@ -61,8 +61,8 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="controls"
-        android:summary="Show controls when phone is locked"
-        android:title="Lockscreen Controls" />
+        android:summary="Zeige Steuerelemente im Sperrbildschirm an"
+        android:title="Steuerelemente im Sperrbildschirm" />
 
     <ListPreference
         android:defaultValue="Theme_White"
