@@ -181,8 +181,11 @@ public class RecordingActivity extends AppCompatActivity {
 
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
-        if (sampleRate == -1)
-            throw new RuntimeException("Unable to initailze audio");
+        if (sampleRate == -1) {
+            Toast.makeText(this, "Unable to initailze audio", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -290,10 +293,6 @@ public class RecordingActivity extends AppCompatActivity {
             pitch.add(dB);
         }
         updateSamples(samplesTime);
-    }
-
-    boolean isEmulator() {
-        return "goldfish".equals(Build.HARDWARE);
     }
 
     void pauseButton() {
@@ -593,7 +592,6 @@ public class RecordingActivity extends AppCompatActivity {
                     rs = new RawSamples(storage.getTempRecording());
 
                     rs.open(samplesTime);
-
 
                     int c = MainApplication.getInMode(RecordingActivity.this);
                     int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
