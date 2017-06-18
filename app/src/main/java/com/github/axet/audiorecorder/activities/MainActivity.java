@@ -2,9 +2,11 @@ package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -18,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +29,7 @@ import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
 import java.util.Collections;
@@ -43,6 +47,16 @@ public class MainActivity extends AppCompatActivity {
     View progressText;
 
     int themeId;
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String a = intent.getAction();
+            if (a.equals(Intent.ACTION_SCREEN_OFF)) {
+                moveTaskToBack(true);
+            }
+        }
+    };
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -64,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setAppTheme(getAppTheme(this));
         super.onCreate(savedInstanceState);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
 
@@ -103,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
                 Error(e);
             }
         }
+
+        RecordingService.startIfEnabled(this);
+
+        IntentFilter ff = new IntentFilter();
+        ff.addAction(Intent.ACTION_SCREEN_OFF);
+        ff.addAction(Intent.ACTION_SCREEN_ON);
+        registerReceiver(receiver, ff);
     }
 
     void checkPending() {
@@ -257,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         recordings.close();
+        unregisterReceiver(receiver);
     }
 
     void updateHeader() {
@@ -264,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         long free = storage.getFree(f);
         long sec = storage.average(free);
         TextView text = (TextView) findViewById(R.id.space_left);
-        text.setText(((MainApplication) getApplication()).formatFree(free, sec));
+        text.setText(MainApplication.formatFree(this, free, sec));
     }
 
 

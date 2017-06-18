@@ -6,6 +6,8 @@ import com.github.axet.audiorecorder.R;
 
 public class MainApplication extends com.github.axet.audiolibrary.app.MainApplication {
 
+    public static final String PREFERENCE_CONTROLS = "controls";
+
     @Override
     public void onCreate() {
         super.onCreate();

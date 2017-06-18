@@ -433,7 +433,7 @@ public class RecordingActivity extends AppCompatActivity {
         long perSec = (c * m * rate);
         long sec = free / perSec * 1000;
 
-        state.setText(s + "\n(" + ((MainApplication) getApplication()).formatFree(free, sec) + ")");
+        state.setText(s + "\n(" + MainApplication.formatFree(this, free, sec) + ")");
     }
 
     void editPlay(boolean show) {
@@ -549,7 +549,7 @@ public class RecordingActivity extends AppCompatActivity {
             receiver = null;
         }
 
-        RecordingService.stopService(this);
+        RecordingService.stopRecording(this);
 
         if (pscl != null) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);

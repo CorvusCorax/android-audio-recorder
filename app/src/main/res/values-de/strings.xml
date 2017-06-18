@@ -24,15 +24,16 @@
     <string name="action_settings">Einstellungen</string>
     <string name="not_permitted">Nicht erlaubt</string>
     <string name="no_folder_app">Keine App zur Anzeige von Ordnern installiert</string>
-    <string name="hold_by_call">Pause (bei Anruf)</string>
-    <string name="encoding">Encoding</string>
-    <string name="pause">Pause</string>
-    <string name="edit">Bearbeiten</string>
+    <string name="hold_by_call">pause (bei Anruf)</string>
+    <string name="recording">aufnehmen</string>
+    <string name="encoding">encoding</string>
+    <string name="pause">pause</string>
+    <string name="edit">bearbeiten</string>
     <string name="confirm_cancel">Bestätige Abbruch</string>
     <string name="are_you_sure_cancel">Willst du wirklich abbrechen?</string>
-    <string name="recording">Aufnehmen</string>
     <string name="encoding_title">Encoding...</string>
     <string name="recording_title">Aufnahme</string>
+    <string name="pause_title">Pause...</string>
     <string name="open_recording_folder">Öffne Aufnahme-Ordner</string>
     <string name="recording_list_is_empty">Aufnahmeliste ist leer\n\nDrücke \'Aufnehmen\' um die Aufnahme zu starten</string>
 </resources>
