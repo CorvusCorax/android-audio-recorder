@@ -44,7 +44,7 @@ public class RecordingService extends Service {
     public static String PAUSE_BUTTON = RecordingService.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static String RECORD_BUTTON = RecordingService.class.getCanonicalName() + ".RECORD_BUTTON";
 
-    Storage storage = new Storage(this);
+    Storage storage = new Storage(this); // for storage path
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -160,8 +160,8 @@ public class RecordingService extends Service {
         if (targetFile == null) {
             title = getString(R.string.app_name);
             File f = storage.getStoragePath();
-            long free = storage.getFree(f);
-            long sec = storage.average(free);
+            long free = Storage.getFree(f);
+            long sec = Storage.average(this, free);
             text = MainApplication.formatFree(this, free, sec);
             view.setViewVisibility(R.id.notification_record, View.VISIBLE);
             view.setOnClickPendingIntent(R.id.notification_record, re);
