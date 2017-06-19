@@ -428,7 +428,7 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void setState(String s) {
-        long free = storage.getFree(storage.getTempRecording());
+        long free = Storage.getFree(storage.getTempRecording());
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -647,7 +647,7 @@ public class RecordingActivity extends AppCompatActivity {
                         if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
 
-                            rs.write(buffer, readSize);
+                            rs.write(buffer, 0, readSize);
 
                             short[] dbBuf;
                             int readSizeUpdate;
@@ -672,6 +672,8 @@ public class RecordingActivity extends AppCompatActivity {
                             if (readSizeLen > 0) {
                                 dbBuffer = ShortBuffer.allocate(samplesUpdateStereo);
                                 dbBuffer.put(dbBuf, readSizeUpdate, readSizeLen);
+                            } else {
+                                dbBuffer = null;
                             }
 
                             samplesTime += samples;

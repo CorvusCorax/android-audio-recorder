@@ -286,8 +286,8 @@ public class MainActivity extends AppCompatActivity {
 
     void updateHeader() {
         File f = storage.getStoragePath();
-        long free = storage.getFree(f);
-        long sec = storage.average(free);
+        long free = Storage.getFree(f);
+        long sec = Storage.average(this, free);
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(MainApplication.formatFree(this, free, sec));
     }
