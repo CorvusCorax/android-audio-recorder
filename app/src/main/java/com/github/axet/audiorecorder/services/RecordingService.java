@@ -56,7 +56,10 @@ public class RecordingService extends Service {
     public static void startIfEnabledPending(Context context) {
         Storage s = new Storage(context);
         if (s.recordingPending()) {
-            RecordingActivity.startActivity(context, true);
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+            String f = shared.getString(MainApplication.PREFERENCE_TARGET, "");
+            File file = new File(f);
+            startService(context, file.getName(), false, false);
             return;
         }
         startIfEnabled(context);
@@ -111,10 +114,10 @@ public class RecordingService extends Service {
             } else if (a.equals(RECORD_BUTTON)) {
                 RecordingActivity.startActivity(this, false);
             } else if (a.equals(SHOW_ACTIVITY)) {
-                if (!intent.getBooleanExtra("recording", false))
+                if (intent.getStringExtra("targetFile") == null)
                     MainActivity.startActivity(this);
                 else
-                    RecordingActivity.startActivity(this, false);
+                    RecordingActivity.startActivity(this, !intent.getBooleanExtra("recording", false));
             }
         }
 
@@ -149,7 +152,7 @@ public class RecordingService extends Service {
         boolean encoding = intent.getBooleanExtra("encoding", false);
 
         PendingIntent main = PendingIntent.getService(this, 0,
-                new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY).putExtra("recording", targetFile != null),
+                new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY).putExtra("targetFile", targetFile).putExtra("recording", recording),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         PendingIntent pe = PendingIntent.getService(this, 0,

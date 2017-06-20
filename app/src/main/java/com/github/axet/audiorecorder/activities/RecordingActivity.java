@@ -75,7 +75,7 @@ public class RecordingActivity extends AppCompatActivity {
     // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
     int samplesUpdate;
     // output target file 2016-01-01 01.01.01.wav
-    File targetFile;
+    File targetFile = null;
     // how many samples passed for current recording
     long samplesTime;
     // current cut position in samples from begining of file
@@ -167,8 +167,19 @@ public class RecordingActivity extends AppCompatActivity {
 
         edit(false, false);
 
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
         try {
-            targetFile = storage.getNewFile();
+            if (storage.recordingPending()) {
+                String file = shared.getString(MainApplication.PREFERENCE_TARGET, null);
+                if (file != null)
+                    targetFile = new File(file);
+            }
+            if (targetFile == null)
+                targetFile = storage.getNewFile();
+            SharedPreferences.Editor editor = shared.edit();
+            editor.putString(MainApplication.PREFERENCE_TARGET, targetFile.toString());
+            editor.commit();
         } catch (RuntimeException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
@@ -177,7 +188,6 @@ public class RecordingActivity extends AppCompatActivity {
 
         title.setText(targetFile.getName());
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (shared.getBoolean(MainApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -569,6 +579,10 @@ public class RecordingActivity extends AppCompatActivity {
             encoder.close();
             encoder = null;
         }
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = shared.edit();
+        editor.remove(MainApplication.PREFERENCE_TARGET);
     }
 
     void startRecording() {
