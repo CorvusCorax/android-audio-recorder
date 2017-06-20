@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (predefinito)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (telefono)</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Tema Bianco (prefedinito)</item>
+        <item>Tema Scuro</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (predefinito)</item>
+        <item>Stereo</item>
+    </string-array>
+
+    <string name="action_settings">Impostazioni</string>
+    <string name="not_permitted">Non permesso</string>
+    <string name="no_folder_app">Nessuna app per la visione delle cartelle risulta installa</string>
+    <string name="hold_by_call">pausa (per chiamata)</string>
+    <string name="recording">registrando</string>
+    <string name="encoding">encoding</string>
+    <string name="pause">pausa</string>
+    <string name="edit">modifica</string>
+    <string name="confirm_cancel">Conferma annullamento</string>
+    <string name="are_you_sure_cancel">Sei sicuro di voler annullare la registrazione?</string>
+    <string name="encoding_title">Codifica in corso ...</string>
+    <string name="pause_title">Pausa...</string>
+    <string name="recording_title">Registrando</string>
+    <string name="open_recording_folder">Apri la cartella delle registrazioni</string>
+    <string name="recording_list_is_empty">La lista delle registrazioni è vuota\n\nClicca Registra per iniziare a registrare</string>
+</resources>
