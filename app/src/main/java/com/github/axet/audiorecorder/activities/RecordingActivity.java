@@ -48,6 +48,8 @@ import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
@@ -652,13 +654,18 @@ public class RecordingActivity extends AppCompatActivity {
                             short[] dbBuf;
                             int readSizeUpdate;
                             if (dbBuffer != null) {
-                                dbBuffer.put(buffer, 0, readSize);
-                                readSizeUpdate = dbBuffer.position() / samplesUpdateStereo * samplesUpdateStereo;
-                                dbBuf = dbBuffer.array();
+                                ShortBuffer bb = ShortBuffer.allocate(dbBuffer.position() + readSize);
+                                dbBuffer.flip();
+                                bb.put(dbBuffer);
+                                bb.put(buffer, 0, readSize);
+                                dbBuf = new short[bb.position()];
+                                readSize = dbBuf.length;
+                                bb.flip();
+                                bb.get(dbBuf, 0, dbBuf.length);
                             } else {
                                 dbBuf = buffer;
-                                readSizeUpdate = readSize / samplesUpdateStereo * samplesUpdateStereo;
                             }
+                            readSizeUpdate = readSize / samplesUpdateStereo * samplesUpdateStereo;
                             for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
                                 final double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
                                 handle.post(new Runnable() {
@@ -670,7 +677,7 @@ public class RecordingActivity extends AppCompatActivity {
                             }
                             int readSizeLen = readSize - readSizeUpdate;
                             if (readSizeLen > 0) {
-                                dbBuffer = ShortBuffer.allocate(samplesUpdateStereo);
+                                dbBuffer = ShortBuffer.allocate(readSizeLen);
                                 dbBuffer.put(dbBuf, readSizeUpdate, readSizeLen);
                             } else {
                                 dbBuffer = null;
