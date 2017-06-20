@@ -53,6 +53,15 @@ public class RecordingService extends Service {
         start(context);
     }
 
+    public static void startIfEnabledPending(Context context) {
+        Storage s = new Storage(context);
+        if (s.recordingPending()) {
+            RecordingActivity.startActivity(context, true);
+            return;
+        }
+        startIfEnabled(context);
+    }
+
     public static void start(Context context) {
         context.startService(new Intent(context, RecordingService.class));
     }
