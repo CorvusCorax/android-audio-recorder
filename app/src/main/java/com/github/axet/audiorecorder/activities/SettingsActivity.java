@@ -30,6 +30,7 @@ import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiolibrary.encoders.Factory;
+import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -215,6 +216,13 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             startActivity(new Intent(this, SettingsActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
+        if (key.equals(MainApplication.PREFERENCE_CONTROLS)) {
+            if (sharedPreferences.getBoolean(MainApplication.PREFERENCE_CONTROLS, false)) {
+                RecordingService.start(this);
+            } else {
+                RecordingService.stopService(this);
+            }
+        }
     }
 
     @Override
@@ -254,6 +262,11 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
         }
     }
 

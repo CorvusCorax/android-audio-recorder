@@ -48,6 +48,9 @@ import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -72,7 +75,7 @@ public class RecordingActivity extends AppCompatActivity {
     // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
     int samplesUpdate;
     // output target file 2016-01-01 01.01.01.wav
-    File targetFile;
+    File targetFile = null;
     // how many samples passed for current recording
     long samplesTime;
     // current cut position in samples from begining of file
@@ -91,6 +94,8 @@ public class RecordingActivity extends AppCompatActivity {
     Sound sound;
     RecordingReceiver receiver;
     Handler handler = new Handler();
+
+    ShortBuffer dbBuffer = null;
 
     public static void startActivity(Context context, boolean pause) {
         Intent i = new Intent(context, RecordingActivity.class);
@@ -162,8 +167,19 @@ public class RecordingActivity extends AppCompatActivity {
 
         edit(false, false);
 
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
         try {
-            targetFile = storage.getNewFile();
+            if (storage.recordingPending()) {
+                String file = shared.getString(MainApplication.PREFERENCE_TARGET, null);
+                if (file != null)
+                    targetFile = new File(file);
+            }
+            if (targetFile == null)
+                targetFile = storage.getNewFile();
+            SharedPreferences.Editor editor = shared.edit();
+            editor.putString(MainApplication.PREFERENCE_TARGET, targetFile.toString());
+            editor.commit();
         } catch (RuntimeException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
@@ -172,7 +188,6 @@ public class RecordingActivity extends AppCompatActivity {
 
         title.setText(targetFile.getName());
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (shared.getBoolean(MainApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -181,8 +196,11 @@ public class RecordingActivity extends AppCompatActivity {
 
         sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
         sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
-        if (sampleRate == -1)
-            throw new RuntimeException("Unable to initailze audio");
+        if (sampleRate == -1) {
+            Toast.makeText(this, "Unable to initailze audio", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
 
         updateBufferSize(false);
@@ -282,20 +300,20 @@ public class RecordingActivity extends AppCompatActivity {
         int len = rs.read(buf);
         rs.close();
 
-        pitch.clear(cut / samplesUpdate);
-        for (int i = 0; i < len; i += samplesUpdate * MainApplication.getChannels(this)) {
-            double dB = 0;
-            for (int c = 0; c < MainApplication.getChannels(this); c++) {
-                dB += RawSamples.getDB(buf, i + samplesUpdate * c, samplesUpdate);
-            }
-            dB = dB / MainApplication.getChannels(this);
+        int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
+        pitch.clear(cut / samplesUpdateStereo);
+        int lenUpdate = len / samplesUpdateStereo * samplesUpdateStereo; // cut right overs (leftovers from right)
+        for (int i = 0; i < lenUpdate; i += samplesUpdateStereo) {
+            double dB = RawSamples.getDB(buf, i, samplesUpdateStereo);
             pitch.add(dB);
         }
         updateSamples(samplesTime);
-    }
 
-    boolean isEmulator() {
-        return "goldfish".equals(Build.HARDWARE);
+        int diff = len - lenUpdate;
+        if (diff > 0) {
+            dbBuffer = ShortBuffer.allocate(samplesUpdateStereo);
+            dbBuffer.put(buf, lenUpdate, diff);
+        }
     }
 
     void pauseButton() {
@@ -422,7 +440,7 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void setState(String s) {
-        long free = storage.getFree(storage.getTempRecording());
+        long free = Storage.getFree(storage.getTempRecording());
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -433,7 +451,7 @@ public class RecordingActivity extends AppCompatActivity {
         long perSec = (c * m * rate);
         long sec = free / perSec * 1000;
 
-        state.setText(s + "\n(" + ((MainApplication) getApplication()).formatFree(free, sec) + ")");
+        state.setText(s + "\n(" + MainApplication.formatFree(this, free, sec) + ")");
     }
 
     void editPlay(boolean show) {
@@ -549,7 +567,7 @@ public class RecordingActivity extends AppCompatActivity {
             receiver = null;
         }
 
-        RecordingService.stopService(this);
+        RecordingService.stopRecording(this);
 
         if (pscl != null) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -561,6 +579,10 @@ public class RecordingActivity extends AppCompatActivity {
             encoder.close();
             encoder = null;
         }
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = shared.edit();
+        editor.remove(MainApplication.PREFERENCE_TARGET);
     }
 
     void startRecording() {
@@ -596,7 +618,6 @@ public class RecordingActivity extends AppCompatActivity {
 
                     rs.open(samplesTime);
 
-
                     int c = MainApplication.getInMode(RecordingActivity.this);
                     int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
                     if (min <= 0)
@@ -619,13 +640,15 @@ public class RecordingActivity extends AppCompatActivity {
 
                     boolean stableRefresh = false;
 
+                    int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
+
                     while (!Thread.currentThread().isInterrupted()) {
                         synchronized (bufferSizeLock) {
                             if (buffer == null || buffer.length != bufferSize)
                                 buffer = new short[bufferSize];
                         }
 
-                        final int readSize = recorder.read(buffer, 0, buffer.length);
+                        int readSize = recorder.read(buffer, 0, buffer.length);
                         if (readSize <= 0) {
                             break;
                         }
@@ -635,16 +658,30 @@ public class RecordingActivity extends AppCompatActivity {
 
                         start = end;
 
-                        int s = readSize / MainApplication.getChannels(RecordingActivity.this);
+                        int samples = readSize / MainApplication.getChannels(RecordingActivity.this);
 
-                        if (stableRefresh || diff >= s) {
+                        if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
 
-                            rs.write(buffer, readSize);
+                            rs.write(buffer, 0, readSize);
 
-                            int ps = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
-                            for (int i = 0; i < readSize; i += ps) {
-                                final double dB = RawSamples.getDB(buffer, i, ps);
+                            short[] dbBuf;
+                            int readSizeUpdate;
+                            if (dbBuffer != null) {
+                                ShortBuffer bb = ShortBuffer.allocate(dbBuffer.position() + readSize);
+                                dbBuffer.flip();
+                                bb.put(dbBuffer);
+                                bb.put(buffer, 0, readSize);
+                                dbBuf = new short[bb.position()];
+                                readSize = dbBuf.length;
+                                bb.flip();
+                                bb.get(dbBuf, 0, dbBuf.length);
+                            } else {
+                                dbBuf = buffer;
+                            }
+                            readSizeUpdate = readSize / samplesUpdateStereo * samplesUpdateStereo;
+                            for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
+                                final double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
                                 handle.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -652,9 +689,16 @@ public class RecordingActivity extends AppCompatActivity {
                                     }
                                 });
                             }
+                            int readSizeLen = readSize - readSizeUpdate;
+                            if (readSizeLen > 0) {
+                                dbBuffer = ShortBuffer.allocate(readSizeLen);
+                                dbBuffer.put(dbBuf, readSizeUpdate, readSizeLen);
+                            } else {
+                                dbBuffer = null;
+                            }
 
-                            samplesTime += s;
-                            samplesTimeCount += s;
+                            samplesTime += samples;
+                            samplesTimeCount += samples;
                             if (samplesTimeCount > samplesTimeUpdate) {
                                 final long m = samplesTime;
                                 handle.post(new Runnable() {

@@ -25,14 +25,15 @@
     <string name="not_permitted">Não permitido</string>
     <string name="no_folder_app">Não foi encontrado um aplicativo para explorar arquivos</string>
     <string name="hold_by_call">pausado (chamada atendida)</string>
+    <string name="recording">gravando</string>
     <string name="encoding">codificando</string>
     <string name="pause">pausado</string>
     <string name="edit">editando</string>
     <string name="confirm_cancel">Confirme o cancelamento</string>
     <string name="are_you_sure_cancel">Tem certeza que deseja cancelar?</string>
-    <string name="recording">gravando</string>
     <string name="encoding_title">Codificando...</string>
     <string name="recording_title">Gravando</string>
+    <string name="pause_title">Pausado...</string>
     <string name="open_recording_folder">Abrir pasta das gravações</string>
     <string name="recording_list_is_empty">A lista de gravações está vazia\n\nToque no ícone de microfone para começar a gravar</string>
 </resources>

@@ -58,6 +58,12 @@
         android:summary="Silenciar o aparelho durante a gravação"
         android:title="Modo silencioso" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="controls"
+        android:summary="Mostrar controles quando a tela estiver bloqueada"
+        android:title="Controle da tela bloqueada" />
+
     <ListPreference
         android:defaultValue="Theme_White"
         android:entries="@array/themes_text"
