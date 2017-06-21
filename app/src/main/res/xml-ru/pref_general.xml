@@ -44,7 +44,7 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="2015-12-31 22:11:34"
-        android:title="Имя Нового Файла" />
+        android:title="Имя нового файла" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
