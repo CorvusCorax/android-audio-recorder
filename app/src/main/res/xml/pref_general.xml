@@ -50,13 +50,13 @@
         android:defaultValue="true"
         android:key="call"
         android:summary="Stop recording on answering and continue on hangup"
-        android:title="Pause during calls" />
+        android:title="Pause During Calls" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="silence"
         android:summary="Put phone in 'silence mode' during recording"
-        android:title="Silence mode" />
+        android:title="Silence Mode" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
