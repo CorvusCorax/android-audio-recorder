@@ -37,6 +37,10 @@ import java.util.Collections;
 public class MainActivity extends AppCompatActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
 
+    public static final String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE"; // Manifest.permission.READ_EXTERNAL_STORAGE
+
+    public static final String[] PERMISSIONS = new String[]{READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
     FloatingActionButton fab;
     Handler handler = new Handler();
 
@@ -228,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
         last = last.toLowerCase();
-
         for (int i = 0; i < recordings.getCount(); i++) {
             File f = recordings.getItem(i);
             String n = f.getName().toLowerCase();
@@ -261,14 +264,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static final String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE"; // Manifest.permission.READ_EXTERNAL_STORAGE
-
-    public static final String[] PERMISSIONS = new String[]{READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -291,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(MainApplication.formatFree(this, free, sec));
     }
-
 
     public void Error(Throwable e) {
         String msg = e.getMessage();
