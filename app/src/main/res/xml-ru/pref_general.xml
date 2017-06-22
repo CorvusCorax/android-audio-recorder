@@ -46,8 +46,8 @@
         android:summary="2015-12-31 22:11:34"
         android:title="Имя нового файла" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        android:defaultValue="false"
         android:key="call"
         android:summary="Останавливать запись на время разговора по телефону"
         android:title="Пауза на время разговора" />

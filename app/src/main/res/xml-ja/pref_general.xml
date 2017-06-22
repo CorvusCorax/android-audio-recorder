@@ -52,8 +52,8 @@
         android:summary="着信して通話をする間、録音を停止します"
         android:title="着信時に一時停止" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        android:defaultValue="false"
         android:key="silence"
         android:summary="録音中、電話を 'マナーモード' にします"
         android:title="マナーモード" />
