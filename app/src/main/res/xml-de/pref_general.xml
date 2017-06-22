@@ -52,8 +52,8 @@
         android:summary="Stoppe Aufnahme bei Anrufannahme und setze nach Auflegen fort"
         android:title="Pausieren während Telefonaten" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        android:defaultValue="false"
         android:key="silence"
         android:summary="Aktiviere Audio-Profil \'Nicht Stören\' während Aufnahmen"
         android:title="Ruhe-Modus" />

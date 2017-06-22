@@ -52,8 +52,8 @@
         android:summary="Ferma la registrazione quando rispondi a chiamate e continua quando metti giù"
         android:title="Pausa durante le chiamate" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        android:defaultValue="false"
         android:key="silence"
         android:summary="Metti in cellulare in 'silenzioso' durante le registrazioni"
         android:title="Silenzioso" />

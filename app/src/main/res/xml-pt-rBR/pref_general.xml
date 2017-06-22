@@ -52,8 +52,8 @@
         android:summary="e voltar a gravar quando a chamada for desligada"
         android:title="Pausar durante chamadas" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
+    <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        android:defaultValue="false"
         android:key="silence"
         android:summary="Silenciar o aparelho durante a gravação"
         android:title="Modo silencioso" />

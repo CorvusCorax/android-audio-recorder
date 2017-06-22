@@ -3,6 +3,7 @@ package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,14 +19,17 @@ import android.preference.PreferenceFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
@@ -119,7 +123,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     }
 
     static void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
-        Context context = screen.getContext();
+        final Context context = screen.getContext();
         ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
         String v = enc.getValue();
         CharSequence[] ee = Factory.getEncodingTexts(context);
@@ -228,7 +232,6 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         shared.unregisterOnSharedPreferenceChangeListener(this);
     }
@@ -267,7 +270,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         @Override
         public void onResume() {
             super.onResume();
+            SilencePreferenceCompat silent = (SilencePreferenceCompat) findPreference(MainApplication.PREFERENCE_SILENT);
+            silent.onResume();
         }
     }
-
 }
