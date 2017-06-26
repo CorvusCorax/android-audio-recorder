@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
+import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
@@ -53,6 +55,8 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     public static <T> T[] removeElement(Class<T> c, T[] aa, int i) {
         List<T> ll = Arrays.asList(aa);
@@ -122,34 +126,6 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                         .getString(preference.getKey(), ""));
     }
 
-    static void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
-        final Context context = screen.getContext();
-        ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
-        String v = enc.getValue();
-        CharSequence[] ee = Factory.getEncodingTexts(context);
-        CharSequence[] vv = Factory.getEncodingValues(context);
-        if (ee.length > 1) {
-            enc.setEntries(ee);
-            enc.setEntryValues(vv);
-
-            int i = enc.findIndexOfValue(v);
-            if (i == -1) {
-                enc.setValueIndex(0);
-            } else {
-                enc.setValueIndex(i);
-            }
-
-            bindPreferenceSummaryToValue(enc);
-        } else {
-            screen.removePreference(enc);
-        }
-
-        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
-        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
-        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
-        bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
-    }
-
     public static int getAppTheme(Context context) {
         return MainApplication.getTheme(context, R.style.AppThemeLight, R.style.AppThemeDark);
     }
@@ -202,16 +178,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1:
-                if (Storage.permitted(this, permissions))
-                    ;
-                else
-                    Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
-        }
     }
-
-    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -250,6 +217,36 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         public GeneralPreferenceFragment() {
         }
 
+        void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
+            final Context context = screen.getContext();
+            ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
+            String v = enc.getValue();
+            CharSequence[] ee = Factory.getEncodingTexts(context);
+            CharSequence[] vv = Factory.getEncodingValues(context);
+            if (ee.length > 1) {
+                enc.setEntries(ee);
+                enc.setEntryValues(vv);
+
+                int i = enc.findIndexOfValue(v);
+                if (i == -1) {
+                    enc.setValueIndex(0);
+                } else {
+                    enc.setValueIndex(i);
+                }
+
+                bindPreferenceSummaryToValue(enc);
+            } else {
+                screen.removePreference(enc);
+            }
+
+            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
+            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
+            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
+            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
+            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
+            s.setPermissionsDialog(this, PERMISSIONS, 1);
+        }
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setHasOptionsMenu(true);
@@ -265,6 +262,23 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
+
+            switch (requestCode) {
+                case 1:
+                    if (Storage.permitted(getContext(), permissions))
+                        ;
+                    else
+                        Toast.makeText(getContext(), R.string.not_permitted, Toast.LENGTH_SHORT).show();
+                    s.onRequestPermissionsResult();
+                    break;
+            }
         }
 
         @Override
