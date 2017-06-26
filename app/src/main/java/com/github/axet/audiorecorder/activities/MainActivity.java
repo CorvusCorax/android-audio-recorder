@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -108,22 +109,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         list = (ListView) findViewById(R.id.list);
-        recordings = new Recordings(this, list) {
-            @Override
-            public void sort() {
-                sort(Collections.reverseOrder(new SortFiles()));
-            }
-        };
+        recordings = new Recordings(this, list);
         list.setAdapter(recordings);
         list.setEmptyView(findViewById(R.id.empty_list));
-
-        if (Storage.permitted(MainActivity.this, PERMISSIONS, 1)) {
-            try {
-                storage.migrateLocalStorage();
-            } catch (RuntimeException e) {
-                Error(e);
-            }
-        }
+        recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
 
         RecordingService.startIfEnabled(this);
 
@@ -198,6 +187,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        if (Storage.permitted(MainActivity.this, PERMISSIONS)) {
+            try {
+                storage.migrateLocalStorage();
+            } catch (RuntimeException e) {
+                Error(e);
+            }
+        }
+
         final int selected = getLastRecording();
         Runnable done = new Runnable() {
             @Override
@@ -218,10 +215,7 @@ public class MainActivity extends AppCompatActivity {
         };
         progressEmpty.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.GONE);
-        if (Storage.permitted(this, PERMISSIONS))
-            recordings.load(done);
-        else
-            recordings.load(done);
+        recordings.load(done);
 
         checkPending();
 
