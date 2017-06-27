@@ -15,8 +15,6 @@ import java.util.Date;
 
 public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
-    public static final String TMP_ENC = "encoding.data";
-
     public Storage(Context context) {
         super(context);
     }
@@ -39,8 +37,9 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri n = getNextFile(path, format, ext);
             String d = getDocumentName(n);
+            String ee = getExt(n);
             Uri docUri = DocumentsContract.buildDocumentUriUsingTree(path, DocumentsContract.getTreeDocumentId(path));
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(d);
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
             Uri childrenUri = DocumentsContract.createDocument(context.getContentResolver(), docUri, mime, d);
             return childrenUri;
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
@@ -54,34 +53,4 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         }
     }
 
-
-    public File getTempEncoding() {
-        File internal = new File(context.getCacheDir(), TMP_ENC);
-        if (internal.exists())
-            return internal;
-
-        // Starting in KITKAT, no permissions are required to read or write to the returned path;
-        // it's always accessible to the calling app.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            if (!permitted(context, PERMISSIONS))
-                return internal;
-        }
-
-        File c = context.getExternalCacheDir();
-        if (c == null) // some old phones <15API with disabled sdcard return null
-            return internal;
-
-        File external = new File(c, TMP_ENC);
-
-        if (external.exists())
-            return external;
-
-        long freeI = getFree(internal);
-        long freeE = getFree(external);
-
-        if (freeI > freeE)
-            return internal;
-        else
-            return external;
-    }
 }

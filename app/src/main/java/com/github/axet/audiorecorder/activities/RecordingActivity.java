@@ -837,7 +837,16 @@ public class RecordingActivity extends AppCompatActivity {
 
     void encoding(final Runnable run) {
         final File in = storage.getTempRecording();
-        final File out = storage.getTempEncoding();
+        final File out;
+
+        final String s = targetUri.getScheme();
+        if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+            out = storage.getTempEncoding();
+        } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+            out = new File(targetUri.getPath());
+        } else {
+            throw new RuntimeException("unkonwn uri");
+        }
 
         File parent = out.getParentFile();
 
@@ -876,41 +885,42 @@ public class RecordingActivity extends AppCompatActivity {
             }
         }, new Runnable() {
             @Override
-            public void run() {
+            public void run() { // success
                 d.cancel();
 
-                ContentResolver resolver = getContentResolver();
-                try {
-                    InputStream is = new FileInputStream(out);
-                    OutputStream os = resolver.openOutputStream(targetUri);
-                    IOUtils.copy(is, os);
-                    is.close();
-                    os.close();
-                } catch (IOException e) {
-                    storage.delete(out); // delete tmp encoding file
+                if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                    ContentResolver resolver = getContentResolver();
                     try {
-                        storage.delete(targetUri);
-                    } catch (RuntimeException ee) {
-                        Log.d(TAG, "unable to delete target uri", e); // ignore, not even created?
+                        InputStream is = new FileInputStream(out);
+                        OutputStream os = resolver.openOutputStream(targetUri);
+                        IOUtils.copy(is, os);
+                        is.close();
+                        os.close();
+                        storage.delete(out); // delete tmp encoding file
+                    } catch (IOException e) {
+                        storage.delete(out); // delete tmp encoding file
+                        try {
+                            storage.delete(targetUri); // delete SAF encoding file
+                        } catch (RuntimeException ee) {
+                            Log.d(TAG, "unable to delete target uri", e); // ignore, not even created?
+                        }
+                        Error(e);
+                        d.cancel();
+                        return;
                     }
-                    Error(e);
-                    d.cancel();
-                    return;
                 }
 
                 storage.delete(in); // delete raw recording
-                String n = out.getName();
-                storage.delete(out); // delete tmp encoding file
 
                 SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, n);
+                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
                 edit.commit();
 
                 run.run();
             }
         }, new Runnable() {
             @Override
-            public void run() {
+            public void run() { // done
                 d.cancel();
                 Error(encoder.getException());
             }
