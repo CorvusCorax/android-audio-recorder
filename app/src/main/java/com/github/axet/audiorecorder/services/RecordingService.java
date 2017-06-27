@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -171,8 +172,8 @@ public class RecordingService extends Service {
         String text;
         if (targetFile == null) {
             title = getString(R.string.app_name);
-            File f = storage.getStoragePath();
-            long free = Storage.getFree(f);
+            Uri f = storage.getStoragePath();
+            long free = storage.getFree(f);
             long sec = Storage.average(this, free);
             text = MainApplication.formatFree(this, free, sec);
             view.setViewVisibility(R.id.notification_record, View.VISIBLE);
@@ -226,7 +227,6 @@ public class RecordingService extends Service {
             notificationManager.notify(NOTIFICATION_RECORDING_ICON, build(intent));
         }
     }
-
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {

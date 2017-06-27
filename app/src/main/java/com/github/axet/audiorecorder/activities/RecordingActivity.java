@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,10 +14,12 @@ import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -36,6 +39,7 @@ import android.widget.Toast;
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.audiolibrary.app.RawSamples;
+import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
 import com.github.axet.audiolibrary.encoders.EncoderInfo;
@@ -47,7 +51,13 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -75,7 +85,7 @@ public class RecordingActivity extends AppCompatActivity {
     // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
     int samplesUpdate;
     // output target file 2016-01-01 01.01.01.wav
-    File targetFile = null;
+    Uri targetUri = null;
     // how many samples passed for current recording
     long samplesTime;
     // current cut position in samples from begining of file
@@ -172,22 +182,26 @@ public class RecordingActivity extends AppCompatActivity {
         try {
             if (storage.recordingPending()) {
                 String file = shared.getString(MainApplication.PREFERENCE_TARGET, null);
-                if (file != null)
-                    targetFile = new File(file);
+                if (file != null) {
+                    if (file.startsWith(ContentResolver.SCHEME_CONTENT))
+                        targetUri = Uri.parse(file);
+                    else
+                        targetUri = Uri.fromFile(new File(file));
+                }
             }
-            if (targetFile == null)
-                targetFile = storage.getNewFile();
+            if (targetUri == null)
+                targetUri = storage.getNewFile();
             SharedPreferences.Editor editor = shared.edit();
-            editor.putString(MainApplication.PREFERENCE_TARGET, targetFile.toString());
+            editor.putString(MainApplication.PREFERENCE_TARGET, targetUri.toString());
             editor.commit();
         } catch (RuntimeException e) {
+            Log.d(TAG, "onCreate", e);
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        title.setText(targetFile.getName());
-
+        title.setText(storage.getDocumentName(targetUri));
 
         if (shared.getBoolean(MainApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -343,7 +357,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         boolean recording = thread != null;
 
-        RecordingService.startService(this, targetFile.getName(), recording, encoder != null);
+        RecordingService.startService(this, storage.getDocumentName(targetUri), recording, encoder != null);
 
         if (recording) {
             pitch.record();
@@ -368,7 +382,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
+        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
 
         pitch.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -740,7 +754,7 @@ public class RecordingActivity extends AppCompatActivity {
         }, "RecordingThread");
         thread.start();
 
-        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
+        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
     }
 
     // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
@@ -823,9 +837,9 @@ public class RecordingActivity extends AppCompatActivity {
 
     void encoding(final Runnable run) {
         final File in = storage.getTempRecording();
-        final File out = targetFile;
+        final File out = storage.getTempEncoding();
 
-        File parent = targetFile.getParentFile();
+        File parent = out.getParentFile();
 
         if (!parent.exists()) {
             if (!parent.mkdirs()) { // in case if it were manually deleted
@@ -844,11 +858,11 @@ public class RecordingActivity extends AppCompatActivity {
 
         encoder = new FileEncoder(this, in, e);
 
-        RecordingService.startService(this, targetFile.getName(), thread != null, encoder != null);
+        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(R.string.encoding_title);
-        d.setMessage(".../" + targetFile.getName());
+        d.setMessage(".../" + storage.getDocumentName(targetUri));
         d.setMax(100);
         d.setCancelable(false);
         d.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -864,10 +878,32 @@ public class RecordingActivity extends AppCompatActivity {
             @Override
             public void run() {
                 d.cancel();
-                storage.delete(in);
+
+                ContentResolver resolver = getContentResolver();
+                try {
+                    InputStream is = new FileInputStream(out);
+                    OutputStream os = resolver.openOutputStream(targetUri);
+                    IOUtils.copy(is, os);
+                    is.close();
+                    os.close();
+                } catch (IOException e) {
+                    storage.delete(out); // delete tmp encoding file
+                    try {
+                        storage.delete(targetUri);
+                    } catch (RuntimeException ee) {
+                        Log.d(TAG, "unable to delete target uri", e); // ignore, not even created?
+                    }
+                    Error(e);
+                    d.cancel();
+                    return;
+                }
+
+                storage.delete(in); // delete raw recording
+                String n = out.getName();
+                storage.delete(out); // delete tmp encoding file
 
                 SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, out.getName());
+                edit.putString(MainApplication.PREFERENCE_LAST, n);
                 edit.commit();
 
                 run.run();
