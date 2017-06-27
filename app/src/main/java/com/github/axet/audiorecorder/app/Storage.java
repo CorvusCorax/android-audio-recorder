@@ -36,12 +36,7 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
         if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             Uri n = getNextFile(path, format, ext);
-            String d = getDocumentName(n);
-            String ee = getExt(n);
-            Uri docUri = DocumentsContract.buildDocumentUriUsingTree(path, DocumentsContract.getTreeDocumentId(path));
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
-            Uri childrenUri = DocumentsContract.createDocument(context.getContentResolver(), docUri, mime, d);
-            return childrenUri;
+            return n;
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
             File f = new File(path.getPath());
             if (!f.exists() && !f.mkdirs()) {
