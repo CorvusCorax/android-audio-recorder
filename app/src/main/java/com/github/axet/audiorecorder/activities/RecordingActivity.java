@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -888,11 +889,17 @@ public class RecordingActivity extends AppCompatActivity {
             public void run() { // success
                 d.cancel();
 
-                if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
                     ContentResolver resolver = getContentResolver();
                     try {
+                        String d = storage.getDocumentName(targetUri);
+                        String ee = storage.getExt(targetUri);
+                        Uri docUri = DocumentsContract.buildDocumentUriUsingTree(targetUri, DocumentsContract.getTreeDocumentId(targetUri));
+                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
+                        Uri childrenUri = DocumentsContract.createDocument(resolver, docUri, mime, d);
+
                         InputStream is = new FileInputStream(out);
-                        OutputStream os = resolver.openOutputStream(targetUri);
+                        OutputStream os = resolver.openOutputStream(childrenUri);
                         IOUtils.copy(is, os);
                         is.close();
                         os.close();
