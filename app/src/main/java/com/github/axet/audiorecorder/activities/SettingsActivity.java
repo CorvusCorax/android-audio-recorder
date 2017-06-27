@@ -244,8 +244,10 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
-//            s.setPermissionsDialog(this, PERMISSIONS, 1);
-            s.setStorageAccessFramework(this, 2);
+            if (Build.VERSION.SDK_INT >= 21)
+                s.setStorageAccessFramework(this, 2);
+            else
+                s.setPermissionsDialog(this, PERMISSIONS, 1);
         }
 
         @Override
