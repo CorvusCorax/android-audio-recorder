@@ -3,6 +3,7 @@ package com.github.axet.audiorecorder.activities;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,12 +11,18 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.StructStatVfs;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +40,7 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
@@ -130,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     Intent showIntent() {
-        Uri selectedUri = Uri.fromFile(storage.getStoragePath());
+        Uri selectedUri = storage.getStoragePath();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(selectedUri, "resource/folder");
         return intent;
@@ -187,12 +195,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (Storage.permitted(MainActivity.this, PERMISSIONS)) {
-            try {
-                storage.migrateLocalStorage();
-            } catch (RuntimeException e) {
-                Error(e);
-            }
+        try {
+            storage.migrateLocalStorage();
+        } catch (RuntimeException e) {
+            Error(e);
         }
 
         final int selected = getLastRecording();
@@ -225,11 +231,9 @@ public class MainActivity extends AppCompatActivity {
     int getLastRecording() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
-        last = last.toLowerCase();
         for (int i = 0; i < recordings.getCount(); i++) {
-            File f = recordings.getItem(i);
-            String n = f.getName().toLowerCase();
-            if (n.equals(last)) {
+            Uri f = recordings.getItem(i);
+            if (storage.getDocumentName(f).equals(last)) {
                 SharedPreferences.Editor edit = shared.edit();
                 edit.putString(MainApplication.PREFERENCE_LAST, "");
                 edit.commit();
@@ -277,8 +281,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void updateHeader() {
-        File f = storage.getStoragePath();
-        long free = Storage.getFree(f);
+        Uri uri = storage.getStoragePath();
+        long free = storage.getFree(uri);
         long sec = Storage.average(this, free);
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(MainApplication.formatFree(this, free, sec));
