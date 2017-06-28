@@ -3,39 +3,31 @@ package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
-import com.github.axet.audiolibrary.app.Storage;
+import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
-import com.github.axet.audiolibrary.encoders.Factory;
+import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.lang.reflect.Array;
@@ -244,6 +236,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
+            s.setStorage(new Storage(getContext()));
             if (Build.VERSION.SDK_INT >= 21)
                 s.setStorageAccessFramework(this, 2);
             else
