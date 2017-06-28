@@ -201,10 +201,12 @@ public class MainActivity extends AppCompatActivity {
             Error(e);
         }
 
-        final int selected = getLastRecording();
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        final String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
         Runnable done = new Runnable() {
             @Override
             public void run() {
+                final int selected = getLastRecording(last);
                 progressEmpty.setVisibility(View.GONE);
                 progressText.setVisibility(View.VISIBLE);
                 if (selected != -1) {
@@ -221,16 +223,16 @@ public class MainActivity extends AppCompatActivity {
         };
         progressEmpty.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.GONE);
-        recordings.load(done);
+
+        recordings.load(!last.isEmpty(), done);
 
         checkPending();
 
         updateHeader();
     }
 
-    int getLastRecording() {
+    int getLastRecording(String last) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
         for (int i = 0; i < recordings.getCount(); i++) {
             Uri f = recordings.getItem(i);
             if (storage.getDocumentName(f).equals(last)) {
@@ -254,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (RuntimeException e) {
                         Error(e);
                     }
-                    recordings.load(null);
+                    recordings.load(false, null);
                     checkPending();
                 } else {
                     Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
