@@ -33,6 +33,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
@@ -172,6 +173,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_about) {
+            AboutPreferenceCompat.showDialog(this, R.raw.about);
+            return true;
+        }
+
         if (id == R.id.action_show_folder) {
             Intent intent = showIntent();
             if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
@@ -179,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, R.string.no_folder_app, Toast.LENGTH_SHORT).show();
             }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
