@@ -24,3 +24,9 @@ If you want to translate 'Audio Recorder' to your language  please read this:
   * german translation thanks to @vv01f
   * brazilian translation thanks to @vrozsas
   * itallizan tralslation thanks to @Agno94
+
+# Donations
+
+  * [PayPal EUR](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=EUR&return=&item_name=audio-recorder)
+  * [PayPal USD](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=USD&return=&item_name=audio-recorder)
+  * [PayPal RUB](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=axet@me.com&amount=&currency_code=RUB&return=&item_name=audio-recorder)
