@@ -36,4 +36,10 @@
     <string name="pause_title">Pause...</string>
     <string name="open_recording_folder">Öffne Aufnahme-Ordner</string>
     <string name="recording_list_is_empty">Aufnahmeliste ist leer\n\nDrücke \'Aufnehmen\' um die Aufnahme zu starten</string>
+    <string name="record_button">Record</string>
+    <string name="cut_button">Cut</string>
+    <string name="play_button">Play</string>
+    <string name="stop_button">Stop</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="pause_button">Pause</string>
 </resources>
