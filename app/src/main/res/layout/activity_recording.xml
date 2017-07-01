@@ -58,14 +58,15 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:src="@drawable/ic_content_cut_24dp"
-                android:text="Cancel" />
+                android:contentDescription="@string/cut_button" />
 
             <ImageButton
                 android:id="@+id/recording_play"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_play_arrow_black_24dp" />
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:contentDescription="@string/play_button" />
 
             <ImageButton
                 android:id="@+id/recording_edit_done"
@@ -73,7 +74,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_close_24dp" />
+                android:src="@drawable/ic_close_24dp"
+                android:contentDescription="@string/stop_button" />
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </FrameLayout>
 
@@ -103,14 +105,15 @@
                 android:background="?attr/roundButton"
                 android:gravity="center"
                 android:src="@drawable/ic_close_24dp"
-                android:text="Cancel" />
+                android:contentDescription="@string/cancel_button" />
 
             <ImageButton
                 android:id="@+id/recording_pause"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_pause_black_24dp" />
+                android:src="@drawable/ic_pause_black_24dp"
+                android:contentDescription="@string/pause_button" />
 
             <ImageButton
                 android:id="@+id/recording_done"
@@ -118,7 +121,8 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:tint="@android:color/white"
-                android:src="@drawable/ic_done_black_24dp" />
+                android:src="@drawable/ic_done_black_24dp"
+                android:contentDescription="@string/stop_button" />
 
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </LinearLayout>

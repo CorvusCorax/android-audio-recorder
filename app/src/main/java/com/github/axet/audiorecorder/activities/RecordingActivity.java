@@ -380,6 +380,7 @@ public class RecordingActivity extends AppCompatActivity {
     void stopRecording(String status) {
         setState(status);
         pause.setImageResource(R.drawable.ic_mic_24dp);
+        pause.setContentDescription(getString(R.string.record_button));
 
         stopRecording();
 
@@ -475,6 +476,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         if (show) {
             playButton.setImageResource(R.drawable.ic_pause_black_24dp);
+            playButton.setContentDescription(getString(R.string.pause_button));
 
             int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
@@ -515,6 +517,7 @@ public class RecordingActivity extends AppCompatActivity {
             }
             pitch.play(-1);
             playButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+            playButton.setContentDescription(getString(R.string.play_button));
         }
     }
 
@@ -609,6 +612,7 @@ public class RecordingActivity extends AppCompatActivity {
         sound.silent();
 
         pause.setImageResource(R.drawable.ic_pause_black_24dp);
+        pause.setContentDescription(getString(R.string.pause_button));
 
         pitch.record();
 

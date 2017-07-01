@@ -68,4 +68,10 @@
     <string name="recording_title">Recording</string>
     <string name="open_recording_folder">Open Recording Folder</string>
     <string name="recording_list_is_empty">Recording List is Empty\n\nClick Record to Start Recording</string>
+    <string name="record_button">Record</string>
+    <string name="cut_button">Cut</string>
+    <string name="play_button">Play</string>
+    <string name="stop_button">Stop</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="pause_button">Pause</string>
 </resources>
