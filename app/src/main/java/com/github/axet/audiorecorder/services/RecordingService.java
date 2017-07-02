@@ -45,7 +45,7 @@ public class RecordingService extends Service {
     public static String PAUSE_BUTTON = RecordingService.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static String RECORD_BUTTON = RecordingService.class.getCanonicalName() + ".RECORD_BUTTON";
 
-    Storage storage = new Storage(this); // for storage path
+    Storage storage; // for storage path
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -98,6 +98,9 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+
+        storage = new Storage(this);
+
         startForeground(NOTIFICATION_RECORDING_ICON, build(new Intent()));
     }
 
@@ -199,6 +202,7 @@ public class RecordingService extends Service {
         view.setTextViewText(R.id.notification_text, text);
         view.setOnClickPendingIntent(R.id.notification_pause, pe);
         view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
+        view.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setOngoing(true)

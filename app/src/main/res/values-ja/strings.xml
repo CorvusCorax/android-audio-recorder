@@ -21,16 +21,14 @@
         <item>ステレオ</item>
     </string-array>
 
-    <string name="action_settings">設定</string>
     <string name="not_permitted">許可されていません</string>
     <string name="no_folder_app">フォルダーを表示するアプリケーションがインストールされていません</string>
     <string name="hold_by_call">一時停止 (着信により保留)</string>
-    <string name="recording">録音中</string>
-    <string name="encoding">エンコーディング</string>
-    <string name="pause">一時停止</string>
-    <string name="edit">編集</string>
+    <string name="recording_status_recording">録音中</string>
+    <string name="recording_status_encoding">エンコーディング</string>
+    <string name="recording_status_pause">一時停止</string>
+    <string name="recording_status_edit">編集</string>
     <string name="confirm_cancel">キャンセルの確認</string>
-    <string name="are_you_sure_cancel">キャンセルしてもよろしいですか?</string>
     <string name="encoding_title">エンコード中...</string>
     <string name="recording_title">録音中</string>
     <string name="pause_title">一時停止...</string>
@@ -38,7 +36,6 @@
     <string name="recording_list_is_empty">録音リストは空です\n\n録音をクリックすると録音を開始します</string>
     <string name="record_button">Record</string>
     <string name="cut_button">Cut</string>
-    <string name="play_button">Play</string>
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
