@@ -29,7 +29,6 @@
     <string name="recording_status_pause">pozastavené</string>
     <string name="recording_status_edit">úpravy</string>
     <string name="confirm_cancel">Potvrdiť zrušenie</string>
-    <string name="are_you_sure_cancel">Ste si istí, že chcete zastaviť nahrávanie?</string>
     <string name="encoding_title">Kódovanie...</string>
     <string name="pause_title">Pozastavené...</string>
     <string name="recording_title">Nahrávanie</string>
@@ -37,7 +36,6 @@
     <string name="recording_list_is_empty">Zoznam nahrávok je prázdny\n\nZačnite klepnutím na tlačidlo Nahrávať</string>
     <string name="record_button">Nahrávať</string>
     <string name="cut_button">Odstrihnúť</string>
-    <string name="play_button">Prehrať</string>
     <string name="stop_button">Zastaviť</string>
     <string name="cancel_button">Zrušiť</string>
     <string name="pause_button">Pozastaviť</string>
