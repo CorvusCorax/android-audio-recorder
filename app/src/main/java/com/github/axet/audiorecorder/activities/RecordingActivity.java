@@ -40,7 +40,6 @@ import android.widget.Toast;
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.audiolibrary.app.RawSamples;
-import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
 import com.github.axet.audiolibrary.encoders.EncoderInfo;
@@ -59,8 +58,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
@@ -257,7 +254,7 @@ public class RecordingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (encoder != null)
                     return;
-                stopRecording(getString(R.string.encoding));
+                stopRecording(getString(R.string.recording_status_encoding));
                 try {
                     encoding(new Runnable() {
                         @Override
@@ -275,7 +272,7 @@ public class RecordingActivity extends AppCompatActivity {
         if (a != null && a.equals(START_PAUSE)) {
             // pretend we already start it
             start = false;
-            stopRecording(getString(R.string.pause));
+            stopRecording(getString(R.string.recording_status_pause));
         }
 
         receiver = new RecordingReceiver();
@@ -333,7 +330,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     void pauseButton() {
         if (thread != null) {
-            stopRecording(getString(R.string.pause));
+            stopRecording(getString(R.string.recording_status_pause));
         } else {
             editCut();
 
@@ -410,7 +407,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     void edit(boolean show, boolean animate) {
         if (show) {
-            setState(getString(R.string.edit));
+            setState(getString(R.string.recording_status_edit));
             editPlay(false);
 
             View box = findViewById(R.id.recording_edit_box);
@@ -445,7 +442,7 @@ public class RecordingActivity extends AppCompatActivity {
             });
         } else {
             editSample = -1;
-            setState(getString(R.string.pause));
+            setState(getString(R.string.recording_status_pause));
             editPlay(false);
             pitch.edit(-1);
             pitch.stop();
@@ -549,7 +546,7 @@ public class RecordingActivity extends AppCompatActivity {
     void cancelDialog(final Runnable run, final Runnable cancel) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.confirm_cancel);
-        builder.setMessage(R.string.are_you_sure_cancel);
+        builder.setMessage(R.string.are_you_sure);
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -607,7 +604,7 @@ public class RecordingActivity extends AppCompatActivity {
         edit(false, true);
         pitch.setOnTouchListener(null);
 
-        setState(getString(R.string.recording));
+        setState(getString(R.string.recording_status_recording));
 
         sound.silent();
 

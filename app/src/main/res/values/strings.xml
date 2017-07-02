@@ -53,16 +53,14 @@
         <item>%I</item>
     </string-array>
 
-    <string name="action_settings">Settings</string>
     <string name="not_permitted">Not permitted</string>
     <string name="no_folder_app">No folder view application installed</string>
     <string name="hold_by_call">pause (hold by call)</string>
-    <string name="recording">recording</string>
-    <string name="encoding">encoding</string>
-    <string name="pause">pause</string>
-    <string name="edit">edit</string>
+    <string name="recording_status_recording">recording</string>
+    <string name="recording_status_encoding">encoding</string>
+    <string name="recording_status_pause">pause</string>
+    <string name="recording_status_edit">edit</string>
     <string name="confirm_cancel">Confirm cancel</string>
-    <string name="are_you_sure_cancel">Are you sure you want to cancel?</string>
     <string name="encoding_title">Encoding...</string>
     <string name="pause_title">Pause...</string>
     <string name="recording_title">Recording</string>
@@ -70,7 +68,6 @@
     <string name="recording_list_is_empty">Recording List is Empty\n\nClick Record to Start Recording</string>
     <string name="record_button">Record</string>
     <string name="cut_button">Cut</string>
-    <string name="play_button">Play</string>
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>

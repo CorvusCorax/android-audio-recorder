@@ -21,16 +21,14 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="action_settings">Impostazioni</string>
     <string name="not_permitted">Non permesso</string>
     <string name="no_folder_app">Nessuna app per la visione delle cartelle risulta installa</string>
     <string name="hold_by_call">pausa (per chiamata)</string>
-    <string name="recording">registrando</string>
-    <string name="encoding">encoding</string>
-    <string name="pause">pausa</string>
-    <string name="edit">modifica</string>
+    <string name="recording_status_recording">registrando</string>
+    <string name="recording_status_encoding">encoding</string>
+    <string name="recording_status_pause">pausa</string>
+    <string name="recording_status_edit">modifica</string>
     <string name="confirm_cancel">Conferma annullamento</string>
-    <string name="are_you_sure_cancel">Sei sicuro di voler annullare la registrazione?</string>
     <string name="encoding_title">Codifica in corso ...</string>
     <string name="pause_title">Pausa...</string>
     <string name="recording_title">Registrando</string>
@@ -38,7 +36,6 @@
     <string name="recording_list_is_empty">La lista delle registrazioni è vuota\n\nClicca Registra per iniziare a registrare</string>
     <string name="record_button">Record</string>
     <string name="cut_button">Cut</string>
-    <string name="play_button">Play</string>
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
