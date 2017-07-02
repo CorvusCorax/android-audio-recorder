@@ -45,7 +45,7 @@ public class RecordingService extends Service {
     public static String PAUSE_BUTTON = RecordingService.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static String RECORD_BUTTON = RecordingService.class.getCanonicalName() + ".RECORD_BUTTON";
 
-    Storage storage = new Storage(this); // for storage path
+    Storage storage; // for storage path
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -98,6 +98,9 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+
+        storage = new Storage(this);
+
         startForeground(NOTIFICATION_RECORDING_ICON, build(new Intent()));
     }
 
