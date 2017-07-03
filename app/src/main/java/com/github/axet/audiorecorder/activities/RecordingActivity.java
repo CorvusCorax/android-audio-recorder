@@ -63,6 +63,10 @@ import java.nio.ShortBuffer;
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
 
+    public static final String[] PERMISSIONS = new String[]{
+            Manifest.permission.RECORD_AUDIO
+    };
+
     public static String START_PAUSE = RecordingActivity.class.getCanonicalName() + ".START_PAUSE";
     public static String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
 
@@ -86,7 +90,7 @@ public class RecordingActivity extends AppCompatActivity {
     Uri targetUri = null;
     // how many samples passed for current recording
     long samplesTime;
-    // current cut position in samples from begining of file
+    // current cut position in mono samples, stereo = editSample * 2
     long editSample = -1;
 
     // current play sound track
@@ -333,7 +337,6 @@ public class RecordingActivity extends AppCompatActivity {
             stopRecording(getString(R.string.recording_status_pause));
         } else {
             editCut();
-
             startRecording();
         }
     }
@@ -348,14 +351,14 @@ public class RecordingActivity extends AppCompatActivity {
         // start once
         if (start) {
             start = false;
-            if (permitted()) {
+            if (Storage.permitted(this, PERMISSIONS)) {
                 startRecording();
             }
         }
 
         boolean recording = thread != null;
 
-        RecordingService.startService(this, storage.getDocumentName(targetUri), recording, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), recording, encoder != null);
 
         if (recording) {
             pitch.record();
@@ -381,7 +384,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
         pitch.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -390,7 +393,7 @@ public class RecordingActivity extends AppCompatActivity {
                 float x = event.getX();
                 if (x < 0)
                     x = 0;
-                editSample = pitch.edit(x) * samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
+                editSample = pitch.edit(x) * samplesUpdate;
                 return true;
             }
         });
@@ -478,7 +481,7 @@ public class RecordingActivity extends AppCompatActivity {
             int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
             RawSamples rs = new RawSamples(storage.getTempRecording());
-            int len = (int) (rs.getSamples() - editSample); // in samples
+            int len = (int) (rs.getSamples() - editSample * MainApplication.getChannels(this)); // in samples
 
             final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
@@ -490,14 +493,14 @@ public class RecordingActivity extends AppCompatActivity {
                 public void onPeriodicNotification(android.media.AudioTrack track) {
                     if (play != null) {
                         long now = System.currentTimeMillis();
-                        long playIndex = editSample / MainApplication.getChannels(RecordingActivity.this) + (now - play.playStart) * sampleRate / 1000;
+                        long playIndex = editSample + (now - play.playStart) * sampleRate / 1000;
                         pitch.play(playIndex / (float) samplesUpdate);
                     }
                 }
             };
 
             AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
-            rs.open(editSample, buf.len); // len in samples
+            rs.open(editSample * MainApplication.getChannels(this), buf.len); // len in samples
             int r = rs.read(buf.buffer); // r in samples
             if (r != buf.len)
                 throw new RuntimeException("unable to read data");
@@ -523,7 +526,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
 
         RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.trunk(editSample + samplesUpdate * MainApplication.getChannels(this));
+        rs.trunk((editSample + samplesUpdate) * MainApplication.getChannels(this));
         rs.close();
 
         edit(false, true);
@@ -631,7 +634,6 @@ public class RecordingActivity extends AppCompatActivity {
                 AudioRecord recorder = null;
                 try {
                     rs = new RawSamples(storage.getTempRecording());
-
                     rs.open(samplesTime);
 
                     int c = MainApplication.getInMode(RecordingActivity.this);
@@ -682,6 +684,7 @@ public class RecordingActivity extends AppCompatActivity {
                             rs.write(buffer, 0, readSize);
 
                             short[] dbBuf;
+                            int dbSize;
                             int readSizeUpdate;
                             if (dbBuffer != null) {
                                 ShortBuffer bb = ShortBuffer.allocate(dbBuffer.position() + readSize);
@@ -689,13 +692,14 @@ public class RecordingActivity extends AppCompatActivity {
                                 bb.put(dbBuffer);
                                 bb.put(buffer, 0, readSize);
                                 dbBuf = new short[bb.position()];
-                                readSize = dbBuf.length;
+                                dbSize = dbBuf.length;
                                 bb.flip();
                                 bb.get(dbBuf, 0, dbBuf.length);
                             } else {
                                 dbBuf = buffer;
+                                dbSize = readSize;
                             }
-                            readSizeUpdate = readSize / samplesUpdateStereo * samplesUpdateStereo;
+                            readSizeUpdate = dbSize / samplesUpdateStereo * samplesUpdateStereo;
                             for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
                                 final double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
                                 handle.post(new Runnable() {
@@ -705,7 +709,7 @@ public class RecordingActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-                            int readSizeLen = readSize - readSizeUpdate;
+                            int readSizeLen = dbSize - readSizeUpdate;
                             if (readSizeLen > 0) {
                                 dbBuffer = ShortBuffer.allocate(readSizeLen);
                                 dbBuffer.put(dbBuf, readSizeUpdate, readSizeLen);
@@ -756,7 +760,7 @@ public class RecordingActivity extends AppCompatActivity {
         }, "RecordingThread");
         thread.start();
 
-        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
     }
 
     // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
@@ -795,40 +799,13 @@ public class RecordingActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1:
-                if (permitted(permissions)) {
+                if (Storage.permitted(this, permissions)) {
                     startRecording();
                 } else {
                     Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
                     finish();
                 }
         }
-    }
-
-    public static final String[] PERMISSIONS = new String[]{
-            Manifest.permission.RECORD_AUDIO
-    };
-
-    boolean permitted(String[] ss) {
-        if (Build.VERSION.SDK_INT < 15)
-            return true;
-        for (String s : ss) {
-            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    boolean permitted() {
-        if (Build.VERSION.SDK_INT < 15)
-            return true;
-        for (String s : PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS, 1);
-                return false;
-            }
-        }
-        return true;
     }
 
     EncoderInfo getInfo() {
