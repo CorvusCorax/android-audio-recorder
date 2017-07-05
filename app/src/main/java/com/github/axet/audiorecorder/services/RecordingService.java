@@ -202,7 +202,8 @@ public class RecordingService extends Service {
         view.setTextViewText(R.id.notification_text, text);
         view.setOnClickPendingIntent(R.id.notification_pause, pe);
         view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
-        view.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
+        if (Build.VERSION.SDK_INT >= 15)
+            view.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setOngoing(true)

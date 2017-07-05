@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         for (int i = 0; i < recordings.getCount(); i++) {
             Uri f = recordings.getItem(i);
-            if (storage.getDocumentName(f).equals(last)) {
+            if (Storage.getDocumentName(f).equals(last)) {
                 SharedPreferences.Editor edit = shared.edit();
                 edit.putString(MainApplication.PREFERENCE_LAST, "");
                 edit.commit();
@@ -268,6 +268,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
                 }
+                break;
         }
     }
 
