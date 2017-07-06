@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -20,8 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
@@ -203,7 +200,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
         }
 
-        title.setText(storage.getDocumentName(targetUri));
+        title.setText(Storage.getDocumentName(targetUri));
 
         if (shared.getBoolean(MainApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -822,7 +819,7 @@ public class RecordingActivity extends AppCompatActivity {
         if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
             out = storage.getTempEncoding();
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-            out = new File(targetUri.getPath());
+            out = Storage.getFile(targetUri);
         } else {
             throw new RuntimeException("unkonwn uri");
         }
