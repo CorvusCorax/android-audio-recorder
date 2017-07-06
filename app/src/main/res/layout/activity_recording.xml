@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -39,7 +40,9 @@
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_centerInParent="true"
-        android:padding="5dp" />
+        android:padding="5dp"
+        app:cutColor="?attr/cutColor"
+        app:recColor="?attr/recColor" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -57,16 +60,16 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_content_cut_24dp"
-                android:contentDescription="@string/cut_button" />
+                android:contentDescription="@string/cut_button"
+                android:src="@drawable/ic_content_cut_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_play"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_play_arrow_black_24dp"
-                android:contentDescription="@string/play_button" />
+                android:contentDescription="@string/play_button"
+                android:src="@drawable/ic_play_arrow_black_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_edit_done"
@@ -74,8 +77,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_close_24dp"
-                android:contentDescription="@string/stop_button" />
+                android:contentDescription="@string/stop_button"
+                android:src="@drawable/ic_close_24dp" />
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </FrameLayout>
 
@@ -103,26 +106,26 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
+                android:contentDescription="@string/cancel_button"
                 android:gravity="center"
-                android:src="@drawable/ic_close_24dp"
-                android:contentDescription="@string/cancel_button" />
+                android:src="@drawable/ic_close_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_pause"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:src="@drawable/ic_pause_black_24dp"
-                android:contentDescription="@string/pause_button" />
+                android:contentDescription="@string/pause_button"
+                android:src="@drawable/ic_pause_black_24dp" />
 
             <ImageButton
                 android:id="@+id/recording_done"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
-                android:tint="@android:color/white"
+                android:contentDescription="@string/stop_button"
                 android:src="@drawable/ic_done_black_24dp"
-                android:contentDescription="@string/stop_button" />
+                android:tint="@android:color/white" />
 
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </LinearLayout>

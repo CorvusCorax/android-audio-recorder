@@ -6,11 +6,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
-import android.webkit.MimeTypeMap;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Storage extends com.github.axet.audiolibrary.app.Storage {
@@ -38,7 +35,7 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
             Uri n = getNextFile(path, format, ext);
             return n;
         } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-            File f = new File(path.getPath());
+            File f = getFile(path);
             if (!f.exists() && !f.mkdirs()) {
                 throw new RuntimeException("Unable to create: " + path);
             }
