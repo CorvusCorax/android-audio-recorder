@@ -613,13 +613,42 @@ public class RecordingActivity extends AppCompatActivity {
 
         pitch.record();
 
-        if (thread != null) {
-            thread.interrupt();
+        AudioRecord rec = null;
+
+        int c = MainApplication.getInMode(RecordingActivity.this);
+        int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
+        if (min <= 0) {
+            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord: Bad audio values", Toast.LENGTH_SHORT).show();
+            finish();
         }
+        rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+        if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+            rec = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+                Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+
+        final RawSamples rs = new RawSamples(storage.getTempRecording());
+        rs.open(samplesTime);
+
+        final AudioRecord recorder = rec;
+
+        final Thread old = thread;
 
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                if (old != null) {
+                    old.interrupt();
+                    try {
+                        old.join();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
                 int p = android.os.Process.getThreadPriority(android.os.Process.myTid());
 
@@ -627,23 +656,7 @@ public class RecordingActivity extends AppCompatActivity {
                     Log.e(TAG, "Unable to set Thread Priority " + android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
                 }
 
-                RawSamples rs = null;
-                AudioRecord recorder = null;
                 try {
-                    rs = new RawSamples(storage.getTempRecording());
-                    rs.open(samplesTime);
-
-                    int c = MainApplication.getInMode(RecordingActivity.this);
-                    int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
-                    if (min <= 0)
-                        throw new RuntimeException("Unable to initialize AudioRecord: Bad audio values");
-                    recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
-                    if (recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-                        recorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
-                        if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
-                            throw new RuntimeException("Unable to initialize AudioRecord");
-                    }
-
                     long start = System.currentTimeMillis();
                     recorder.startRecording();
 
@@ -814,6 +827,11 @@ public class RecordingActivity extends AppCompatActivity {
     void encoding(final Runnable run) {
         final File in = storage.getTempRecording();
         final File out;
+
+        if (!in.exists()) {
+            finish();
+            return;
+        }
 
         final String s = targetUri.getScheme();
         if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
