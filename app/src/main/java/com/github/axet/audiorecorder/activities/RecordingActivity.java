@@ -620,6 +620,7 @@ public class RecordingActivity extends AppCompatActivity {
         if (min <= 0) {
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord: Bad audio values", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
         rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
         if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
@@ -627,6 +628,7 @@ public class RecordingActivity extends AppCompatActivity {
             if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
                 Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
                 finish();
+                return;
             }
         }
 
