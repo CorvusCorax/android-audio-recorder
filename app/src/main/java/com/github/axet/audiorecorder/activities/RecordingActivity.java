@@ -613,7 +613,7 @@ public class RecordingActivity extends AppCompatActivity {
 
         pitch.record();
 
-        AudioRecord rec = null;
+        AudioRecord rec;
 
         int c = MainApplication.getInMode(RecordingActivity.this);
         int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
