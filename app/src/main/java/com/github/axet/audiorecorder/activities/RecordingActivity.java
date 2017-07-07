@@ -348,7 +348,7 @@ public class RecordingActivity extends AppCompatActivity {
         // start once
         if (start) {
             start = false;
-            if (Build.VERSION.SDK_INT >= 21 || Storage.permitted(this, PERMISSIONS)) {
+            if (Storage.permitted(this, PERMISSIONS, 1)) {
                 startRecording();
             }
         }
