@@ -11,46 +11,14 @@
         <item>8 kHz (téléphone)</item>
     </string-array>
 
-    <string-array name="sample_rate_values" translatable="false">
-        <item>48000</item>
-        <item>44100</item>
-        <item>32000</item>
-        <item>22050</item>
-        <item>16000</item>
-        <item>11025</item>
-        <item>8000</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>Thème Clair</item>
         <item>Thème Sombre</item>
     </string-array>
 
-    <string-array name="themes_values" translatable="false">
-        <item>Theme_White</item>
-        <item>Theme_Dark</item>
-    </string-array>
-
     <string-array name="channels_text">
         <item>Mono (défault)</item>
         <item>Stéréo</item>
-    </string-array>
-
-    <string-array name="channels_values" translatable="false">
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
-    <string-array name="format_text" translatable="false">
-        <item>2017-02-01 09.08.01.wav</item>
-        <item>1487926249.wav</item>
-        <item>20170528T043902.wav</item>
-    </string-array>
-
-    <string-array name="format_values" formatted="false" translatable="false">
-        <item>%s</item>
-        <item>%T</item>
-        <item>%I</item>
     </string-array>
 
     <string name="not_permitted">Non autorisé</string>
