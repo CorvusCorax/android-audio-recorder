@@ -60,12 +60,12 @@
     <string name="recording_status_encoding">encodage</string>
     <string name="recording_status_pause">pause</string>
     <string name="recording_status_edit">édition</string>
-    <string name="confirm_cancel">Confirmer l'annulation</string>
+    <string name="confirm_cancel">Confirmer l\'annulation</string>
     <string name="encoding_title">Encodage...</string>
     <string name="pause_title">Pause...</string>
     <string name="recording_title">enregistrement</string>
-    <string name="open_recording_folder">Ouvrir le dossier d'enregistrement</string>
-    <string name="recording_list_is_empty">La liste d'enregistrement est vide\n\nClicquer sur Enregistrer pour commencer l'enregistrement</string>
+    <string name="open_recording_folder">Ouvrir le dossier d\'enregistrement</string>
+    <string name="recording_list_is_empty">La liste d\'enregistrement est vide\n\nClicquer sur Enregistrer pour commencer l\'enregistrement</string>
     <string name="record_button">Enregistrer</string>
     <string name="cut_button">Couper</string>
     <string name="stop_button">Stopper</string>
