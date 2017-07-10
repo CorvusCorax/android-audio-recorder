@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (défault)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (téléphone)</item>
+    </string-array>
+
+    <string-array name="sample_rate_values" translatable="false">
+        <item>48000</item>
+        <item>44100</item>
+        <item>32000</item>
+        <item>22050</item>
+        <item>16000</item>
+        <item>11025</item>
+        <item>8000</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Thème Clair</item>
+        <item>Thème Sombre</item>
+    </string-array>
+
+    <string-array name="themes_values" translatable="false">
+        <item>Theme_White</item>
+        <item>Theme_Dark</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (défault)</item>
+        <item>Stéréo</item>
+    </string-array>
+
+    <string-array name="channels_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="format_text" translatable="false">
+        <item>2017-02-01 09.08.01.wav</item>
+        <item>1487926249.wav</item>
+        <item>20170528T043902.wav</item>
+    </string-array>
+
+    <string-array name="format_values" formatted="false" translatable="false">
+        <item>%s</item>
+        <item>%T</item>
+        <item>%I</item>
+    </string-array>
+
+    <string name="not_permitted">Non autorisé</string>
+    <string name="no_folder_app">Aucune application installé pour visionner le dossier</string>
+    <string name="hold_by_call">pause (hold by call)</string>
+    <string name="recording_status_recording">enregistrement</string>
+    <string name="recording_status_encoding">encodage</string>
+    <string name="recording_status_pause">pause</string>
+    <string name="recording_status_edit">édition</string>
+    <string name="confirm_cancel">Confirmer l'annulation</string>
+    <string name="encoding_title">Encodage...</string>
+    <string name="pause_title">Pause...</string>
+    <string name="recording_title">enregistrement</string>
+    <string name="open_recording_folder">Ouvrir le dossier d'enregistrement</string>
+    <string name="recording_list_is_empty">La liste d'enregistrement est vide\n\nClicquer sur Enregistrer pour commencer l'enregistrement</string>
+    <string name="record_button">Enregistrer</string>
+    <string name="cut_button">Couper</string>
+    <string name="stop_button">Stopper</string>
+    <string name="cancel_button">Annuler</string>
+    <string name="pause_button">Pause</string>
+</resources>
