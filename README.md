@@ -25,6 +25,8 @@ If you want to translate 'Audio Recorder' to your language  please read this:
   * brazilian translation thanks to @vrozsas
   * itallian tralslation thanks to @Agno94
   * slovak translation thanks to @pvagner
+  * french thanks to @Nonot
+
 
 # Donations
 
