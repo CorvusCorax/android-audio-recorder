@@ -83,9 +83,10 @@ public class RecordingActivity extends AppCompatActivity {
     int sampleRate;
     // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
     int samplesUpdate;
+    int samplesUpdateStereo;
     // output target file 2016-01-01 01.01.01.wav
     Uri targetUri = null;
-    // how many samples passed for current recording
+    // how many samples passed for current recording, stereo = samplesTime * 2
     long samplesTime;
     // current cut position in mono samples, stereo = editSample * 2
     long editSample = -1;
@@ -215,6 +216,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
         }
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
+        samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
 
         updateBufferSize(false);
 
@@ -290,12 +292,14 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void loadSamples() {
-        if (!storage.getTempRecording().exists()) {
-            updateSamples(0);
+        File f = storage.getTempRecording();
+        if (!f.exists()) {
+            samplesTime = 0;
+            updateSamples(samplesTime);
             return;
         }
 
-        RawSamples rs = new RawSamples(storage.getTempRecording());
+        RawSamples rs = new RawSamples(f);
         samplesTime = rs.getSamples() / MainApplication.getChannels(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -303,8 +307,8 @@ public class RecordingActivity extends AppCompatActivity {
 
         int count = pitch.getMaxPitchCount(metrics.widthPixels);
 
-        short[] buf = new short[count * samplesUpdate];
-        long cut = samplesTime - buf.length;
+        short[] buf = new short[count * samplesUpdateStereo];
+        long cut = samplesTime * MainApplication.getChannels(this) - buf.length;
 
         if (cut < 0)
             cut = 0;
@@ -313,7 +317,6 @@ public class RecordingActivity extends AppCompatActivity {
         int len = rs.read(buf);
         rs.close();
 
-        int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
         pitch.clear(cut / samplesUpdateStereo);
         int lenUpdate = len / samplesUpdateStereo * samplesUpdateStereo; // cut right overs (leftovers from right)
         for (int i = 0; i < lenUpdate; i += samplesUpdateStereo) {
@@ -633,7 +636,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         final RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.open(samplesTime);
+        rs.open(samplesTime * MainApplication.getChannels(this));
 
         final AudioRecord recorder = rec;
 
@@ -669,8 +672,6 @@ public class RecordingActivity extends AppCompatActivity {
                     short[] buffer = null;
 
                     boolean stableRefresh = false;
-
-                    int samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(RecordingActivity.this);
 
                     while (!Thread.currentThread().isInterrupted()) {
                         synchronized (bufferSizeLock) {
