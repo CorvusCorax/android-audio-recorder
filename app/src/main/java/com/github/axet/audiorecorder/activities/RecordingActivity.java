@@ -875,20 +875,13 @@ public class RecordingActivity extends AppCompatActivity {
         d.setIndeterminate(false);
         d.show();
 
-        encoder.run(new Runnable() {
+        final Runnable suc = new Runnable() {
             @Override
             public void run() {
-                d.setProgress(encoder.getProgress());
-            }
-        }, new Runnable() {
-            @Override
-            public void run() { // success
-                d.cancel();
-
-                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME we write dirrectlry to storage
                     ContentResolver resolver = getContentResolver();
                     try {
-                        String d = storage.getDocumentName(targetUri);
+                        String d = Storage.getDocumentName(targetUri);
                         String ee = storage.getExt(targetUri);
                         Uri docUri = DocumentsContract.buildDocumentUriUsingTree(targetUri, DocumentsContract.getTreeDocumentId(targetUri));
                         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
@@ -899,33 +892,62 @@ public class RecordingActivity extends AppCompatActivity {
                         IOUtils.copy(is, os);
                         is.close();
                         os.close();
-                        storage.delete(out); // delete tmp encoding file
+                        Storage.delete(out); // delete tmp encoding file
                     } catch (IOException e) {
-                        storage.delete(out); // delete tmp encoding file
+                        Storage.delete(out); // delete tmp encoding file
                         try {
                             storage.delete(targetUri); // delete SAF encoding file
                         } catch (RuntimeException ee) {
                             Log.d(TAG, "unable to delete target uri", e); // ignore, not even created?
                         }
-                        Error(e);
+                        Post(e);
                         d.cancel();
                         return;
                     }
                 }
 
-                storage.delete(in); // delete raw recording
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Storage.delete(in); // delete raw recording
 
-                SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
-                edit.commit();
+                        SharedPreferences.Editor edit = shared.edit();
+                        edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+                        edit.commit();
 
-                run.run();
+                        run.run();
+
+                        d.cancel();
+                    }
+                });
+            }
+        };
+
+        encoder.run(new Runnable() {
+            @Override
+            public void run() {
+                d.setProgress(encoder.getProgress());
+            }
+        }, new Runnable() {
+            @Override
+            public void run() { // success
+                Thread thread = new Thread(suc); // network on main thread for SAF network
+                thread.start();
             }
         }, new Runnable() {
             @Override
             public void run() { // done
                 d.cancel();
                 Error(encoder.getException());
+            }
+        });
+    }
+
+    void Post(final Throwable e) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Error(e);
             }
         });
     }
