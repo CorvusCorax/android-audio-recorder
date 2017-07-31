@@ -409,14 +409,17 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void edit(boolean show, boolean animate) {
+        View box = findViewById(R.id.recording_edit_box);
+        View cut = box.findViewById(R.id.recording_cut);
+        final ImageView playButton = (ImageView) box.findViewById(R.id.recording_play);
+        View done = box.findViewById(R.id.recording_edit_done);
+
         if (show) {
             setState(getString(R.string.recording_status_edit));
             editPlay(false);
 
-            View box = findViewById(R.id.recording_edit_box);
             MarginBottomAnimation.apply(box, true, animate);
 
-            View cut = box.findViewById(R.id.recording_cut);
             cut.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -424,7 +427,6 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             });
 
-            final ImageView playButton = (ImageView) box.findViewById(R.id.recording_play);
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -436,7 +438,6 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             });
 
-            View done = box.findViewById(R.id.recording_edit_done);
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -450,8 +451,10 @@ public class RecordingActivity extends AppCompatActivity {
             pitch.edit(-1);
             pitch.stop();
 
-            View box = findViewById(R.id.recording_edit_box);
             MarginBottomAnimation.apply(box, false, animate);
+            cut.setOnClickListener(null);
+            playButton.setOnClickListener(null);
+            done.setOnClickListener(null);
         }
     }
 
