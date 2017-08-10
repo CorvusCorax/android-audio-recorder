@@ -11,6 +11,6 @@ public class OnBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent i) {
         Log.d(TAG, "onReceive");
-        RecordingService.startIfEnabledPending(context);
+        RecordingService.startIfPending(context);
     }
 }

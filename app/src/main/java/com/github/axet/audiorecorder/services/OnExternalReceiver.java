@@ -29,6 +29,6 @@ public class OnExternalReceiver extends BroadcastReceiver {
         if (!isExternal(context))
             return;
 
-        RecordingService.startIfEnabledPending(context);
+        RecordingService.startIfPending(context);
     }
 }
