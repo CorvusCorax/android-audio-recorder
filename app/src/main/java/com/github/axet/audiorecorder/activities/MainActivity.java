@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         list.setEmptyView(findViewById(R.id.empty_list));
         recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
 
-        RecordingService.startIfEnabled(this);
+        RecordingService.startIfPending(this);
 
         IntentFilter ff = new IntentFilter();
         ff.addAction(Intent.ACTION_SCREEN_OFF);

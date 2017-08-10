@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -54,13 +55,24 @@ public class RecordingService extends Service {
         start(context);
     }
 
-    public static void startIfEnabledPending(Context context) {
-        Storage s = new Storage(context);
-        if (s.recordingPending()) {
+    public static void startIfPending(Context context) {
+        Storage st = new Storage(context);
+        if (st.recordingPending()) {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
             String f = shared.getString(MainApplication.PREFERENCE_TARGET, "");
-            File file = new File(f);
-            startService(context, file.getName(), false, false);
+            String d;
+            Uri u = Uri.parse(f);
+            String s = u.getScheme();
+            if (s.equals(ContentResolver.SCHEME_CONTENT)) {
+                d = Storage.getDocumentName(u);
+            } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+                File file = new File(u.getPath());
+                d = file.getName();
+            } else {
+                File file = new File(f);
+                d = file.getName();
+            }
+            startService(context, d, false, false);
             return;
         }
         startIfEnabled(context);
