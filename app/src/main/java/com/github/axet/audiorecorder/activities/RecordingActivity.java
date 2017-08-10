@@ -867,29 +867,32 @@ public class RecordingActivity extends AppCompatActivity {
 
         encoder = new FileEncoder(this, in, e);
 
-        RecordingService.startService(this, storage.getDocumentName(targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(R.string.encoding_title);
-        d.setMessage(".../" + storage.getDocumentName(targetUri));
+        d.setMessage(".../" + Storage.getDocumentName(targetUri));
         d.setMax(100);
         d.setCancelable(false);
         d.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         d.setIndeterminate(false);
         d.show();
 
-        final Runnable suc = new Runnable() {
+        final Runnable save = new Runnable() {
             @Override
             public void run() {
                 if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME we write dirrectlry to storage
                     ContentResolver resolver = getContentResolver();
                     try {
+                        Uri root = Storage.getDocumentTreeUri(targetUri);
+                        resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         String d = Storage.getDocumentName(targetUri);
                         String ee = storage.getExt(targetUri);
                         Uri docUri = DocumentsContract.buildDocumentUriUsingTree(targetUri, DocumentsContract.getTreeDocumentId(targetUri));
                         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
                         Uri childrenUri = DocumentsContract.createDocument(resolver, docUri, mime, d);
-
+                        if (childrenUri == null)
+                            throw new IOException("unable to create document " + d);
                         InputStream is = new FileInputStream(out);
                         OutputStream os = resolver.openOutputStream(childrenUri);
                         IOUtils.copy(is, os);
@@ -934,7 +937,7 @@ public class RecordingActivity extends AppCompatActivity {
         }, new Runnable() {
             @Override
             public void run() { // success
-                Thread thread = new Thread(suc); // network on main thread for SAF network
+                Thread thread = new Thread(save); // network on main thread for SAF network
                 thread.start();
             }
         }, new Runnable() {
