@@ -886,20 +886,8 @@ public class RecordingActivity extends AppCompatActivity {
                     try {
                         Uri root = Storage.getDocumentTreeUri(targetUri);
                         resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        String d = Storage.getDocumentName(targetUri);
-                        String ee = storage.getExt(targetUri);
-                        Uri docUri = DocumentsContract.buildDocumentUriUsingTree(targetUri, DocumentsContract.getTreeDocumentId(targetUri));
-                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ee);
-                        Uri childrenUri = DocumentsContract.createDocument(resolver, docUri, mime, d);
-                        if (childrenUri == null)
-                            throw new IOException("unable to create document " + d);
-                        InputStream is = new FileInputStream(out);
-                        OutputStream os = resolver.openOutputStream(childrenUri);
-                        IOUtils.copy(is, os);
-                        is.close();
-                        os.close();
-                        Storage.delete(out); // delete tmp encoding file
-                    } catch (IOException e) {
+                        storage.move(out, root, Storage.getDocumentPath(targetUri));
+                    } catch (RuntimeException e) {
                         Storage.delete(out); // delete tmp encoding file
                         try {
                             storage.delete(targetUri); // delete SAF encoding file
