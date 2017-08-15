@@ -61,11 +61,11 @@ public class RecordingService extends Service {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
             String f = shared.getString(MainApplication.PREFERENCE_TARGET, "");
             String d;
-            Uri u = Uri.parse(f);
-            String s = u.getScheme();
-            if (s.equals(ContentResolver.SCHEME_CONTENT)) {
+            if (f.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                Uri u = Uri.parse(f);
                 d = Storage.getDocumentName(u);
-            } else if (s.equals(ContentResolver.SCHEME_FILE)) {
+            } else if (f.startsWith(ContentResolver.SCHEME_FILE)) {
+                Uri u = Uri.parse(f);
                 File file = new File(u.getPath());
                 d = file.getName();
             } else {
