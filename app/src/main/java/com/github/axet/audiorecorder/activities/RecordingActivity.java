@@ -886,7 +886,7 @@ public class RecordingActivity extends AppCompatActivity {
                     try {
                         Uri root = Storage.getDocumentTreeUri(targetUri);
                         resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        storage.move(out, root, Storage.getDocumentPath(targetUri));
+                        storage.move(out, root, Storage.getDocumentName(targetUri));
                     } catch (RuntimeException e) {
                         Storage.delete(out); // delete tmp encoding file
                         try {
