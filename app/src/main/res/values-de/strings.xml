@@ -12,31 +12,31 @@
     </string-array>
 
     <string-array name="themes_text">
-        <item>Theme White (Standard)</item>
-        <item>Theme Dark</item>
+        <item>Theme Weiß (Standard)</item>
+        <item>Theme Dunkel</item>
     </string-array>
 
     <string-array name="channels_text">
-        <item>Mono (default)</item>
+        <item>Mono (Standard)</item>
         <item>Stereo</item>
     </string-array>
 
     <string name="not_permitted">Nicht erlaubt</string>
     <string name="no_folder_app">Keine App zur Anzeige von Ordnern installiert</string>
-    <string name="hold_by_call">pause (bei Anruf)</string>
+    <string name="hold_by_call">pausieren (bei Anruf)</string>
     <string name="recording_status_recording">aufnehmen</string>
-    <string name="recording_status_encoding">encoding</string>
-    <string name="recording_status_pause">pause</string>
+    <string name="recording_status_encoding">kodieren</string>
+    <string name="recording_status_pause">pausieren</string>
     <string name="recording_status_edit">bearbeiten</string>
     <string name="confirm_cancel">Bestätige Abbruch</string>
-    <string name="encoding_title">Encoding...</string>
+    <string name="encoding_title">Kodierung...</string>
     <string name="recording_title">Aufnahme</string>
     <string name="pause_title">Pause...</string>
-    <string name="open_recording_folder">Öffne Aufnahme-Ordner</string>
-    <string name="recording_list_is_empty">Aufnahmeliste ist leer\n\nDrücke \'Aufnehmen\' um die Aufnahme zu starten</string>
-    <string name="record_button">Record</string>
-    <string name="cut_button">Cut</string>
+    <string name="open_recording_folder">Öffne Aufnahmeordner</string>
+    <string name="recording_list_is_empty">Aufnahmeliste ist leer\n\nDrücke \'Aufnehmen\', um die Aufnahme zu starten</string>
+    <string name="record_button">Aufnahme</string>
+    <string name="cut_button">Schneiden</string>
     <string name="stop_button">Stop</string>
-    <string name="cancel_button">Cancel</string>
+    <string name="cancel_button">Abbruch</string>
     <string name="pause_button">Pause</string>
 </resources>
