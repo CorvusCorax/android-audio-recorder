@@ -886,13 +886,13 @@ public class RecordingActivity extends AppCompatActivity {
                     try {
                         Uri root = Storage.getDocumentTreeUri(targetUri);
                         resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        storage.move(out, root, Storage.getDocumentName(targetUri));
+                        storage.move(out, root, Storage.getDocumentChildPath(targetUri));
                     } catch (RuntimeException e) {
                         Storage.delete(out); // delete tmp encoding file
                         try {
                             storage.delete(targetUri); // delete SAF encoding file
                         } catch (RuntimeException ee) {
-                            Log.d(TAG, "unable to delete target uri", e); // ignore, not even created?
+                            Log.d(TAG, "unable to delete target uri", ee); // ignore, not even created?
                         }
                         Post(e);
                         d.cancel();
@@ -947,6 +947,7 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void Error(Throwable e) {
+        Log.d(TAG, "error", e);
         String msg = e.getMessage();
         if (msg == null || msg.isEmpty()) {
             Throwable t;
