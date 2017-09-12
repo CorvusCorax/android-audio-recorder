@@ -15,3 +15,14 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontobfuscate
+
+-keep class com.github.axet.vorbisjni.Vorbis {*;}
+-keep class com.github.axet.lamejni.Lame {*;}
+-keep class com.github.axet.opusjni.Opus {*;}
+
+-dontwarn net.sourceforge.javaflacencoder.**
+-dontwarn com.jssrc.resample.**
+-dontwarn org.apache.commons.**
+-dontwarn org.slf4j.**
