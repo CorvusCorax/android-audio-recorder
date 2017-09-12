@@ -185,6 +185,8 @@ public class RecordingActivity extends AppCompatActivity {
                 if (file != null) {
                     if (file.startsWith(ContentResolver.SCHEME_CONTENT))
                         targetUri = Uri.parse(file);
+                    else if (file.startsWith(ContentResolver.SCHEME_FILE))
+                        targetUri = Uri.parse(file);
                     else
                         targetUri = Uri.fromFile(new File(file));
                 }
