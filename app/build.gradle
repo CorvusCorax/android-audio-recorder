@@ -4,12 +4,12 @@ import com.android.build.OutputFile
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "com.github.axet.audiorecorder"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 209
         versionName "3.0.43"
     }
@@ -36,12 +36,10 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            def file = output.packageApplication.outputFile
             def abi = output.getFilter(OutputFile.ABI)
             if (abi == null)
                 abi = "universal";
-            def fileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + abi + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
-            output.packageApplication.outputFile = new File(file.parent, fileName)
+            output.outputFileName = org.apache.commons.io.FilenameUtils.getExtension(android.defaultConfig.applicationId) + "-" + abi + "-" + android.defaultConfig.versionName + "-" + variant.buildType.name + ".apk"
         }
     }
     splits {
