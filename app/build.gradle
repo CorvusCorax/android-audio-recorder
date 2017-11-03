@@ -10,8 +10,8 @@ android {
         applicationId "com.github.axet.audiorecorder"
         minSdkVersion 9
         targetSdkVersion 25
-        versionCode 209
-        versionName "3.0.43"
+        versionCode 210
+        versionName "3.0.44"
     }
     signingConfigs {
         release {
