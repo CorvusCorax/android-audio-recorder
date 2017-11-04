@@ -64,6 +64,12 @@
                 <action android:name="android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="com.github.axet.audiolibrary.services.RecordingContentProvider"
+            android:authorities="com.github.axet.audiorecorder"
+            android:exported="false"
+            android:grantUriPermissions="true"></provider>
     </application>
 
 </manifest>
