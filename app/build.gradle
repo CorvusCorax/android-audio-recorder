@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.github.axet.audiorecorder"
         minSdkVersion 9
-        targetSdkVersion 25
+        targetSdkVersion 24 // 25+ file:// unable to open
         versionCode 213
         versionName "3.0.47"
     }
