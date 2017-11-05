@@ -34,8 +34,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
+import com.github.axet.audiolibrary.services.RecordingContentProvider;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
@@ -138,13 +140,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    Intent showIntent() {
-        Uri selectedUri = storage.getStoragePath();
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(selectedUri, "resource/folder");
-        return intent;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -152,8 +147,9 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
-        Intent intent = showIntent();
-        if (intent.resolveActivityInfo(getPackageManager(), 0) == null) {
+        Intent intent = Storage.openFolderIntent(this, storage.getStoragePath(), null);
+        item.setIntent(intent);
+        if (Storage.isFolderCallable(this, intent, RecordingContentProvider.getAuthority())) {
             item.setVisible(false);
         }
 
@@ -179,12 +175,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_show_folder) {
-            Intent intent = showIntent();
-            if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, R.string.no_folder_app, Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = item.getIntent();
+            startActivity(intent);
             return true;
         }
 
