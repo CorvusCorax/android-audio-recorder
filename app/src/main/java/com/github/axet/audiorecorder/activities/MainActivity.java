@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         MenuItem item = menu.findItem(R.id.action_show_folder);
         Intent intent = Storage.openFolderIntent(this, storage.getStoragePath(), null);
         item.setIntent(intent);
-        if (Storage.isFolderCallable(this, intent, RecordingContentProvider.getAuthority())) {
+        if (!Storage.isFolderCallable(this, intent, RecordingContentProvider.getAuthority())) {
             item.setVisible(false);
         }
 
