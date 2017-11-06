@@ -461,7 +461,12 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void setState(String s) {
-        long free = Storage.getFree(storage.getTempRecording());
+        long free = 0;
+
+        try {
+            free = Storage.getFree(storage.getTempRecording());
+        } catch (RuntimeException e) { // IllegalArgumentException
+        }
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
