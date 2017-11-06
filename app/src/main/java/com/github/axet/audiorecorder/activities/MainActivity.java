@@ -3,7 +3,6 @@ package com.github.axet.audiorecorder.activities;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,18 +10,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.system.ErrnoException;
-import android.system.Os;
-import android.system.StructStatVfs;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,18 +26,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
-import com.github.axet.audiolibrary.services.RecordingContentProvider;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
@@ -147,9 +135,9 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
-        Intent intent = Storage.openFolderIntent(this, storage.getStoragePath(), null);
+        Intent intent = StorageProvider.openFolderIntent(this, storage.getStoragePath());
         item.setIntent(intent);
-        if (!Storage.isFolderCallable(this, intent, RecordingContentProvider.getAuthority())) {
+        if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getAuthority())) {
             item.setVisible(false);
         }
 
@@ -193,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.startActivity(this);
             return;
         }
+
+        invalidateOptionsMenu(); // update storage folder intent
 
         try {
             storage.migrateLocalStorage();
