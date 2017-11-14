@@ -39,4 +39,20 @@
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Abbruch</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">Speicherpfad</string>
+    <string name="pref_rate_title">Abtastrate</string>
+    <string name="pref_encoding_title">Encoding</string>
+    <string name="pref_encoding_summary">Ausgabedateiformate (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Mono/Stereo</string>
+    <string name="pref_mode_summary">Aufnahmekanäle</string>
+    <string name="pref_nameformat_title">Format für Name</string>
+    <string name="pref_pausecalls_title">Pausieren während Telefonaten</string>
+    <string name="pref_pausecalls_summary">Stoppe Aufnahme bei Anrufannahme und setze nach Auflegen fort</string>
+    <string name="pref_silence_title">Ruhe-Modus</string>
+    <string name="pref_silence_summary">Aktiviere Audio-Profil \'Nicht Stören\' während Aufnahmen</string>
+    <string name="pref_lockscreen_title">Steuerelemente im Sperrbildschirm</string>
+    <string name="pref_lockscreen_summary">Zeige Steuerelemente im Sperrbildschirm an</string>
+    <string name="pref_theme_title">App-Theme</string>
+    <string name="pref_theme.summary">Wähle App-Theme (dunkel / hell)</string>
 </resources>

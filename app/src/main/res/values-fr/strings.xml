@@ -39,4 +39,20 @@
     <string name="stop_button">Stopper</string>
     <string name="cancel_button">Annuler</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">Dossier de stockage</string>
+    <string name="pref_rate_title">Taux d\'échantillonnage</string>
+    <string name="pref_encoding_title">Encodage</string>
+    <string name="pref_encoding_summary">Formats de sortie (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Mode</string>
+    <string name="pref_mode_summary">Canaux d\'enregistrements</string>
+    <string name="pref_nameformat_title">Format de nommage</string>
+    <string name="pref_pausecalls_title">Mettre en pause durant les appels</string>
+    <string name="pref_pausecalls_summary">Arrêtez l\'enregistrement lorsque vous répondez à un appel et se poursuit lorsque vous posez</string>
+    <string name="pref_silence_title">Mode Silence</string>
+    <string name="pref_silence_summary">Mettre le téléphone en mode silencieux pendant l\'enregistrement</string>
+    <string name="pref_lockscreen_title">Contrôles écran éteint</string>
+    <string name="pref_lockscreen_summary">Montrez les contrôles quand le téléphone est vérrouillé</string>
+    <string name="pref_theme_title">Application du Theme</string>
+    <string name="pref_theme.summary">Appliquer le théme (Sombre | Blanc)</string>
 </resources>

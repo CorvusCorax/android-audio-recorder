@@ -39,4 +39,20 @@
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">Destino das gravações</string>
+    <string name="pref_rate_title">Taxa de amostragem</string>
+    <string name="pref_encoding_title">Codificação</string>
+    <string name="pref_encoding_summary">Formato de saída do arquivo (.wav, .mp3, etc.)</string>
+    <string name="pref_mode_title">Modo</string>
+    <string name="pref_mode_summary">Canais a gravar</string>
+    <string name="pref_nameformat_title">Formato do nome de arquivo</string>
+    <string name="pref_pausecalls_title">Pausar durante chamadas</string>
+    <string name="pref_pausecalls_summary">e voltar a gravar quando a chamada for desligada</string>
+    <string name="pref_silence_title">Modo silencioso</string>
+    <string name="pref_silence_summary">Silenciar o aparelho durante a gravação</string>
+    <string name="pref_lockscreen_title">Controle da tela bloqueada</string>
+    <string name="pref_lockscreen_summary">Mostrar controles quando a tela estiver bloqueada</string>
+    <string name="pref_theme_title">Tema do app</string>
+    <string name="pref_theme.summary">Definir o tema (claro ou escuro)</string>
 </resources>

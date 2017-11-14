@@ -39,4 +39,20 @@
     <string name="stop_button">Zastaviť</string>
     <string name="cancel_button">Zrušiť</string>
     <string name="pause_button">Pozastaviť</string>
+
+    <string name="pref_storage_title">Priečinok s nahrávkami</string>
+    <string name="pref_rate_title">Vzorkovacia frekvencia</string>
+    <string name="pref_encoding_title">Kódovanie</string>
+    <string name="pref_encoding_summary">Výstupný zvukový formát (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Režim</string>
+    <string name="pref_mode_summary">Zvukové kanály</string>
+    <string name="pref_nameformat_title">Formát názvu súboru</string>
+    <string name="pref_pausecalls_title">Pozastaviť počas hovoru</string>
+    <string name="pref_pausecalls_summary">Zastaví nahrávanie po prijatí hovoru a po jeho ukončení bude nahrávanie pokračovať</string>
+    <string name="pref_silence_title">Tichý režim</string>
+    <string name="pref_silence_summary">Prepnúť zariadenie do tichého režimu počas nahrávania</string>
+    <string name="pref_lockscreen_title">Tlačidlá na uzamikacej obrazovke</string>
+    <string name="pref_lockscreen_summary">Zobraziť ovládacie prvky na zamikacej obrazovke</string>
+    <string name="pref_theme_title">Téma</string>
+    <string name="pref_theme.summary">Farebná téma aplikácie (svetlá / tmavá)</string>
 </resources>

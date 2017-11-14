@@ -4,7 +4,7 @@
         android:defaultValue="Audio Recorder"
         android:key="storage_path"
         android:summary="/sdcard/some/"
-        android:title="Storage Path" />
+        android:title="@string/pref_storage_title" />
 
     <ListPreference
         android:defaultValue="16000"
@@ -14,7 +14,7 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="44100"
-        android:title="Sample Rate" />
+        android:title="@string/pref_rate_title" />
 
     <ListPreference
         android:defaultValue="ogg"
@@ -23,8 +23,8 @@
         android:key="encoding"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Output file formats (.wav, .m4a, ...)"
-        android:title="Encoding" />
+        android:summary="@string/pref_encoding_summary"
+        android:title="@string/pref_encoding_title" />
 
     <ListPreference
         android:defaultValue="1"
@@ -33,8 +33,8 @@
         android:key="channels"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Recording channels"
-        android:title="Mode" />
+        android:summary="@string/pref_mode_summary"
+        android:title="@string/pref_mode_title" />
 
     <ListPreference
         android:defaultValue="%s"
@@ -44,25 +44,25 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="2015-12-31 22:11:34"
-        android:title="Name Format" />
+        android:title="@string/pref_nameformat_title" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="call"
-        android:summary="Stop recording on answering and continue on hangup"
-        android:title="Pause During Calls" />
+        android:summary="@string/pref_pausecalls_summary"
+        android:title="@string/pref_pausecalls_title" />
 
     <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
         android:defaultValue="false"
         android:key="silence"
-        android:summary="Put phone in 'silence mode' during recording"
-        android:title="Silence Mode" />
+        android:summary="@string/pref_silence_summary"
+        android:title="@string/pref_silence_title" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="controls"
-        android:summary="Show controls when phone is locked"
-        android:title="Lockscreen Controls" />
+        android:summary="@string/pref_lockscreen_summary"
+        android:title="@string/pref_lockscreen_title" />
 
     <ListPreference
         android:defaultValue="Theme_White"
@@ -71,7 +71,7 @@
         android:key="theme"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Set application theme (dark / light)"
-        android:title="Application Theme" />
+        android:summary="@string/pref_theme.summary"
+        android:title="@string/pref_theme_title" />
 
 </PreferenceScreen>
