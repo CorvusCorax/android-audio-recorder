@@ -39,4 +39,20 @@
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">Salva file in ...</string>
+    <string name="pref_rate_title">Frequenza di campionamento</string>
+    <string name="pref_encoding_title">Codifica</string>
+    <string name="pref_encoding_summary">Formato del file prodotto (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Canali</string>
+    <string name="pref_mode_summary">Numero di canali per la registrazione</string>
+    <string name="pref_nameformat_title">Formato per il nome</string>
+    <string name="pref_pausecalls_title">Pausa durante le chiamate</string>
+    <string name="pref_pausecalls_summary">Ferma la registrazione quando rispondi a chiamate e continua quando metti giù</string>
+    <string name="pref_silence_title">Silenzioso</string>
+    <string name="pref_silence_summary">Metti in cellulare in \'silenzioso\' durante le registrazioni</string>
+    <string name="pref_lockscreen_title">Controlli su schermo bloccato</string>
+    <string name="pref_lockscreen_summary">Mostra i controlli quando il cellulare è bloccato</string>
+    <string name="pref_theme_title">Tema applicazione</string>
+    <string name="pref_theme.summary">Imposta il tema dell'applicazione (scuro / chiaro)</string>
 </resources>

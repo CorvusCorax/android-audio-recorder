@@ -39,4 +39,20 @@
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">ストレージのパス</string>
+    <string name="pref_rate_title">サンプルレート</string>
+    <string name="pref_encoding_title">エンコーディング</string>
+    <string name="pref_encoding_summary">出力ファイル形式 (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">モード</string>
+    <string name="pref_mode_summary">録音チャンネル</string>
+    <string name="pref_nameformat_title">名前の書式</string>
+    <string name="pref_pausecalls_title">着信時に一時停止</string>
+    <string name="pref_pausecalls_summary">着信して通話をする間、録音を停止します</string>
+    <string name="pref_silence_title">マナーモード</string>
+    <string name="pref_silence_summary">録音中、電話を \'マナーモード\' にします</string>
+    <string name="pref_lockscreen_title">ロック画面コントロール</string>
+    <string name="pref_lockscreen_summary">電話がロックされた時にコントロールを表示します</string>
+    <string name="pref_theme_title">アプリケーションのテーマ</string>
+    <string name="pref_theme.summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
 </resources>

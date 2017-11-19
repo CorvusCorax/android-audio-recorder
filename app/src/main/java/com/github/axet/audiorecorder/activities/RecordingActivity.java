@@ -515,6 +515,8 @@ public class RecordingActivity extends AppCompatActivity {
             if (r != buf.len)
                 throw new RuntimeException("unable to read data");
             int last = buf.len / buf.getChannels() - 1;
+            if (play != null)
+                play.release();
             play = AudioTrack.create(Sound.SOUND_STREAM, Sound.SOUND_CHANNEL, Sound.SOUND_TYPE, buf);
             play.setNotificationMarkerPosition(last);
             play.setPositionNotificationPeriod(playUpdate);
@@ -601,6 +603,11 @@ public class RecordingActivity extends AppCompatActivity {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_NONE);
             pscl = null;
+        }
+
+        if (play != null) {
+            play.release();
+            play = null;
         }
 
         if (encoder != null) {

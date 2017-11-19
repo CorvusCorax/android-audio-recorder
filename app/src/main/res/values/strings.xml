@@ -71,4 +71,20 @@
     <string name="stop_button">Stop</string>
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
+
+    <string name="pref_storage_title">Storage Path</string>
+    <string name="pref_rate_title">Sample Rate</string>
+    <string name="pref_encoding_title">Encoding</string>
+    <string name="pref_encoding_summary">Output file formats (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Mode</string>
+    <string name="pref_mode_summary">Recording channels</string>
+    <string name="pref_nameformat_title">Name Format</string>
+    <string name="pref_pausecalls_title">Pause During Calls</string>
+    <string name="pref_pausecalls_summary">Stop recording on answering and continue on hangup</string>
+    <string name="pref_silence_title">Silence Mode</string>
+    <string name="pref_silence_summary">Put phone in \'silence mode\' during recording</string>
+    <string name="pref_lockscreen_title">Lockscreen Controls</string>
+    <string name="pref_lockscreen_summary">Show controls when phone is locked</string>
+    <string name="pref_theme_title">Application Theme</string>
+    <string name="pref_theme.summary">Set application theme (dark / light)</string>
 </resources>

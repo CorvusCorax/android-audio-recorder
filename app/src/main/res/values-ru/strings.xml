@@ -39,4 +39,20 @@
     <string name="stop_button">Стоп</string>
     <string name="cancel_button">Отмена</string>
     <string name="pause_button">Пауза</string>
+
+    <string name="pref_storage_title">Папка для хранения</string>
+    <string name="pref_rate_title">Частота записи</string>
+    <string name="pref_encoding_title">Кодировка</string>
+    <string name="pref_encoding_summary">Формат выходного файла (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Режим</string>
+    <string name="pref_mode_summary">Режим записи</string>
+    <string name="pref_nameformat_title">Имя нового файла</string>
+    <string name="pref_pausecalls_title">Пауза на время разговора</string>
+    <string name="pref_pausecalls_summary">Останавливать запись на время разговора по телефону</string>
+    <string name="pref_silence_title">Режим тишины</string>
+    <string name="pref_silence_summary">Включать беззвучный режим на время записи</string>
+    <string name="pref_lockscreen_title">Панель управления</string>
+    <string name="pref_lockscreen_summary">Показывать панель управления когда телефон заблокирован</string>
+    <string name="pref_theme_title">Тема приложения</string>
+    <string name="pref_theme.summary">Установить тему приложения (темная / светлая)</string>
 </resources>
