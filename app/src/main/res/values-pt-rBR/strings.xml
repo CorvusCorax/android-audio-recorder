@@ -21,7 +21,6 @@
         <item>Estéreo</item>
     </string-array>
 
-    <string name="not_permitted">Não permitido</string>
     <string name="no_folder_app">Não foi encontrado um aplicativo para explorar arquivos</string>
     <string name="hold_by_call">pausado (chamada atendida)</string>
     <string name="recording_status_recording">gravando</string>

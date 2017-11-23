@@ -223,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
     int getLastRecording(String last) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         for (int i = 0; i < recordings.getCount(); i++) {
-            Uri f = recordings.getItem(i);
-            if (Storage.getDocumentName(f).equals(last)) {
+            Storage.RecordingUri f = recordings.getItem(i);
+            if (f.name.equals(last)) {
                 SharedPreferences.Editor edit = shared.edit();
                 edit.putString(MainApplication.PREFERENCE_LAST, "");
                 edit.commit();

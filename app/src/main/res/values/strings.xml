@@ -53,7 +53,6 @@
         <item>%I</item>
     </string-array>
 
-    <string name="not_permitted">Not permitted</string>
     <string name="no_folder_app">No folder view application installed</string>
     <string name="hold_by_call">pause (hold by call)</string>
     <string name="recording_status_recording">recording</string>

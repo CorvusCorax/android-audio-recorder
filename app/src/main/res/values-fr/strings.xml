@@ -21,7 +21,6 @@
         <item>Stéréo</item>
     </string-array>
 
-    <string name="not_permitted">Non autorisé</string>
     <string name="no_folder_app">Aucune application installé pour visionner le dossier</string>
     <string name="hold_by_call">pause (hold by call)</string>
     <string name="recording_status_recording">enregistrement</string>

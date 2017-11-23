@@ -244,6 +244,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
+
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
             s.setStorage(new Storage(getContext()));
             s.setPermissionsDialog(this, PERMISSIONS, 1);
@@ -276,11 +277,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
             switch (requestCode) {
                 case 1:
-                    if (Storage.permitted(getContext(), permissions))
-                        ;
-                    else
-                        Toast.makeText(getContext(), R.string.not_permitted, Toast.LENGTH_SHORT).show();
-                    s.onRequestPermissionsResult();
+                    s.onRequestPermissionsResult(permissions, grantResults);
                     break;
             }
         }

@@ -21,7 +21,6 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="not_permitted">Nicht erlaubt</string>
     <string name="no_folder_app">Keine App zur Anzeige von Ordnern installiert</string>
     <string name="hold_by_call">pausieren (bei Anruf)</string>
     <string name="recording_status_recording">aufnehmen</string>

@@ -21,7 +21,6 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="not_permitted">Nepovolené</string>
     <string name="no_folder_app">Nie je nainštalovaná žiadna aplikácia na zobrazenie obsahu priečinka</string>
     <string name="hold_by_call">pozastavené (automaticky počas hovoru)</string>
     <string name="recording_status_recording">nahrávanie</string>

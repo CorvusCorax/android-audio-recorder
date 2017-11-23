@@ -21,7 +21,6 @@
         <item>ステレオ</item>
     </string-array>
 
-    <string name="not_permitted">許可されていません</string>
     <string name="no_folder_app">フォルダーを表示するアプリケーションがインストールされていません</string>
     <string name="hold_by_call">一時停止 (着信により保留)</string>
     <string name="recording_status_recording">録音中</string>

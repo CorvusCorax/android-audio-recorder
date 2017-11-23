@@ -21,7 +21,6 @@
         <item>Стерео</item>
     </string-array>
 
-    <string name="not_permitted">Доступ запрещен</string>
     <string name="no_folder_app">Программа для просмотра папок не установлена</string>
     <string name="hold_by_call">пауза (звонок)</string>
     <string name="recording_status_recording">запись</string>
