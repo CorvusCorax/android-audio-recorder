@@ -53,5 +53,5 @@
     <string name="pref_lockscreen_title">Contrôles écran éteint</string>
     <string name="pref_lockscreen_summary">Montrez les contrôles quand le téléphone est vérrouillé</string>
     <string name="pref_theme_title">Application du Theme</string>
-    <string name="pref_theme.summary">Appliquer le théme (Sombre | Blanc)</string>
+    <string name="pref_theme_summary">Appliquer le théme (Sombre | Blanc)</string>
 </resources>

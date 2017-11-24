@@ -53,5 +53,5 @@
     <string name="pref_lockscreen_title">ロック画面コントロール</string>
     <string name="pref_lockscreen_summary">電話がロックされた時にコントロールを表示します</string>
     <string name="pref_theme_title">アプリケーションのテーマ</string>
-    <string name="pref_theme.summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
+    <string name="pref_theme_summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
 </resources>

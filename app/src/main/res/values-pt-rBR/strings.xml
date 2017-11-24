@@ -53,5 +53,5 @@
     <string name="pref_lockscreen_title">Controle da tela bloqueada</string>
     <string name="pref_lockscreen_summary">Mostrar controles quando a tela estiver bloqueada</string>
     <string name="pref_theme_title">Tema do app</string>
-    <string name="pref_theme.summary">Definir o tema (claro ou escuro)</string>
+    <string name="pref_theme_summary">Definir o tema (claro ou escuro)</string>
 </resources>

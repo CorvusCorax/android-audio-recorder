@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (default)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (telephone)</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Φωτεινό Θέμα (προεπιλεγμένο)</item>
+        <item>Σκοτεινό Θέμα</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Μονοτονικό (προεπιλεγμένο)</item>
+        <item>Στερεοφωνικό</item>
+    </string-array>
+
+    <string name="no_folder_app">Δεν έχει εγκατασταθεί εφαρμογή προβολής φακέλου</string>
+    <string name="hold_by_call">παύση (κατά την κλήση)</string>
+    <string name="recording_status_recording">εγγραφή</string>
+    <string name="recording_status_encoding">κωδικοποίηση</string>
+    <string name="recording_status_pause">διακοπή</string>
+    <string name="recording_status_edit">επεξεργασία</string>
+    <string name="confirm_cancel">Επιβεβαίωση ακύρωσης</string>
+    <string name="encoding_title">Κωδικοποίηση...</string>
+    <string name="pause_title">Διακοπή...</string>
+    <string name="recording_title">Εγγραφή</string>
+    <string name="open_recording_folder">Άνοιγμα φακέλου εγγραφής</string>
+    <string name="recording_list_is_empty">Λίστα εγγραφών κενή\n\Πατήστε Εγγραφή για να αρχίσει η εγγραφή</string>
+    <string name="record_button">Εγγραφή</string>
+    <string name="cut_button">Κόψιμο</string>
+    <string name="stop_button">Σταμάτημα</string>
+    <string name="cancel_button">Ακύρωση</string>
+    <string name="pause_button">Διακοπή</string>
+
+    <string name="pref_storage_title">Μονοπάτι αποθήκευσης</string>
+    <string name="pref_rate_title">Ρυθμός δειγματοληψίας</string>
+    <string name="pref_encoding_title">Κωδικοποίηση</string>
+    <string name="pref_encoding_summary">Μορφές αρχείων εξόδου (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Τρόπος</string>
+    <string name="pref_mode_summary">Κανάλια εγγραφής</string>
+    <string name="pref_nameformat_title">Μορφή Ονόματος</string>
+    <string name="pref_pausecalls_title">Διακοπή κατά την διάρκεια κλήσεων</string>
+    <string name="pref_pausecalls_summary">Διακοπή εγγραφής στην απάντηση και συνέχίση την διακοπή κλήσεων</string>
+    <string name="pref_silence_title">Αθόρυβο</string>
+    <string name="pref_silence_summary">Βάλτε το τηλέφωνο στο αθόρυβο κατά τη διάρκεια της εγγραφής, Βάλτε το τηλέφωνο στο \ «Αθόρυβο \» κατά την εγγραφή</string>
+    <string name="pref_lockscreen_title">Έλεγχος από οθόνη κλειδώματος</string>
+    <string name="pref_lockscreen_summary">Εμφάνιση στοιχείων ελέγχου όταν το τηλέφωνο είναι κλειδωμένο</string>
+    <string name="pref_theme_title">Θέμα εφαρμογής</string>
+    <string name="pref_theme_summary">Θέσε θέμα εφαρμογής (σκοτεινό / φωτεινό)</string>
+</resources>

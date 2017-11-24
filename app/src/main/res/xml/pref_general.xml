@@ -71,7 +71,7 @@
         android:key="theme"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="@string/pref_theme.summary"
+        android:summary="@string/pref_theme_summary"
         android:title="@string/pref_theme_title" />
 
 </PreferenceScreen>
