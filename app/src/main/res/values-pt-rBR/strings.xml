@@ -21,7 +21,6 @@
         <item>Estéreo</item>
     </string-array>
 
-    <string name="not_permitted">Não permitido</string>
     <string name="no_folder_app">Não foi encontrado um aplicativo para explorar arquivos</string>
     <string name="hold_by_call">pausado (chamada atendida)</string>
     <string name="recording_status_recording">gravando</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">Controle da tela bloqueada</string>
     <string name="pref_lockscreen_summary">Mostrar controles quando a tela estiver bloqueada</string>
     <string name="pref_theme_title">Tema do app</string>
-    <string name="pref_theme.summary">Definir o tema (claro ou escuro)</string>
+    <string name="pref_theme_summary">Definir o tema (claro ou escuro)</string>
 </resources>

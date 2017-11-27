@@ -21,7 +21,6 @@
         <item>Стерео</item>
     </string-array>
 
-    <string name="not_permitted">Доступ запрещен</string>
     <string name="no_folder_app">Программа для просмотра папок не установлена</string>
     <string name="hold_by_call">пауза (звонок)</string>
     <string name="recording_status_recording">запись</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">Панель управления</string>
     <string name="pref_lockscreen_summary">Показывать панель управления когда телефон заблокирован</string>
     <string name="pref_theme_title">Тема приложения</string>
-    <string name="pref_theme.summary">Установить тему приложения (темная / светлая)</string>
+    <string name="pref_theme_summary">Установить тему приложения (темная / светлая)</string>
 </resources>

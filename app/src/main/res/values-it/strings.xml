@@ -21,7 +21,6 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="not_permitted">Non permesso</string>
     <string name="no_folder_app">Nessuna app per la visione delle cartelle risulta installa</string>
     <string name="hold_by_call">pausa (per chiamata)</string>
     <string name="recording_status_recording">registrando</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">Controlli su schermo bloccato</string>
     <string name="pref_lockscreen_summary">Mostra i controlli quando il cellulare è bloccato</string>
     <string name="pref_theme_title">Tema applicazione</string>
-    <string name="pref_theme.summary">Imposta il tema dell'applicazione (scuro / chiaro)</string>
+    <string name="pref_theme_summary">Imposta il tema dell'applicazione (scuro / chiaro)</string>
 </resources>

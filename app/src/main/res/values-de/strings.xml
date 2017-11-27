@@ -21,7 +21,6 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="not_permitted">Nicht erlaubt</string>
     <string name="no_folder_app">Keine App zur Anzeige von Ordnern installiert</string>
     <string name="hold_by_call">pausieren (bei Anruf)</string>
     <string name="recording_status_recording">aufnehmen</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">Steuerelemente im Sperrbildschirm</string>
     <string name="pref_lockscreen_summary">Zeige Steuerelemente im Sperrbildschirm an</string>
     <string name="pref_theme_title">App-Theme</string>
-    <string name="pref_theme.summary">Wähle App-Theme (dunkel / hell)</string>
+    <string name="pref_theme_summary">Wähle App-Theme (dunkel / hell)</string>
 </resources>

@@ -21,7 +21,6 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="not_permitted">Nepovolené</string>
     <string name="no_folder_app">Nie je nainštalovaná žiadna aplikácia na zobrazenie obsahu priečinka</string>
     <string name="hold_by_call">pozastavené (automaticky počas hovoru)</string>
     <string name="recording_status_recording">nahrávanie</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">Tlačidlá na uzamikacej obrazovke</string>
     <string name="pref_lockscreen_summary">Zobraziť ovládacie prvky na zamikacej obrazovke</string>
     <string name="pref_theme_title">Téma</string>
-    <string name="pref_theme.summary">Farebná téma aplikácie (svetlá / tmavá)</string>
+    <string name="pref_theme_summary">Farebná téma aplikácie (svetlá / tmavá)</string>
 </resources>

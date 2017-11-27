@@ -21,7 +21,6 @@
         <item>ステレオ</item>
     </string-array>
 
-    <string name="not_permitted">許可されていません</string>
     <string name="no_folder_app">フォルダーを表示するアプリケーションがインストールされていません</string>
     <string name="hold_by_call">一時停止 (着信により保留)</string>
     <string name="recording_status_recording">録音中</string>
@@ -54,5 +53,5 @@
     <string name="pref_lockscreen_title">ロック画面コントロール</string>
     <string name="pref_lockscreen_summary">電話がロックされた時にコントロールを表示します</string>
     <string name="pref_theme_title">アプリケーションのテーマ</string>
-    <string name="pref_theme.summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
+    <string name="pref_theme_summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
 </resources>

@@ -53,7 +53,6 @@
         <item>%I</item>
     </string-array>
 
-    <string name="not_permitted">Not permitted</string>
     <string name="no_folder_app">No folder view application installed</string>
     <string name="hold_by_call">pause (hold by call)</string>
     <string name="recording_status_recording">recording</string>
@@ -86,5 +85,5 @@
     <string name="pref_lockscreen_title">Lockscreen Controls</string>
     <string name="pref_lockscreen_summary">Show controls when phone is locked</string>
     <string name="pref_theme_title">Application Theme</string>
-    <string name="pref_theme.summary">Set application theme (dark / light)</string>
+    <string name="pref_theme_summary">Set application theme (dark / light)</string>
 </resources>

@@ -54,6 +54,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+    public static final int RESULT_STORAGE = 1;
+
     Handler handler = new Handler();
 
     public static <T> T[] removeElement(Class<T> c, T[] aa, int i) {
@@ -244,11 +246,12 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
+
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
             s.setStorage(new Storage(getContext()));
-            s.setPermissionsDialog(this, PERMISSIONS, 1);
+            s.setPermissionsDialog(this, PERMISSIONS, RESULT_STORAGE);
             if (Build.VERSION.SDK_INT >= 21)
-                s.setStorageAccessFramework(this, 2);
+                s.setStorageAccessFramework(this, RESULT_STORAGE);
         }
 
         @Override
@@ -275,12 +278,8 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
 
             switch (requestCode) {
-                case 1:
-                    if (Storage.permitted(getContext(), permissions))
-                        ;
-                    else
-                        Toast.makeText(getContext(), R.string.not_permitted, Toast.LENGTH_SHORT).show();
-                    s.onRequestPermissionsResult();
+                case RESULT_STORAGE:
+                    s.onRequestPermissionsResult(permissions, grantResults);
                     break;
             }
         }
@@ -292,7 +291,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
 
             switch (requestCode) {
-                case 2:
+                case RESULT_STORAGE:
                     s.onActivityResult(resultCode, data);
                     break;
             }
