@@ -16,6 +16,13 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         super(context);
     }
 
+    public static String getFormatted(String format, Date date) {
+        format = format.replaceAll("%s", SIMPLE.format(date));
+        format = format.replaceAll("%I", ISO8601.format(date));
+        format = format.replaceAll("%T", "" + System.currentTimeMillis() / 1000);
+        return format;
+    }
+
     public Uri getNewFile() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
@@ -24,9 +31,7 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
         format = shared.getString(MainApplication.PREFERENCE_FORMAT, format);
 
-        format = format.replaceAll("%s", SIMPLE.format(new Date()));
-        format = format.replaceAll("%I", ISO8601.format(new Date()));
-        format = format.replaceAll("%T", "" + System.currentTimeMillis() / 1000);
+        format = getFormatted(format, new Date());
 
         Uri path = getStoragePath();
         String s = path.getScheme();
