@@ -61,7 +61,8 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:contentDescription="@string/cut_button"
-                android:src="@drawable/ic_content_cut_24dp" />
+                android:src="@drawable/ic_content_cut_24dp"
+                android:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/recording_play"
@@ -69,7 +70,8 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:contentDescription="@string/play_button"
-                android:src="@drawable/ic_play_arrow_black_24dp" />
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/recording_edit_done"
@@ -78,7 +80,8 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:contentDescription="@string/stop_button"
-                android:src="@drawable/ic_close_24dp" />
+                android:src="@drawable/ic_close_24dp"
+                android:tint="@android:color/white" />
         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
     </FrameLayout>
 
@@ -108,7 +111,8 @@
                 android:background="?attr/roundButton"
                 android:contentDescription="@string/cancel_button"
                 android:gravity="center"
-                android:src="@drawable/ic_close_24dp" />
+                android:src="@drawable/ic_close_24dp"
+                android:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/recording_pause"
@@ -116,7 +120,8 @@
                 android:layout_height="40dp"
                 android:background="?attr/roundButton"
                 android:contentDescription="@string/pause_button"
-                android:src="@drawable/ic_pause_black_24dp" />
+                android:src="@drawable/ic_pause_black_24dp"
+                android:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/recording_done"

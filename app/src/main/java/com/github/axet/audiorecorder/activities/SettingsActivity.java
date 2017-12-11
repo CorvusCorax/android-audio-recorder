@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
@@ -50,7 +51,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
@@ -75,7 +76,9 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             String stringValue = value.toString();
             String key = preference.getKey();
 
-            if (preference instanceof ListPreference) {
+            if (preference instanceof NameFormatPreferenceCompat) {
+                preference.setSummary(((NameFormatPreferenceCompat) preference).getFormatted(stringValue));
+            } else if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
@@ -210,6 +213,15 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
     public void onBackPressed() {
         MainActivity.startActivity(this);
         finish();
+    }
+
+    @Override
+    public boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller, Preference pref) {
+        if (pref instanceof NameFormatPreferenceCompat) {
+            NameFormatPreferenceCompat.show(caller, pref.getKey());
+            return true;
+        }
+        return false;
     }
 
     /**
