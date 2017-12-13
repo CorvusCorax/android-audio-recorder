@@ -34,7 +34,6 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
-import com.github.axet.audiolibrary.app.AudioRecorder;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
@@ -203,10 +202,10 @@ public class RecordingActivity extends AppCompatActivity {
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        sampleRate = AudioRecorder.getSampleRate(this);
+        sampleRate = Sound.getSampleRate(this);
 
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
-        samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
+        samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
         updateBufferSize(false);
 
@@ -290,7 +289,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         RawSamples rs = new RawSamples(f);
-        samplesTime = rs.getSamples() / MainApplication.getChannels(this);
+        samplesTime = rs.getSamples() / Sound.getChannels(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -298,7 +297,7 @@ public class RecordingActivity extends AppCompatActivity {
         int count = pitch.getMaxPitchCount(metrics.widthPixels);
 
         short[] buf = new short[count * samplesUpdateStereo];
-        long cut = samplesTime * MainApplication.getChannels(this) - buf.length;
+        long cut = samplesTime * Sound.getChannels(this) - buf.length;
 
         if (cut < 0)
             cut = 0;
@@ -459,7 +458,7 @@ public class RecordingActivity extends AppCompatActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         int rate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
-        int m = MainApplication.getChannels(this);
+        int m = Sound.getChannels(this);
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
@@ -479,7 +478,7 @@ public class RecordingActivity extends AppCompatActivity {
             int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
             RawSamples rs = new RawSamples(storage.getTempRecording());
-            int len = (int) (rs.getSamples() - editSample * MainApplication.getChannels(this)); // in samples
+            int len = (int) (rs.getSamples() - editSample * Sound.getChannels(this)); // in samples
 
             final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
@@ -497,8 +496,8 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             };
 
-            AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
-            rs.open(editSample * MainApplication.getChannels(this), buf.len); // len in samples
+            AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, Sound.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
+            rs.open(editSample * Sound.getChannels(this), buf.len); // len in samples
             int r = rs.read(buf.buffer); // r in samples
             if (r != buf.len)
                 throw new RuntimeException("unable to read data");
@@ -526,7 +525,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
 
         RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.trunk((editSample + samplesUpdate) * MainApplication.getChannels(this));
+        rs.trunk((editSample + samplesUpdate) * Sound.getChannels(this));
         rs.close();
 
         edit(false, true);
@@ -627,11 +626,11 @@ public class RecordingActivity extends AppCompatActivity {
         };
 
         final RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.open(samplesTime * MainApplication.getChannels(this));
+        rs.open(samplesTime * Sound.getChannels(this));
 
         final AudioRecord recorder;
         try {
-            recorder = AudioRecorder.createAudioRecorder(this, sampleRate, ss, 0);
+            recorder = Sound.createAudioRecorder(this, sampleRate, ss, 0);
         } catch (RuntimeException e) {
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
             finish();
@@ -674,7 +673,7 @@ public class RecordingActivity extends AppCompatActivity {
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
                         if (readSize < 0) {
-                            AudioRecorder.throwError(readSize);
+                            Sound.throwError(readSize);
                             return;
                         }
                         long end = System.currentTimeMillis();
@@ -683,7 +682,7 @@ public class RecordingActivity extends AppCompatActivity {
 
                         start = end;
 
-                        int samples = readSize / MainApplication.getChannels(RecordingActivity.this);
+                        int samples = readSize / Sound.getChannels(RecordingActivity.this);
 
                         if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
@@ -792,7 +791,7 @@ public class RecordingActivity extends AppCompatActivity {
                 samplesUpdate = this.samplesUpdate;
             }
 
-            bufferSize = samplesUpdate * MainApplication.getChannels(this);
+            bufferSize = samplesUpdate * Sound.getChannels(this);
         }
     }
 
@@ -816,7 +815,7 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     EncoderInfo getInfo() {
-        final int channels = MainApplication.getChannels(this);
+        final int channels = Sound.getChannels(this);
         final int bps = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
         return new EncoderInfo(channels, sampleRate, bps);
     }
