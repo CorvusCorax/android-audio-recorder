@@ -642,9 +642,9 @@ public class RecordingActivity extends AppCompatActivity {
             finish();
             return;
         }
-        rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+        rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min);
         if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-            rec = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
+            rec = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min);
             if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
                 Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
                 finish();
@@ -671,12 +671,7 @@ public class RecordingActivity extends AppCompatActivity {
                     }
                 }
 
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                int p = android.os.Process.getThreadPriority(android.os.Process.myTid());
-
-                if (p != android.os.Process.THREAD_PRIORITY_URGENT_AUDIO) {
-                    Log.e(TAG, "Unable to set Thread Priority " + android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                }
+                // android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
                 try {
                     long start = System.currentTimeMillis();
@@ -697,8 +692,18 @@ public class RecordingActivity extends AppCompatActivity {
                         }
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
-                        if (readSize <= 0) {
-                            break;
+                        if (readSize < 0) {
+                            switch (readSize) {
+                                case AudioRecord.ERROR:
+                                    throw new RuntimeException("AudioRecord.ERROR");
+                                case AudioRecord.ERROR_BAD_VALUE:
+                                    throw new RuntimeException("AudioRecord.ERROR_BAD_VALUE");
+                                case AudioRecord.ERROR_INVALID_OPERATION:
+                                    throw new RuntimeException("AudioRecord.ERROR_INVALID_OPERATION");
+                                case AudioRecord.ERROR_DEAD_OBJECT:
+                                    throw new RuntimeException("AudioRecord.ERROR_DEAD_OBJECT");
+                            }
+                            return;
                         }
                         long end = System.currentTimeMillis();
 
