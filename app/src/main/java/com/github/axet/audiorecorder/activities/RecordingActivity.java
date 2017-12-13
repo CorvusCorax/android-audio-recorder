@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
@@ -28,7 +27,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,6 +34,7 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
+import com.github.axet.audiolibrary.app.AudioRecorder;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
@@ -48,13 +47,7 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ShortBuffer;
 
 public class RecordingActivity extends AppCompatActivity {
@@ -210,13 +203,8 @@ public class RecordingActivity extends AppCompatActivity {
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
-        sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
-        if (sampleRate == -1) {
-            Toast.makeText(this, "Unable to initailze audio", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        sampleRate = AudioRecorder.getSampleRate(this);
+
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
         samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
 
@@ -633,29 +621,22 @@ public class RecordingActivity extends AppCompatActivity {
 
         pitch.record();
 
-        AudioRecord rec;
-
-        int c = MainApplication.getInMode(RecordingActivity.this);
-        int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
-        if (min <= 0) {
-            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord: Bad audio values", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min);
-        if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-            rec = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min);
-            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-                Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-        }
+        int[] ss = new int[]{
+                MediaRecorder.AudioSource.MIC,
+                MediaRecorder.AudioSource.DEFAULT
+        };
 
         final RawSamples rs = new RawSamples(storage.getTempRecording());
         rs.open(samplesTime * MainApplication.getChannels(this));
 
-        final AudioRecord recorder = rec;
+        final AudioRecord recorder;
+        try {
+            recorder = AudioRecorder.createAudioRecorder(this, sampleRate, ss, 0);
+        } catch (RuntimeException e) {
+            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         final Thread old = thread;
 
@@ -693,16 +674,7 @@ public class RecordingActivity extends AppCompatActivity {
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
                         if (readSize < 0) {
-                            switch (readSize) {
-                                case AudioRecord.ERROR:
-                                    throw new RuntimeException("AudioRecord.ERROR");
-                                case AudioRecord.ERROR_BAD_VALUE:
-                                    throw new RuntimeException("AudioRecord.ERROR_BAD_VALUE");
-                                case AudioRecord.ERROR_INVALID_OPERATION:
-                                    throw new RuntimeException("AudioRecord.ERROR_INVALID_OPERATION");
-                                case AudioRecord.ERROR_DEAD_OBJECT:
-                                    throw new RuntimeException("AudioRecord.ERROR_DEAD_OBJECT");
-                            }
+                            AudioRecorder.throwError(readSize);
                             return;
                         }
                         long end = System.currentTimeMillis();
