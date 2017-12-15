@@ -673,7 +673,6 @@ public class RecordingActivity extends AppCompatActivity {
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
                         if (readSize < 0) {
-                            Sound.throwError(readSize);
                             return;
                         }
                         long end = System.currentTimeMillis();
