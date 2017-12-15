@@ -12,15 +12,15 @@ import java.util.Date;
 
 public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
-    public Storage(Context context) {
-        super(context);
-    }
-
     public static String getFormatted(String format, Date date) {
         format = format.replaceAll("%s", SIMPLE.format(date));
         format = format.replaceAll("%I", ISO8601.format(date));
         format = format.replaceAll("%T", "" + System.currentTimeMillis() / 1000);
         return format;
+    }
+
+    public Storage(Context context) {
+        super(context);
     }
 
     public Uri getNewFile() {
