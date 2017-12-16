@@ -54,4 +54,6 @@
     <string name="pref_lockscreen_summary">Показывать панель управления когда телефон заблокирован</string>
     <string name="pref_theme_title">Тема приложения</string>
     <string name="pref_theme_summary">Установить тему приложения (темная / светлая)</string>
+    <string name="pref_application">Application</string>
+    <string name="pref_recordings">Recordings</string>
 </resources>

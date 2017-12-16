@@ -54,4 +54,6 @@
     <string name="pref_lockscreen_summary">Zobraziť ovládacie prvky na zamikacej obrazovke</string>
     <string name="pref_theme_title">Téma</string>
     <string name="pref_theme_summary">Farebná téma aplikácie (svetlá / tmavá)</string>
+    <string name="pref_application">Application</string>
+    <string name="pref_recordings">Recordings</string>
 </resources>
