@@ -1,6 +1,5 @@
 package com.github.axet.audiorecorder.activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;

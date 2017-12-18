@@ -659,7 +659,7 @@ public class RecordingActivity extends AppCompatActivity {
 
                     int samplesTimeCount = 0;
                     // how many samples we need to update 'samples'. time clock. every 1000ms.
-                    int samplesTimeUpdate = 1000 / 1000 * sampleRate;
+                    int samplesTimeUpdate = 1000 * sampleRate / 1000;
 
                     short[] buffer = null;
 
