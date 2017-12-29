@@ -52,6 +52,8 @@ import java.nio.ShortBuffer;
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
 
+    public static final int RESULT_START = 1;
+
     public static final String[] PERMISSIONS = new String[]{
             Manifest.permission.RECORD_AUDIO
     };
@@ -340,7 +342,7 @@ public class RecordingActivity extends AppCompatActivity {
         // start once
         if (start) {
             start = false;
-            if (Storage.permitted(this, PERMISSIONS, 1)) {
+            if (Storage.permitted(this, PERMISSIONS, RESULT_START)) { // audio perm
                 startRecording();
             }
         }
@@ -803,7 +805,7 @@ public class RecordingActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 1:
+            case RESULT_START:
                 if (Storage.permitted(this, permissions)) {
                     startRecording();
                 } else {
