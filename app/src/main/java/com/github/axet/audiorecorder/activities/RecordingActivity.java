@@ -536,6 +536,13 @@ public class RecordingActivity extends AppCompatActivity {
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
+
+        String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            perSec = Factory.getEncoderRate(ext, sampleRate);
+        }
+
         long sec = free / perSec * 1000;
 
         state.setText(s + "\n(" + MainApplication.formatFree(this, free, sec) + ")");
