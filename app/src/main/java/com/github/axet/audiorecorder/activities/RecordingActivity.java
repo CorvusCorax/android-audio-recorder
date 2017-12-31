@@ -1,7 +1,6 @@
 package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -15,9 +14,9 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -49,7 +48,11 @@ import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ShortBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -70,6 +73,7 @@ public class RecordingActivity extends AppCompatActivity {
     // do we need to start recording immidiatly?
     boolean start = true;
 
+    AtomicBoolean interrupt = new AtomicBoolean(); // nio throws ClosedByInterruptException if thread interrupted
     Thread thread;
     // lock for bufferSize
     final Object bufferSizeLock = new Object();
@@ -153,7 +157,8 @@ public class RecordingActivity extends AppCompatActivity {
     public class OnFlyEncoding implements Encoder {
         Uri targetUri;
         Encoder e;
-        File out;
+        ParcelFileDescriptor fd;
+        FileDescriptor out;
         String s;
 
         public OnFlyEncoding(Context context, Uri targetUri, EncoderInfo info) {
@@ -161,17 +166,25 @@ public class RecordingActivity extends AppCompatActivity {
 
             s = targetUri.getScheme();
             if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
-                out = storage.getTempEncoding();
+                Uri root = Storage.getDocumentTreeUri(targetUri);
+                Uri o = storage.createFile(root, Storage.getDocumentChildPath(targetUri));
+                ContentResolver resolver = context.getContentResolver();
+                try {
+                    fd = resolver.openFileDescriptor(o, "rw");
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                out = fd.getFileDescriptor();
             } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-                out = Storage.getFile(targetUri);
+                File f = Storage.getFile(targetUri);
+                try {
+                    fd = ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                out = fd.getFileDescriptor();
             } else {
                 throw new RuntimeException("unkonwn uri");
-            }
-
-            File parent = out.getParentFile();
-
-            if (!parent.exists() && !parent.mkdirs()) { // in case if it were manually deleted
-                throw new RuntimeException("Unable to create: " + parent);
             }
 
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -191,25 +204,13 @@ public class RecordingActivity extends AppCompatActivity {
                 e.close();
                 e = null;
             }
-
-            if (out != null && out.exists() && out.length() > 0) {
-                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME_CONTENT we write directly to storage
-                    ContentResolver resolver = getContentResolver();
-                    try {
-                        Uri root = Storage.getDocumentTreeUri(targetUri);
-                        resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        storage.move(out, root, Storage.getDocumentChildPath(targetUri));
-                    } catch (RuntimeException e) {
-                        Storage.delete(out); // delete tmp encoding file
-                        try {
-                            storage.delete(targetUri); // delete SAF encoding file
-                        } catch (RuntimeException ee) {
-                            Log.d(TAG, "unable to delete target uri", ee); // ignore, not even created?
-                        }
-                        throw e;
-                    }
+            if (fd != null) {
+                try {
+                    fd.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                out = null;
+                fd = null;
             }
         }
     }
@@ -235,9 +236,13 @@ public class RecordingActivity extends AppCompatActivity {
         storage = new Storage(this);
         sound = new Sound(this);
 
+        sampleRate = Sound.getSampleRate(this);
+        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
+        samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
+
         edit(false, false);
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         try {
             if (storage.recordingPending()) {
@@ -269,11 +274,6 @@ public class RecordingActivity extends AppCompatActivity {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
-
-        sampleRate = Sound.getSampleRate(this);
-
-        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
-        samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
         updateBufferSize(false);
 
@@ -314,7 +314,12 @@ public class RecordingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (encoder != null)
                     return;
-                stopRecording(getString(R.string.recording_status_encoding));
+                String msg;
+                if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+                    msg = getString(R.string.recording_status_recording);
+                } else
+                    msg = getString(R.string.recording_status_encoding);
+                stopRecording(msg);
                 try {
                     encoding(new Runnable() {
                         @Override
@@ -464,7 +469,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     void stopRecording() {
         if (thread != null) {
-            thread.interrupt();
+            interrupt.set(true);
             thread = null;
         }
         pitch.stop();
@@ -750,6 +755,8 @@ public class RecordingActivity extends AppCompatActivity {
 
         final Thread old = thread;
 
+        interrupt = new AtomicBoolean(false);
+
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -776,7 +783,7 @@ public class RecordingActivity extends AppCompatActivity {
 
                     boolean stableRefresh = false;
 
-                    while (!Thread.currentThread().isInterrupted()) {
+                    while (!interrupt.get()) {
                         synchronized (bufferSizeLock) {
                             if (buffer == null || buffer.length != bufferSize)
                                 buffer = new short[bufferSize];
@@ -978,6 +985,7 @@ public class RecordingActivity extends AppCompatActivity {
         }, new Runnable() {
             @Override
             public void run() { // or error
+                storage.delete(fly.targetUri); // fly has fd, delete target manually
                 d.cancel();
                 Error(encoder.getException());
             }
