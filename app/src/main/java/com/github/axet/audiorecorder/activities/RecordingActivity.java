@@ -41,6 +41,7 @@ import com.github.axet.audiolibrary.encoders.Encoder;
 import com.github.axet.audiolibrary.encoders.EncoderInfo;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
+import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
 import com.github.axet.audiolibrary.widgets.PitchView;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
@@ -150,67 +151,6 @@ public class RecordingActivity extends AppCompatActivity {
                     wasRinging = false;
                     pausedByCall = false;
                     break;
-            }
-        }
-    }
-
-    public class OnFlyEncoding implements Encoder {
-        Uri targetUri;
-        Encoder e;
-        ParcelFileDescriptor fd;
-        FileDescriptor out;
-        String s;
-
-        public OnFlyEncoding(Context context, Uri targetUri, EncoderInfo info) {
-            this.targetUri = targetUri;
-
-            s = targetUri.getScheme();
-            if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
-                Uri root = Storage.getDocumentTreeUri(targetUri);
-                Uri o = storage.createFile(root, Storage.getDocumentChildPath(targetUri));
-                ContentResolver resolver = context.getContentResolver();
-                try {
-                    fd = resolver.openFileDescriptor(o, "rw");
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-                out = fd.getFileDescriptor();
-            } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-                File f = Storage.getFile(targetUri);
-                try {
-                    fd = ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-                out = fd.getFileDescriptor();
-            } else {
-                throw new RuntimeException("unkonwn uri");
-            }
-
-            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
-
-            e = Factory.getEncoder(context, ext, info, out);
-        }
-
-        @Override
-        public void encode(short[] buf, int pos, int len) {
-            e.encode(buf, pos, len);
-        }
-
-        @Override
-        public void close() {
-            if (e != null) {
-                e.close();
-                e = null;
-            }
-            if (fd != null) {
-                try {
-                    fd.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                fd = null;
             }
         }
     }
@@ -716,7 +656,7 @@ public class RecordingActivity extends AppCompatActivity {
         final Encoder e;
 
         if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
-            final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
+            final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
             e = new Encoder() {
                 @Override
                 public void encode(short[] buf, int pos, int len) {
@@ -856,18 +796,8 @@ public class RecordingActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    if (e != null) {
-                        e.close();
-                    }
                 } catch (final RuntimeException e) {
-                    handle.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e(TAG, Log.getStackTraceString(e));
-                            Toast.makeText(RecordingActivity.this, "AudioRecord error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-                    });
+                    Post(e);
                 } finally {
                     // redraw view, we may add one last pich which is not been drawen because draw tread already interrupted.
                     // to prevent resume recording jump - draw last added pitch here.
@@ -878,11 +808,16 @@ public class RecordingActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (e != null)
-                        e.close();
-
                     if (recorder != null)
                         recorder.release();
+
+                    if (e != null) {
+                        try {
+                            e.close();
+                        } catch (RuntimeException e) {
+                            Post(e);
+                        }
+                    }
                 }
             }
         }, "RecordingThread");
@@ -946,11 +881,16 @@ public class RecordingActivity extends AppCompatActivity {
         final File in = storage.getTempRecording();
 
         if (!in.exists() || in.length() == 0) {
-            finish();
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+            SharedPreferences.Editor edit = shared.edit();
+            edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+            edit.commit();
+
+            done.run();
             return;
         }
 
-        final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
+        final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
 
         encoder = new FileEncoder(this, in, fly);
 
