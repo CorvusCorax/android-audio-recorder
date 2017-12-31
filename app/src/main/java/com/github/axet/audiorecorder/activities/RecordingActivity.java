@@ -754,6 +754,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         final Thread old = thread;
+        final AtomicBoolean oldb = interrupt;
 
         interrupt = new AtomicBoolean(false);
 
@@ -761,6 +762,7 @@ public class RecordingActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (old != null) {
+                    oldb.set(true);
                     old.interrupt();
                     try {
                         old.join();
