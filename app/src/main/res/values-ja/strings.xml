@@ -54,4 +54,8 @@
     <string name="pref_lockscreen_summary">電話がロックされた時にコントロールを表示します</string>
     <string name="pref_theme_title">アプリケーションのテーマ</string>
     <string name="pref_theme_summary">アプリケーションのテーマを設定します (ダーク / ライト)</string>
+    <string name="pref_application">Application</string>
+    <string name="pref_recordings">Recordings</string>
+    <string name="pref_fly_title">Encoding on Fly</string>
+    <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
 </resources>

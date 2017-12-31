@@ -54,4 +54,8 @@
     <string name="pref_lockscreen_summary">Показывать панель управления когда телефон заблокирован</string>
     <string name="pref_theme_title">Тема приложения</string>
     <string name="pref_theme_summary">Установить тему приложения (темная / светлая)</string>
+    <string name="pref_application">Приложение</string>
+    <string name="pref_recordings">Записи</string>
+    <string name="pref_fly_title">Кодирование на лету</string>
+    <string name="pref_fly_summary">Кодирование на лету отключает редактирование и восстановление в случае ошибок</string>
 </resources>

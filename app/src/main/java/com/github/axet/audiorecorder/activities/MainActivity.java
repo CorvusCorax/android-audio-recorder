@@ -1,6 +1,5 @@
 package com.github.axet.audiorecorder.activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,8 +35,6 @@ import com.github.axet.audiorecorder.services.RecordingService;
 
 public class MainActivity extends AppCompatActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
-
-    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     FloatingActionButton fab;
     Handler handler = new Handler();

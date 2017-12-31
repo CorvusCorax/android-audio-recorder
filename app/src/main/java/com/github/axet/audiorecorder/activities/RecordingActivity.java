@@ -14,11 +14,11 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
+import android.os.Process;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
@@ -28,7 +28,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,17 +47,17 @@ import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ShortBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
+
+    public static final int RESULT_START = 1;
 
     public static final String[] PERMISSIONS = new String[]{
             Manifest.permission.RECORD_AUDIO
@@ -74,6 +73,7 @@ public class RecordingActivity extends AppCompatActivity {
     // do we need to start recording immidiatly?
     boolean start = true;
 
+    AtomicBoolean interrupt = new AtomicBoolean(); // nio throws ClosedByInterruptException if thread interrupted
     Thread thread;
     // lock for bufferSize
     final Object bufferSizeLock = new Object();
@@ -154,6 +154,67 @@ public class RecordingActivity extends AppCompatActivity {
         }
     }
 
+    public class OnFlyEncoding implements Encoder {
+        Uri targetUri;
+        Encoder e;
+        ParcelFileDescriptor fd;
+        FileDescriptor out;
+        String s;
+
+        public OnFlyEncoding(Context context, Uri targetUri, EncoderInfo info) {
+            this.targetUri = targetUri;
+
+            s = targetUri.getScheme();
+            if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                Uri root = Storage.getDocumentTreeUri(targetUri);
+                Uri o = storage.createFile(root, Storage.getDocumentChildPath(targetUri));
+                ContentResolver resolver = context.getContentResolver();
+                try {
+                    fd = resolver.openFileDescriptor(o, "rw");
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                out = fd.getFileDescriptor();
+            } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+                File f = Storage.getFile(targetUri);
+                try {
+                    fd = ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                out = fd.getFileDescriptor();
+            } else {
+                throw new RuntimeException("unkonwn uri");
+            }
+
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+            String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
+
+            e = Factory.getEncoder(context, ext, info, out);
+        }
+
+        @Override
+        public void encode(short[] buf, int pos, int len) {
+            e.encode(buf, pos, len);
+        }
+
+        @Override
+        public void close() {
+            if (e != null) {
+                e.close();
+                e = null;
+            }
+            if (fd != null) {
+                try {
+                    fd.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                fd = null;
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(((MainApplication) getApplication()).getUserTheme());
@@ -175,9 +236,13 @@ public class RecordingActivity extends AppCompatActivity {
         storage = new Storage(this);
         sound = new Sound(this);
 
+        sampleRate = Sound.getSampleRate(this);
+        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
+        samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
+
         edit(false, false);
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         try {
             if (storage.recordingPending()) {
@@ -209,16 +274,6 @@ public class RecordingActivity extends AppCompatActivity {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
-
-        sampleRate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
-        sampleRate = Sound.getValidRecordRate(MainApplication.getInMode(this), sampleRate);
-        if (sampleRate == -1) {
-            Toast.makeText(this, "Unable to initailze audio", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
-        samplesUpdateStereo = samplesUpdate * MainApplication.getChannels(this);
 
         updateBufferSize(false);
 
@@ -259,7 +314,12 @@ public class RecordingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (encoder != null)
                     return;
-                stopRecording(getString(R.string.recording_status_encoding));
+                String msg;
+                if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+                    msg = getString(R.string.recording_status_recording);
+                } else
+                    msg = getString(R.string.recording_status_encoding);
+                stopRecording(msg);
                 try {
                     encoding(new Runnable() {
                         @Override
@@ -302,7 +362,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
 
         RawSamples rs = new RawSamples(f);
-        samplesTime = rs.getSamples() / MainApplication.getChannels(this);
+        samplesTime = rs.getSamples() / Sound.getChannels(this);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -310,7 +370,7 @@ public class RecordingActivity extends AppCompatActivity {
         int count = pitch.getMaxPitchCount(metrics.widthPixels);
 
         short[] buf = new short[count * samplesUpdateStereo];
-        long cut = samplesTime * MainApplication.getChannels(this) - buf.length;
+        long cut = samplesTime * Sound.getChannels(this) - buf.length;
 
         if (cut < 0)
             cut = 0;
@@ -353,7 +413,7 @@ public class RecordingActivity extends AppCompatActivity {
         // start once
         if (start) {
             start = false;
-            if (Storage.permitted(this, PERMISSIONS, 1)) {
+            if (Storage.permitted(this, PERMISSIONS, RESULT_START)) { // audio perm
                 startRecording();
             }
         }
@@ -388,22 +448,28 @@ public class RecordingActivity extends AppCompatActivity {
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
-        pitch.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                edit(true, true);
-                float x = event.getX();
-                if (x < 0)
-                    x = 0;
-                editSample = pitch.edit(x) * samplesUpdate;
-                return true;
-            }
-        });
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            pitch.setOnTouchListener(null);
+        } else {
+            pitch.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    edit(true, true);
+                    float x = event.getX();
+                    if (x < 0)
+                        x = 0;
+                    editSample = pitch.edit(x) * samplesUpdate;
+                    return true;
+                }
+            });
+        }
     }
 
     void stopRecording() {
         if (thread != null) {
-            thread.interrupt();
+            interrupt.set(true);
             thread = null;
         }
         pitch.stop();
@@ -471,10 +537,17 @@ public class RecordingActivity extends AppCompatActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         int rate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
-        int m = MainApplication.getChannels(this);
+        int m = Sound.getChannels(this);
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
+
+        String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            perSec = Factory.getEncoderRate(ext, sampleRate);
+        }
+
         long sec = free / perSec * 1000;
 
         state.setText(s + "\n(" + MainApplication.formatFree(this, free, sec) + ")");
@@ -491,7 +564,7 @@ public class RecordingActivity extends AppCompatActivity {
             int playUpdate = PitchView.UPDATE_SPEED * sampleRate / 1000;
 
             RawSamples rs = new RawSamples(storage.getTempRecording());
-            int len = (int) (rs.getSamples() - editSample * MainApplication.getChannels(this)); // in samples
+            int len = (int) (rs.getSamples() - editSample * Sound.getChannels(this)); // in samples
 
             final AudioTrack.OnPlaybackPositionUpdateListener listener = new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
@@ -509,8 +582,8 @@ public class RecordingActivity extends AppCompatActivity {
                 }
             };
 
-            AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, MainApplication.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
-            rs.open(editSample * MainApplication.getChannels(this), buf.len); // len in samples
+            AudioTrack.AudioBuffer buf = new AudioTrack.AudioBuffer(sampleRate, Sound.getOutMode(this), Sound.DEFAULT_AUDIOFORMAT, len);
+            rs.open(editSample * Sound.getChannels(this), buf.len); // len in samples
             int r = rs.read(buf.buffer); // r in samples
             if (r != buf.len)
                 throw new RuntimeException("unable to read data");
@@ -538,7 +611,7 @@ public class RecordingActivity extends AppCompatActivity {
             return;
 
         RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.trunk((editSample + samplesUpdate) * MainApplication.getChannels(this));
+        rs.trunk((editSample + samplesUpdate) * Sound.getChannels(this));
         rs.close();
 
         edit(false, true);
@@ -633,36 +706,63 @@ public class RecordingActivity extends AppCompatActivity {
 
         pitch.record();
 
-        AudioRecord rec;
+        int[] ss = new int[]{
+                MediaRecorder.AudioSource.MIC,
+                MediaRecorder.AudioSource.DEFAULT
+        };
 
-        int c = MainApplication.getInMode(RecordingActivity.this);
-        int min = AudioRecord.getMinBufferSize(sampleRate, c, Sound.DEFAULT_AUDIOFORMAT);
-        if (min <= 0) {
-            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord: Bad audio values", Toast.LENGTH_SHORT).show();
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final Encoder e;
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
+            e = new Encoder() {
+                @Override
+                public void encode(short[] buf, int pos, int len) {
+                    fly.encode(buf, pos, len);
+                }
+
+                @Override
+                public void close() {
+                    fly.close();
+                }
+            };
+        } else {
+            final RawSamples rs = new RawSamples(storage.getTempRecording());
+            rs.open(samplesTime * Sound.getChannels(this));
+            e = new Encoder() {
+                @Override
+                public void encode(short[] buf, int pos, int len) {
+                    rs.write(buf, pos, len);
+                }
+
+                @Override
+                public void close() {
+                    rs.close();
+                }
+            };
+        }
+
+        final AudioRecord recorder;
+        try {
+            recorder = Sound.createAudioRecorder(this, sampleRate, ss, 0);
+        } catch (RuntimeException ee) {
+            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
-        if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-            rec = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, sampleRate, c, Sound.DEFAULT_AUDIOFORMAT, min * 2);
-            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
-                Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-        }
-
-        final RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.open(samplesTime * MainApplication.getChannels(this));
-
-        final AudioRecord recorder = rec;
 
         final Thread old = thread;
+        final AtomicBoolean oldb = interrupt;
+
+        interrupt = new AtomicBoolean(false);
 
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 if (old != null) {
+                    oldb.set(true);
                     old.interrupt();
                     try {
                         old.join();
@@ -671,12 +771,7 @@ public class RecordingActivity extends AppCompatActivity {
                     }
                 }
 
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                int p = android.os.Process.getThreadPriority(android.os.Process.myTid());
-
-                if (p != android.os.Process.THREAD_PRIORITY_URGENT_AUDIO) {
-                    Log.e(TAG, "Unable to set Thread Priority " + android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                }
+                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 
                 try {
                     long start = System.currentTimeMillis();
@@ -684,21 +779,21 @@ public class RecordingActivity extends AppCompatActivity {
 
                     int samplesTimeCount = 0;
                     // how many samples we need to update 'samples'. time clock. every 1000ms.
-                    int samplesTimeUpdate = 1000 / 1000 * sampleRate;
+                    int samplesTimeUpdate = 1000 * sampleRate / 1000;
 
                     short[] buffer = null;
 
                     boolean stableRefresh = false;
 
-                    while (!Thread.currentThread().isInterrupted()) {
+                    while (!interrupt.get()) {
                         synchronized (bufferSizeLock) {
                             if (buffer == null || buffer.length != bufferSize)
                                 buffer = new short[bufferSize];
                         }
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
-                        if (readSize <= 0) {
-                            break;
+                        if (readSize < 0) {
+                            return;
                         }
                         long end = System.currentTimeMillis();
 
@@ -706,12 +801,12 @@ public class RecordingActivity extends AppCompatActivity {
 
                         start = end;
 
-                        int samples = readSize / MainApplication.getChannels(RecordingActivity.this);
+                        int samples = readSize / Sound.getChannels(RecordingActivity.this);
 
                         if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
 
-                            rs.write(buffer, 0, readSize);
+                            e.encode(buffer, 0, readSize);
 
                             short[] dbBuf;
                             int dbSize;
@@ -761,6 +856,9 @@ public class RecordingActivity extends AppCompatActivity {
                             }
                         }
                     }
+                    if (e != null) {
+                        e.close();
+                    }
                 } catch (final RuntimeException e) {
                     handle.post(new Runnable() {
                         @Override
@@ -780,8 +878,8 @@ public class RecordingActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (rs != null)
-                        rs.close();
+                    if (e != null)
+                        e.close();
 
                     if (recorder != null)
                         recorder.release();
@@ -815,7 +913,7 @@ public class RecordingActivity extends AppCompatActivity {
                 samplesUpdate = this.samplesUpdate;
             }
 
-            bufferSize = samplesUpdate * MainApplication.getChannels(this);
+            bufferSize = samplesUpdate * Sound.getChannels(this);
         }
     }
 
@@ -828,7 +926,7 @@ public class RecordingActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 1:
+            case RESULT_START:
                 if (Storage.permitted(this, permissions)) {
                     startRecording();
                 } else {
@@ -839,47 +937,22 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     EncoderInfo getInfo() {
-        final int channels = MainApplication.getChannels(this);
+        final int channels = Sound.getChannels(this);
         final int bps = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
         return new EncoderInfo(channels, sampleRate, bps);
     }
 
-    void encoding(final Runnable run) {
+    void encoding(final Runnable done) {
         final File in = storage.getTempRecording();
-        final File out;
 
-        if (!in.exists()) {
+        if (!in.exists() || in.length() == 0) {
             finish();
             return;
         }
 
-        final String s = targetUri.getScheme();
-        if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            out = storage.getTempEncoding();
-        } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-            out = Storage.getFile(targetUri);
-        } else {
-            throw new RuntimeException("unkonwn uri");
-        }
+        final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
 
-        File parent = out.getParentFile();
-
-        if (!parent.exists()) {
-            if (!parent.mkdirs()) { // in case if it were manually deleted
-                throw new RuntimeException("Unable to create: " + parent);
-            }
-        }
-
-        EncoderInfo info = getInfo();
-
-        Encoder e = null;
-
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
-
-        e = Factory.getEncoder(this, ext, info, out);
-
-        encoder = new FileEncoder(this, in, e);
+        encoder = new FileEncoder(this, in, fly);
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
@@ -892,45 +965,6 @@ public class RecordingActivity extends AppCompatActivity {
         d.setIndeterminate(false);
         d.show();
 
-        final Runnable save = new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME we write dirrectlry to storage
-                    ContentResolver resolver = getContentResolver();
-                    try {
-                        Uri root = Storage.getDocumentTreeUri(targetUri);
-                        resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        storage.move(out, root, Storage.getDocumentChildPath(targetUri));
-                    } catch (RuntimeException e) {
-                        Storage.delete(out); // delete tmp encoding file
-                        try {
-                            storage.delete(targetUri); // delete SAF encoding file
-                        } catch (RuntimeException ee) {
-                            Log.d(TAG, "unable to delete target uri", ee); // ignore, not even created?
-                        }
-                        Post(e);
-                        d.cancel();
-                        return;
-                    }
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Storage.delete(in); // delete raw recording
-
-                        SharedPreferences.Editor edit = shared.edit();
-                        edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
-                        edit.commit();
-
-                        run.run();
-
-                        d.cancel();
-                    }
-                });
-            }
-        };
-
         encoder.run(new Runnable() {
             @Override
             public void run() {
@@ -939,12 +973,21 @@ public class RecordingActivity extends AppCompatActivity {
         }, new Runnable() {
             @Override
             public void run() { // success
-                Thread thread = new Thread(save); // network on main thread for SAF network
-                thread.start();
+                Storage.delete(in); // delete raw recording
+
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+                SharedPreferences.Editor edit = shared.edit();
+                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+                edit.commit();
+
+                done.run();
+
+                d.cancel();
             }
         }, new Runnable() {
             @Override
-            public void run() { // done
+            public void run() { // or error
+                storage.delete(fly.targetUri); // fly has fd, delete target manually
                 d.cancel();
                 Error(encoder.getException());
             }
@@ -989,7 +1032,7 @@ public class RecordingActivity extends AppCompatActivity {
                 finish();
             }
         });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
