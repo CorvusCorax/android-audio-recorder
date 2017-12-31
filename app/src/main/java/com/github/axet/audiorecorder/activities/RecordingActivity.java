@@ -881,7 +881,12 @@ public class RecordingActivity extends AppCompatActivity {
         final File in = storage.getTempRecording();
 
         if (!in.exists() || in.length() == 0) {
-            finish();
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+            SharedPreferences.Editor edit = shared.edit();
+            edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+            edit.commit();
+
+            done.run();
             return;
         }
 
