@@ -1,6 +1,7 @@
 package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -17,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -144,6 +146,70 @@ public class RecordingActivity extends AppCompatActivity {
                     wasRinging = false;
                     pausedByCall = false;
                     break;
+            }
+        }
+    }
+
+    public class OnFlyEncoding implements Encoder {
+        Uri targetUri;
+        Encoder e;
+        File out;
+        String s;
+
+        public OnFlyEncoding(Context context, Uri targetUri, EncoderInfo info) {
+            this.targetUri = targetUri;
+
+            s = targetUri.getScheme();
+            if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
+                out = storage.getTempEncoding();
+            } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+                out = Storage.getFile(targetUri);
+            } else {
+                throw new RuntimeException("unkonwn uri");
+            }
+
+            File parent = out.getParentFile();
+
+            if (!parent.exists() && !parent.mkdirs()) { // in case if it were manually deleted
+                throw new RuntimeException("Unable to create: " + parent);
+            }
+
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+            String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
+
+            e = Factory.getEncoder(context, ext, info, out);
+        }
+
+        @Override
+        public void encode(short[] buf, int pos, int len) {
+            e.encode(buf, pos, len);
+        }
+
+        @Override
+        public void close() {
+            if (e != null) {
+                e.close();
+                e = null;
+            }
+
+            if (out != null && out.exists() && out.length() > 0) {
+                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME_CONTENT we write directly to storage
+                    ContentResolver resolver = getContentResolver();
+                    try {
+                        Uri root = Storage.getDocumentTreeUri(targetUri);
+                        resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        storage.move(out, root, Storage.getDocumentChildPath(targetUri));
+                    } catch (RuntimeException e) {
+                        Storage.delete(out); // delete tmp encoding file
+                        try {
+                            storage.delete(targetUri); // delete SAF encoding file
+                        } catch (RuntimeException ee) {
+                            Log.d(TAG, "unable to delete target uri", ee); // ignore, not even created?
+                        }
+                        throw e;
+                    }
+                }
+                out = null;
             }
         }
     }
@@ -377,17 +443,23 @@ public class RecordingActivity extends AppCompatActivity {
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
-        pitch.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                edit(true, true);
-                float x = event.getX();
-                if (x < 0)
-                    x = 0;
-                editSample = pitch.edit(x) * samplesUpdate;
-                return true;
-            }
-        });
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            pitch.setOnTouchListener(null);
+        } else {
+            pitch.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    edit(true, true);
+                    float x = event.getX();
+                    if (x < 0)
+                        x = 0;
+                    editSample = pitch.edit(x) * samplesUpdate;
+                    return true;
+                }
+            });
+        }
     }
 
     void stopRecording() {
@@ -627,13 +699,43 @@ public class RecordingActivity extends AppCompatActivity {
                 MediaRecorder.AudioSource.DEFAULT
         };
 
-        final RawSamples rs = new RawSamples(storage.getTempRecording());
-        rs.open(samplesTime * Sound.getChannels(this));
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final Encoder e;
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+            final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
+            e = new Encoder() {
+                @Override
+                public void encode(short[] buf, int pos, int len) {
+                    fly.encode(buf, pos, len);
+                }
+
+                @Override
+                public void close() {
+                    fly.close();
+                }
+            };
+        } else {
+            final RawSamples rs = new RawSamples(storage.getTempRecording());
+            rs.open(samplesTime * Sound.getChannels(this));
+            e = new Encoder() {
+                @Override
+                public void encode(short[] buf, int pos, int len) {
+                    rs.write(buf, pos, len);
+                }
+
+                @Override
+                public void close() {
+                    rs.close();
+                }
+            };
+        }
 
         final AudioRecord recorder;
         try {
             recorder = Sound.createAudioRecorder(this, sampleRate, ss, 0);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ee) {
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -653,7 +755,7 @@ public class RecordingActivity extends AppCompatActivity {
                     }
                 }
 
-                // android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 
                 try {
                     long start = System.currentTimeMillis();
@@ -688,7 +790,7 @@ public class RecordingActivity extends AppCompatActivity {
                         if (stableRefresh || diff >= samples) {
                             stableRefresh = true;
 
-                            rs.write(buffer, 0, readSize);
+                            e.encode(buffer, 0, readSize);
 
                             short[] dbBuf;
                             int dbSize;
@@ -738,6 +840,9 @@ public class RecordingActivity extends AppCompatActivity {
                             }
                         }
                     }
+                    if (e != null) {
+                        e.close();
+                    }
                 } catch (final RuntimeException e) {
                     handle.post(new Runnable() {
                         @Override
@@ -757,8 +862,8 @@ public class RecordingActivity extends AppCompatActivity {
                         }
                     });
 
-                    if (rs != null)
-                        rs.close();
+                    if (e != null)
+                        e.close();
 
                     if (recorder != null)
                         recorder.release();
@@ -821,42 +926,17 @@ public class RecordingActivity extends AppCompatActivity {
         return new EncoderInfo(channels, sampleRate, bps);
     }
 
-    void encoding(final Runnable run) {
+    void encoding(final Runnable done) {
         final File in = storage.getTempRecording();
-        final File out;
 
-        if (!in.exists()) {
+        if (!in.exists() || in.length() == 0) {
             finish();
             return;
         }
 
-        final String s = targetUri.getScheme();
-        if (s.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            out = storage.getTempEncoding();
-        } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
-            out = Storage.getFile(targetUri);
-        } else {
-            throw new RuntimeException("unkonwn uri");
-        }
+        final OnFlyEncoding fly = new OnFlyEncoding(this, targetUri, getInfo());
 
-        File parent = out.getParentFile();
-
-        if (!parent.exists()) {
-            if (!parent.mkdirs()) { // in case if it were manually deleted
-                throw new RuntimeException("Unable to create: " + parent);
-            }
-        }
-
-        EncoderInfo info = getInfo();
-
-        Encoder e = null;
-
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
-
-        e = Factory.getEncoder(this, ext, info, out);
-
-        encoder = new FileEncoder(this, in, e);
+        encoder = new FileEncoder(this, in, fly);
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
@@ -869,45 +949,6 @@ public class RecordingActivity extends AppCompatActivity {
         d.setIndeterminate(false);
         d.show();
 
-        final Runnable save = new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) { // for non SCHEME we write dirrectlry to storage
-                    ContentResolver resolver = getContentResolver();
-                    try {
-                        Uri root = Storage.getDocumentTreeUri(targetUri);
-                        resolver.takePersistableUriPermission(root, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        storage.move(out, root, Storage.getDocumentChildPath(targetUri));
-                    } catch (RuntimeException e) {
-                        Storage.delete(out); // delete tmp encoding file
-                        try {
-                            storage.delete(targetUri); // delete SAF encoding file
-                        } catch (RuntimeException ee) {
-                            Log.d(TAG, "unable to delete target uri", ee); // ignore, not even created?
-                        }
-                        Post(e);
-                        d.cancel();
-                        return;
-                    }
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Storage.delete(in); // delete raw recording
-
-                        SharedPreferences.Editor edit = shared.edit();
-                        edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
-                        edit.commit();
-
-                        run.run();
-
-                        d.cancel();
-                    }
-                });
-            }
-        };
-
         encoder.run(new Runnable() {
             @Override
             public void run() {
@@ -916,12 +957,20 @@ public class RecordingActivity extends AppCompatActivity {
         }, new Runnable() {
             @Override
             public void run() { // success
-                Thread thread = new Thread(save); // network on main thread for SAF network
-                thread.start();
+                Storage.delete(in); // delete raw recording
+
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+                SharedPreferences.Editor edit = shared.edit();
+                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+                edit.commit();
+
+                done.run();
+
+                d.cancel();
             }
         }, new Runnable() {
             @Override
-            public void run() { // done
+            public void run() { // or error
                 d.cancel();
                 Error(encoder.getException());
             }

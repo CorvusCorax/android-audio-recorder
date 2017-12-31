@@ -56,4 +56,6 @@
     <string name="pref_theme_summary">Imposta il tema dell'applicazione (scuro / chiaro)</string>
     <string name="pref_application">Application</string>
     <string name="pref_recordings">Recordings</string>
+    <string name="pref_fly_title">Encoding on Fly</string>
+    <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
 </resources>

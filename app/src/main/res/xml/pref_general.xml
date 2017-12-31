@@ -46,6 +46,12 @@
             android:positiveButtonText="@null"
             android:summary="2015-12-31 22:11:34"
             android:title="@string/pref_nameformat_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="fly"
+            android:summary="@string/pref_fly_summary"
+            android:title="@string/pref_fly_title" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_application">

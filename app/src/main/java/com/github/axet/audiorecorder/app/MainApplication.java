@@ -8,6 +8,7 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
 
     public static final String PREFERENCE_CONTROLS = "controls";
     public static final String PREFERENCE_TARGET = "target";
+    public static final String PREFERENCE_FLY = "fly";
 
     public int getUserTheme() {
         return getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
