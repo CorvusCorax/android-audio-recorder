@@ -3,6 +3,7 @@ package com.github.axet.audiorecorder.activities;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +20,9 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.preference.PreferenceManager;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -109,6 +113,8 @@ public class RecordingActivity extends AppCompatActivity {
 
     ShortBuffer dbBuffer = null;
 
+    MediaSessionCompat msc;
+
     public static void startActivity(Context context, boolean pause) {
         Intent i = new Intent(context, RecordingActivity.class);
         if (pause) {
@@ -133,7 +139,9 @@ public class RecordingActivity extends AppCompatActivity {
                 if (AudioManager.SCO_AUDIO_STATE_CONNECTED == state) {
                     if (pausedByBluetooth) {
                         pausedByBluetooth = false;
-                        startRecording();
+                        if (thread == null) {
+                            startRecording();
+                        }
                     }
                 } else if (AudioManager.SCO_AUDIO_STATE_DISCONNECTED == state) {
                     if (thread != null) {
@@ -141,10 +149,13 @@ public class RecordingActivity extends AppCompatActivity {
                         stopRecording(getString(R.string.hold_by_bluetooth));
                     }
                 }
+                return;
             }
             if (a.equals(PAUSE_BUTTON)) {
                 pauseButton();
+                return;
             }
+            MediaButtonReceiver.handleIntent(msc, intent);
         }
     }
 
@@ -306,6 +317,7 @@ public class RecordingActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PAUSE_BUTTON);
         filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
+        filter.addAction(Intent.ACTION_MEDIA_BUTTON);
         registerReceiver(receiver, filter);
     }
 
@@ -360,15 +372,15 @@ public class RecordingActivity extends AppCompatActivity {
     void pauseButton() {
         if (thread != null) {
             stopRecording(getString(R.string.recording_status_pause));
+            stopBluetooth();
+            headset(true, false);
         } else {
             editCut();
-            if (isRecordingReady())
+            if (isRecordingReady()) {
                 startRecording();
-            else
-                Toast.makeText(this, R.string.hold_by_bluetooth, Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
 
     public boolean isRecordingReady() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
@@ -376,7 +388,6 @@ public class RecordingActivity extends AppCompatActivity {
             AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             if (am.isBluetoothScoAvailableOffCall()) {
                 receiver.bluetooth = true;
-                am.stopBluetoothSco(); // stop previous connection (in case of disconnect) seems like bluetooth stack counts
                 am.startBluetoothSco();
                 if (!am.isBluetoothScoOn()) {
                     receiver.pausedByBluetooth = true;
@@ -461,11 +472,6 @@ public class RecordingActivity extends AppCompatActivity {
         }
         pitch.stop();
         sound.unsilent();
-        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (receiver.bluetooth) {
-            am.stopBluetoothSco();
-            receiver.bluetooth = false;
-        }
     }
 
     void edit(boolean show, boolean animate) {
@@ -650,12 +656,22 @@ public class RecordingActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    public void stopBluetooth() {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (receiver.bluetooth) {
+            am.stopBluetoothSco();
+            receiver.bluetooth = false;
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestory");
 
         stopRecording();
+        stopBluetooth();
+        headset(false, false);
 
         if (receiver != null) {
             unregisterReceiver(receiver);
@@ -686,6 +702,8 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void startRecording() {
+        headset(true, true);
+
         edit(false, true);
         pitch.setOnTouchListener(null);
 
@@ -1047,5 +1065,49 @@ public class RecordingActivity extends AppCompatActivity {
     public void finish() {
         super.finish();
         MainActivity.startActivity(this);
+    }
+
+    static PlaybackStateCompat buildState(boolean recording) {
+        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
+                .setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_PLAY_PAUSE |
+                        PlaybackStateCompat.ACTION_STOP)
+                .setState(recording ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED, 0, 1);
+        return builder.build();
+    }
+
+    void headset(boolean b, final boolean recording) {
+        if (b) {
+            if (msc == null) {
+                Log.d(TAG, "headset mediabutton on");
+                ComponentName tr = new ComponentName(this, RecordingReceiver.class);
+                msc = new MediaSessionCompat(this, TAG, tr, null);
+                msc.setCallback(new MediaSessionCompat.Callback() {
+                    @Override
+                    public void onPlay() {
+                        pauseButton();
+                    }
+
+                    @Override
+                    public void onPause() {
+                        pauseButton();
+                    }
+
+                    @Override
+                    public void onStop() {
+                        pauseButton();
+                    }
+                });
+                msc.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+                msc.setActive(true);
+                msc.setPlaybackState(buildState(true)); // bug, when after device boot we have to set playing state to 'playing' to make mediabutton work
+            }
+            msc.setPlaybackState(buildState(recording));
+        } else {
+            if (msc != null) {
+                Log.d(TAG, "headset mediabutton off");
+                msc.release();
+                msc = null;
+            }
+        }
     }
 }
