@@ -2,6 +2,7 @@ package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -17,7 +18,6 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
@@ -54,9 +54,6 @@ import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.ShortBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,15 +62,14 @@ public class RecordingActivity extends AppCompatActivity {
 
     public static final int RESULT_START = 1;
 
-    public static final String[] PERMISSIONS = new String[]{
+    public static final String[] PERMISSIONS_AUDIO = new String[]{
             Manifest.permission.RECORD_AUDIO
     };
 
-    public static String START_PAUSE = RecordingActivity.class.getCanonicalName() + ".START_PAUSE";
-    public static String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
+    public static final String START_PAUSE = RecordingActivity.class.getCanonicalName() + ".START_PAUSE";
+    public static final String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
 
     PhoneStateChangeListener pscl = new PhoneStateChangeListener();
-    Handler handle = new Handler();
     FileEncoder encoder;
 
     // do we need to start recording immidiatly?
@@ -126,28 +122,56 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     class RecordingReceiver extends BroadcastReceiver {
-        boolean bluetooth = false;
+        boolean bluetoothSource = false; // are we using bluetooth source recording
+        boolean bluetoothStart = false; // did we start already?
         boolean pausedByBluetooth = false;
+        boolean pause = false; // resumed recording by user, show error only on user actions
+
+        Runnable connected = new Runnable() {
+            @Override
+            public void run() {
+                handler.removeCallbacks(connected);
+                if (pausedByBluetooth) {
+                    pausedByBluetooth = false;
+                    if (thread == null) {
+                        if (isRecordingReady())
+                            startRecording();
+                    }
+                }
+            }
+        };
+
+        Runnable disconnected = new Runnable() {
+            @Override
+            public void run() {
+                handler.removeCallbacks(connected);
+                if (thread != null) {
+                    pausedByBluetooth = true;
+                    stopRecording(getString(R.string.hold_by_bluetooth));
+                    stopBluetooth();
+                } else {
+                    if (pause) {
+                        pause = false;
+                        Toast.makeText(RecordingActivity.this, R.string.hold_by_bluetooth, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, Intent intent) {
             String a = intent.getAction();
             if (a == null)
                 return;
-            if (a.equals(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED) && bluetooth) {
+            if (bluetoothSource && a.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+                handler.postDelayed(connected, 3000); // give os time ot initialize device, or startBluetoothSco will be ignored
+            }
+            if (bluetoothSource && a.equals(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED)) {
                 int state = intent.getIntExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, -1);
                 if (AudioManager.SCO_AUDIO_STATE_CONNECTED == state) {
-                    if (pausedByBluetooth) {
-                        pausedByBluetooth = false;
-                        if (thread == null) {
-                            startRecording();
-                        }
-                    }
+                    connected.run();
                 } else if (AudioManager.SCO_AUDIO_STATE_DISCONNECTED == state) {
-                    if (thread != null) {
-                        pausedByBluetooth = true;
-                        stopRecording(getString(R.string.hold_by_bluetooth));
-                    }
+                    disconnected.run();
                 }
                 return;
             }
@@ -317,7 +341,8 @@ public class RecordingActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(PAUSE_BUTTON);
         filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
-        filter.addAction(Intent.ACTION_MEDIA_BUTTON);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         registerReceiver(receiver, filter);
     }
 
@@ -375,6 +400,8 @@ public class RecordingActivity extends AppCompatActivity {
             stopBluetooth();
             headset(true, false);
         } else {
+            receiver.pause = true;
+            stopBluetooth(); // reset bluetooth
             editCut();
             if (isRecordingReady()) {
                 startRecording();
@@ -382,18 +409,29 @@ public class RecordingActivity extends AppCompatActivity {
         }
     }
 
+    boolean startBluetooth() {
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (am.isBluetoothScoAvailableOffCall()) {
+            if (!receiver.bluetoothStart) {
+                am.startBluetoothSco();
+                receiver.bluetoothStart = true;
+            }
+            if (!am.isBluetoothScoOn()) {
+                receiver.pausedByBluetooth = true;
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isRecordingReady() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         if (shared.getString(MainApplication.PREFERENCE_BLUETOOTH, MainApplication.SOURCE_MIC).equals(MainApplication.SOURCE_BLUETOOTH)) {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (am.isBluetoothScoAvailableOffCall()) {
-                receiver.bluetooth = true;
-                am.startBluetoothSco();
-                if (!am.isBluetoothScoOn()) {
-                    receiver.pausedByBluetooth = true;
-                    return false;
-                }
-            }
+            receiver.bluetoothSource = true;
+            if (!startBluetooth())
+                return false;
+        } else {
+            receiver.bluetoothSource = false;
         }
         return true;
     }
@@ -408,7 +446,7 @@ public class RecordingActivity extends AppCompatActivity {
         // start once
         if (start) {
             start = false;
-            if (Storage.permitted(this, PERMISSIONS, RESULT_START)) { // audio perm
+            if (Storage.permitted(this, PERMISSIONS_AUDIO, RESULT_START)) { // audio perm
                 if (isRecordingReady())
                     startRecording();
                 else
@@ -472,6 +510,7 @@ public class RecordingActivity extends AppCompatActivity {
         }
         pitch.stop();
         sound.unsilent();
+        handler.removeCallbacks(receiver.connected);
     }
 
     void edit(boolean show, boolean animate) {
@@ -657,10 +696,11 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     public void stopBluetooth() {
+        handler.removeCallbacks(receiver.connected);
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (receiver.bluetooth) {
+        if (receiver.bluetoothStart) {
+            receiver.bluetoothStart = false;
             am.stopBluetoothSco();
-            receiver.bluetooth = false;
         }
     }
 
@@ -837,7 +877,7 @@ public class RecordingActivity extends AppCompatActivity {
                             readSizeUpdate = dbSize / samplesUpdateStereo * samplesUpdateStereo;
                             for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
                                 final double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
-                                handle.post(new Runnable() {
+                                handler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         pitch.add(dB);
@@ -856,7 +896,7 @@ public class RecordingActivity extends AppCompatActivity {
                             samplesTimeCount += samples;
                             if (samplesTimeCount > samplesTimeUpdate) {
                                 final long m = samplesTime;
-                                handle.post(new Runnable() {
+                                handler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         updateSamples(m);
@@ -871,7 +911,7 @@ public class RecordingActivity extends AppCompatActivity {
                 } finally {
                     // redraw view, we may add one last pich which is not been drawen because draw tread already interrupted.
                     // to prevent resume recording jump - draw last added pitch here.
-                    handle.post(new Runnable() {
+                    handler.post(new Runnable() {
                         @Override
                         public void run() {
                             pitch.drawEnd();
