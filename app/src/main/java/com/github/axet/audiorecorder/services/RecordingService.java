@@ -251,4 +251,3 @@ public class RecordingService extends Service {
         Log.d(TAG, "onTaskRemoved");
     }
 }
-

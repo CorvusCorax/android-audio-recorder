@@ -16,6 +16,11 @@
         <item>8 kHz (телефон)</item>
     </string-array>
 
+    <string-array name="source_text">
+        <item>Микрофон</item>
+        <item>Bluetooth</item>
+    </string-array>
+
     <string-array name="channels_text">
         <item>Моно (по умолчанию)</item>
         <item>Стерео</item>
@@ -23,6 +28,7 @@
 
     <string name="no_folder_app">Программа для просмотра папок не установлена</string>
     <string name="hold_by_call">пауза (звонок)</string>
+    <string name="hold_by_bluetooth">пауза (bluetooth отключен)</string>
     <string name="recording_status_recording">запись</string>
     <string name="recording_status_encoding">кодировка</string>
     <string name="recording_status_pause">пауза</string>
@@ -58,4 +64,5 @@
     <string name="pref_recordings">Записи</string>
     <string name="pref_fly_title">Кодирование на лету</string>
     <string name="pref_fly_summary">Кодирование на лету отключает редактирование и восстановление в случае ошибок</string>
+    <string name="pref_source_title">Источник</string>
 </resources>

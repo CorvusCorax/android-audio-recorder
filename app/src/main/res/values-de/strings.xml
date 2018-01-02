@@ -11,6 +11,11 @@
         <item>8 kHz (Telefon)</item>
     </string-array>
 
+    <string-array name="source_text">
+        <item>Mic</item>
+        <item>Bluetooth</item>
+    </string-array>
+
     <string-array name="themes_text">
         <item>Theme Weiß (Standard)</item>
         <item>Theme Dunkel</item>
@@ -58,4 +63,6 @@
     <string name="pref_recordings">Recordings</string>
     <string name="pref_fly_title">Encoding on Fly</string>
     <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
+    <string name="pref_source_title">Source</string>
+    <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
 </resources>
