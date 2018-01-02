@@ -1,7 +1,6 @@
 package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -11,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -20,6 +20,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -119,9 +120,29 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     class RecordingReceiver extends BroadcastReceiver {
+        boolean bluetooth = false;
+        boolean pausedByBluetooth = false;
+
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PAUSE_BUTTON)) {
+            String a = intent.getAction();
+            if (a == null)
+                return;
+            if (a.equals(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED) && bluetooth) {
+                int state = intent.getIntExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, -1);
+                if (AudioManager.SCO_AUDIO_STATE_CONNECTED == state) {
+                    if (pausedByBluetooth) {
+                        pausedByBluetooth = false;
+                        startRecording();
+                    }
+                } else if (AudioManager.SCO_AUDIO_STATE_DISCONNECTED == state) {
+                    if (thread != null) {
+                        pausedByBluetooth = true;
+                        stopRecording(getString(R.string.hold_by_bluetooth));
+                    }
+                }
+            }
+            if (a.equals(PAUSE_BUTTON)) {
                 pauseButton();
             }
         }
@@ -146,7 +167,8 @@ public class RecordingActivity extends AppCompatActivity {
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (pausedByCall) {
-                        startRecording();
+                        if (isRecordingReady())
+                            startRecording();
                     }
                     wasRinging = false;
                     pausedByCall = false;
@@ -283,6 +305,7 @@ public class RecordingActivity extends AppCompatActivity {
         receiver = new RecordingReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(PAUSE_BUTTON);
+        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
         registerReceiver(receiver, filter);
     }
 
@@ -339,8 +362,29 @@ public class RecordingActivity extends AppCompatActivity {
             stopRecording(getString(R.string.recording_status_pause));
         } else {
             editCut();
-            startRecording();
+            if (isRecordingReady())
+                startRecording();
+            else
+                Toast.makeText(this, R.string.hold_by_bluetooth, Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    public boolean isRecordingReady() {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        if (shared.getString(MainApplication.PREFERENCE_BLUETOOTH, MainApplication.SOURCE_MIC).equals(MainApplication.SOURCE_BLUETOOTH)) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (am.isBluetoothScoAvailableOffCall()) {
+                receiver.bluetooth = true;
+                am.stopBluetoothSco(); // stop previous connection (in case of disconnect) seems like bluetooth stack counts
+                am.startBluetoothSco();
+                if (!am.isBluetoothScoOn()) {
+                    receiver.pausedByBluetooth = true;
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -354,7 +398,10 @@ public class RecordingActivity extends AppCompatActivity {
         if (start) {
             start = false;
             if (Storage.permitted(this, PERMISSIONS, RESULT_START)) { // audio perm
-                startRecording();
+                if (isRecordingReady())
+                    startRecording();
+                else
+                    stopRecording(getString(R.string.hold_by_bluetooth));
             }
         }
 
@@ -414,6 +461,11 @@ public class RecordingActivity extends AppCompatActivity {
         }
         pitch.stop();
         sound.unsilent();
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (receiver.bluetooth) {
+            am.stopBluetoothSco();
+            receiver.bluetooth = false;
+        }
     }
 
     void edit(boolean show, boolean animate) {
@@ -863,7 +915,8 @@ public class RecordingActivity extends AppCompatActivity {
         switch (requestCode) {
             case RESULT_START:
                 if (Storage.permitted(this, permissions)) {
-                    startRecording();
+                    if (isRecordingReady())
+                        startRecording();
                 } else {
                     Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
                     finish();
@@ -880,13 +933,20 @@ public class RecordingActivity extends AppCompatActivity {
     void encoding(final Runnable done) {
         final File in = storage.getTempRecording();
 
-        if (!in.exists() || in.length() == 0) {
-            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
-            SharedPreferences.Editor edit = shared.edit();
-            edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
-            edit.commit();
+        final Runnable last = new Runnable() {
+            @Override
+            public void run() {
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+                SharedPreferences.Editor edit = shared.edit();
+                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+                edit.commit();
 
-            done.run();
+                done.run();
+            }
+        };
+
+        if (!in.exists() || in.length() == 0) {
+            last.run();
             return;
         }
 
@@ -915,12 +975,7 @@ public class RecordingActivity extends AppCompatActivity {
             public void run() { // success
                 Storage.delete(in); // delete raw recording
 
-                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
-                SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
-                edit.commit();
-
-                done.run();
+                last.run();
 
                 d.cancel();
             }
@@ -935,16 +990,16 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     void Post(final Throwable e) {
+        Log.d(TAG, "error", e);
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Error(e);
+                Error(toMessage(e));
             }
         });
     }
 
-    void Error(Throwable e) {
-        Log.d(TAG, "error", e);
+    public String toMessage(Throwable e) {
         String msg = e.getMessage();
         if (msg == null || msg.isEmpty()) {
             Throwable t;
@@ -957,9 +1012,16 @@ public class RecordingActivity extends AppCompatActivity {
             }
             while (t.getCause() != null)
                 t = t.getCause();
-            msg = t.getClass().getSimpleName();
+            msg = t.getMessage();
+            if (msg == null || msg.isEmpty())
+                msg = t.getClass().getSimpleName();
         }
-        Error(msg);
+        return msg;
+    }
+
+    void Error(Throwable e) {
+        Log.d(TAG, "error", e);
+        Error(toMessage(e));
     }
 
     void Error(String msg) {

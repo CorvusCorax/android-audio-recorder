@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -258,6 +259,13 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             s.setPermissionsDialog(this, Storage.PERMISSIONS_RW, RESULT_STORAGE);
             if (Build.VERSION.SDK_INT >= 21)
                 s.setStorageAccessFramework(this, RESULT_STORAGE);
+
+            AudioManager am = (AudioManager) context.getSystemService(AUDIO_SERVICE);
+            Preference bluetooth = pm.findPreference(MainApplication.PREFERENCE_BLUETOOTH);
+            if (!am.isBluetoothScoAvailableOffCall()) {
+                bluetooth.setVisible(false);
+            }
+            bindPreferenceSummaryToValue(bluetooth);
         }
 
         @Override
