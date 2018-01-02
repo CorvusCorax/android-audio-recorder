@@ -64,5 +64,4 @@
     <string name="pref_recordings">Записи</string>
     <string name="pref_fly_title">Кодирование на лету</string>
     <string name="pref_fly_summary">Кодирование на лету отключает редактирование и восстановление в случае ошибок</string>
-    <string name="pref_source_title">Источник</string>
 </resources>

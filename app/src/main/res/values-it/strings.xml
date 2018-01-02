@@ -58,11 +58,10 @@
     <string name="pref_lockscreen_title">Controlli su schermo bloccato</string>
     <string name="pref_lockscreen_summary">Mostra i controlli quando il cellulare è bloccato</string>
     <string name="pref_theme_title">Tema applicazione</string>
-    <string name="pref_theme_summary">Imposta il tema dell'applicazione (scuro / chiaro)</string>
+    <string name="pref_theme_summary">Imposta il tema dell\'applicazione (scuro / chiaro)</string>
     <string name="pref_application">Application</string>
     <string name="pref_recordings">Recordings</string>
     <string name="pref_fly_title">Encoding on Fly</string>
     <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
-    <string name="pref_source_title">Source</string>
     <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
 </resources>

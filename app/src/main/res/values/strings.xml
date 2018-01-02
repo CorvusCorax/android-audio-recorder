@@ -100,6 +100,5 @@
     <string name="pref_recordings">Recordings</string>
     <string name="pref_fly_title">Encoding on Fly</string>
     <string name="pref_fly_summary">Enabling encoding on fly disables editing, and crash recovery</string>
-    <string name="pref_source_title">Source</string>
     <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
 </resources>
