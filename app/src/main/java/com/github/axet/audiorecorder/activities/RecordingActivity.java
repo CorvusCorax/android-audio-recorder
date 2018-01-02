@@ -216,6 +216,14 @@ public class RecordingActivity extends AppCompatActivity {
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
         samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
+        receiver = new RecordingReceiver(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PAUSE_BUTTON);
+        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(receiver, filter);
+
         edit(false, false);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
@@ -315,14 +323,6 @@ public class RecordingActivity extends AppCompatActivity {
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
         }
-
-        receiver = new RecordingReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PAUSE_BUTTON);
-        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        registerReceiver(receiver, filter);
     }
 
     private void setupActionBar() {
