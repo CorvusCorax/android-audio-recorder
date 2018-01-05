@@ -375,17 +375,16 @@ public class RecordingActivity extends AppCompatActivity {
 
     void pauseButton() {
         if (thread != null) {
-            receiver.pause = false;
+            receiver.errors = false;
             stopRecording(getString(R.string.recording_status_pause));
             receiver.stopBluetooth();
             headset(true, false);
         } else {
-            receiver.pause = true;
+            receiver.errors = true;
             receiver.stopBluetooth(); // reset bluetooth
             editCut();
-            if (receiver.isRecordingReady()) {
+            if (receiver.isRecordingReady())
                 startRecording();
-            }
         }
     }
 
