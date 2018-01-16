@@ -29,3 +29,9 @@ For example:
   * /data/user/0/com.github.axet.audiorecorder/files
   * /sdcard/Android/data/com.github.axet.audiorecorder/files
   * /sdcard/Audio Recorder
+
+# Adb commands
+
+    # adb shell am start -n com.github.axet.audiorecorder/.activities.RecordingActivity
+
+    # adb shell am broadcast -a com.github.axet.audiorecorder.STOP_RECORDING
