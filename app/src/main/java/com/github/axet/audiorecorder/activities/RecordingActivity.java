@@ -3,7 +3,6 @@ package com.github.axet.audiorecorder.activities;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -48,6 +47,7 @@ import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
 import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
 import com.github.axet.audiolibrary.widgets.PitchView;
+import com.github.axet.audiorecorder.BuildConfig;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.app.Storage;
@@ -57,10 +57,6 @@ import com.github.axet.audiorecorder.services.RecordingService;
 import java.io.File;
 import java.nio.ShortBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static android.media.AudioManager.SCO_AUDIO_STATE_CONNECTED;
-import static android.media.AudioManager.SCO_AUDIO_STATE_CONNECTING;
-import static android.media.AudioManager.SCO_AUDIO_STATE_DISCONNECTED;
 
 public class RecordingActivity extends AppCompatActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
@@ -73,6 +69,7 @@ public class RecordingActivity extends AppCompatActivity {
 
     public static final String START_PAUSE = RecordingActivity.class.getCanonicalName() + ".START_PAUSE";
     public static final String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
+    public static final String ACTION_FINISH_RECORDING = BuildConfig.APPLICATION_ID + ".STOP_RECORDING";
 
     PhoneStateChangeListener pscl = new PhoneStateChangeListener();
     FileEncoder encoder;
@@ -105,6 +102,7 @@ public class RecordingActivity extends AppCompatActivity {
     TextView time;
     TextView state;
     ImageButton pause;
+    View done;
     PitchView pitch;
 
     Storage storage;
@@ -156,6 +154,10 @@ public class RecordingActivity extends AppCompatActivity {
                 return;
             if (a.equals(PAUSE_BUTTON)) {
                 pauseButton();
+                return;
+            }
+            if (a.equals(ACTION_FINISH_RECORDING)) {
+                done.performClick();
                 return;
             }
             MediaButtonReceiver.handleIntent(msc, intent);
@@ -222,6 +224,7 @@ public class RecordingActivity extends AppCompatActivity {
         filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(ACTION_FINISH_RECORDING);
         registerReceiver(receiver, filter);
 
         edit(false, false);
@@ -292,7 +295,7 @@ public class RecordingActivity extends AppCompatActivity {
             }
         });
 
-        final View done = findViewById(R.id.recording_done);
+        done = findViewById(R.id.recording_done);
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -375,17 +378,16 @@ public class RecordingActivity extends AppCompatActivity {
 
     void pauseButton() {
         if (thread != null) {
-            receiver.pause = false;
+            receiver.errors = false;
             stopRecording(getString(R.string.recording_status_pause));
             receiver.stopBluetooth();
             headset(true, false);
         } else {
-            receiver.pause = true;
+            receiver.errors = true;
             receiver.stopBluetooth(); // reset bluetooth
             editCut();
-            if (receiver.isRecordingReady()) {
+            if (receiver.isRecordingReady())
                 startRecording();
-            }
         }
     }
 

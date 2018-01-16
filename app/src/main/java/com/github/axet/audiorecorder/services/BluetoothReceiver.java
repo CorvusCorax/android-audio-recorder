@@ -24,7 +24,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
     public boolean bluetoothSource = false; // are we using bluetooth source recording
     public boolean bluetoothStart = false; // did we start already?
     public boolean pausedByBluetooth = false;
-    public boolean pause = false; // resumed recording by user, show error only on user actions
+    public boolean errors = false; // show errors
     public boolean connecting = false;
 
     public Runnable connected = new Runnable() {
@@ -43,8 +43,8 @@ public class BluetoothReceiver extends BroadcastReceiver {
         public void run() {
             handler.removeCallbacks(connected);
             onDisconnected();
-            if (pause) {
-                pause = false;
+            if (errors) {
+                errors = false;
                 Toast.makeText(context, R.string.hold_by_bluetooth, Toast.LENGTH_SHORT).show();
             }
             if (connecting) {
@@ -90,12 +90,16 @@ public class BluetoothReceiver extends BroadcastReceiver {
         }
     }
 
-    boolean startBluetooth() {
+    public void onStartBluetoothSco() {
+    }
+
+    public boolean startBluetooth() {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (am.isBluetoothScoAvailableOffCall()) {
             if (!bluetoothStart) {
                 am.startBluetoothSco();
                 bluetoothStart = true;
+                onStartBluetoothSco();
             }
             if (!am.isBluetoothScoOn()) {
                 pausedByBluetooth = true;
