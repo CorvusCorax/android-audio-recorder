@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
@@ -135,6 +136,29 @@ public class MainActivity extends AppCompatActivity {
         if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getAuthority())) {
             item.setVisible(false);
         }
+
+        MenuItem search = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) search.getActionView();
+        searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                recordings.search(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                recordings.searchClose();
+                return true;
+            }
+        });
 
         return true;
     }

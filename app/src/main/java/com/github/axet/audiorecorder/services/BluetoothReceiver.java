@@ -14,7 +14,7 @@ import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.RecordingActivity;
 import com.github.axet.audiorecorder.app.MainApplication;
 
-// default bluetooth stack for API25, bugged and has to be cleared.
+// default bluetooth stack for API25 bugged and has to be cleared using this Receiver.
 public class BluetoothReceiver extends BroadcastReceiver {
 
     public static int CONNECT_DELAY = 3000; // give os time ot initialize device, or startBluetoothSco will be ignored

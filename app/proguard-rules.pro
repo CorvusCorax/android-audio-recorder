@@ -22,6 +22,8 @@
 -keep class com.github.axet.lamejni.Lame {*;}
 -keep class com.github.axet.opusjni.Opus {*;}
 
+-keep class com.github.axet.androidlibrary.widgets.SearchView {*;}
+
 -dontwarn net.sourceforge.javaflacencoder.**
 -dontwarn com.jssrc.resample.**
 -dontwarn org.apache.commons.**
