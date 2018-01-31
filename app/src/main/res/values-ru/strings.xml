@@ -2,7 +2,7 @@
     <string name="app_name">Аудио Рекордер</string>
 
     <string-array name="themes_text">
-        <item>Тема Светлая (по умолчанию)</item>
+        <item>Тема Светлая</item>
         <item>Тема Темная</item>
     </string-array>
 
