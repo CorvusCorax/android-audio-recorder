@@ -37,8 +37,8 @@
     </string-array>
 
     <string-array name="themes_values" translatable="false">
-        <item>Theme_White</item>
-        <item>Theme_Dark</item>
+        <item>@string/Theme_Light</item>
+        <item>@string/Theme_Dark</item>
     </string-array>
 
     <string-array name="channels_text">

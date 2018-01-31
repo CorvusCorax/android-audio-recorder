@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
     @Override
     public int getAppTheme() {
-        return MainApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
+        return MainApplication.getTheme(this, R.style.RecThemeLight_NoActionBar, R.style.RecThemeDark_NoActionBar);
     }
 
     @Override
