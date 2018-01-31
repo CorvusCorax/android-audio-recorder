@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
@@ -35,7 +36,7 @@ import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.MainApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatThemeActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
 
     FloatingActionButton fab;
@@ -46,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
     Storage storage;
     View progressEmpty;
     View progressText;
-
-    int themeId;
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -66,18 +65,13 @@ public class MainActivity extends AppCompatActivity {
         context.startActivity(i);
     }
 
-    public void setAppTheme(int id) {
-        super.setTheme(id);
-        themeId = id;
-    }
-
-    public static int getAppTheme(Context context) {
-        return MainApplication.getTheme(context, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
+    @Override
+    public int getAppTheme() {
+        return MainApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setAppTheme(getAppTheme(this));
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
@@ -195,12 +189,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-
-        if (themeId != getAppTheme(this)) {
-            finish();
-            MainActivity.startActivity(this);
-            return;
-        }
 
         invalidateOptionsMenu(); // update storage folder intent
 
