@@ -39,6 +39,7 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
                 edit.commit();
             }
         }
+        setTheme(getUserTheme());
     }
 
 }

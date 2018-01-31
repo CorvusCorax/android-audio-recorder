@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
+import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
@@ -58,7 +59,7 @@ import java.io.File;
 import java.nio.ShortBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RecordingActivity extends AppCompatActivity {
+public class RecordingActivity extends AppCompatThemeActivity {
     public static final String TAG = RecordingActivity.class.getSimpleName();
 
     public static final int RESULT_START = 1;
@@ -194,8 +195,12 @@ public class RecordingActivity extends AppCompatActivity {
     }
 
     @Override
+    public int getAppTheme() {
+        return MainApplication.getTheme(this, R.style.RecThemeLight_NoActionBar, R.style.RecThemeDark_NoActionBar);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(((MainApplication) getApplication()).getUserTheme());
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
