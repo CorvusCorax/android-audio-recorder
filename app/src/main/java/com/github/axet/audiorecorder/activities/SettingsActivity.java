@@ -54,7 +54,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatSettingsThemeActivity implements SharedPreferences.OnSharedPreferenceChangeListener, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
+public class SettingsActivity extends AppCompatSettingsThemeActivity implements PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     public static final int RESULT_STORAGE = 1;
 
@@ -146,9 +146,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
         setupActionBar();
 
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        shared.registerOnSharedPreferenceChangeListener(this);
-
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
     }
 
@@ -186,11 +183,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(MainApplication.PREFERENCE_THEME)) {
-            finish();
-            startActivity(new Intent(this, SettingsActivity.class));
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        }
+        super.onSharedPreferenceChanged(sharedPreferences, key);
         if (key.equals(MainApplication.PREFERENCE_CONTROLS)) {
             if (sharedPreferences.getBoolean(MainApplication.PREFERENCE_CONTROLS, false)) {
                 RecordingService.start(this);
@@ -206,8 +199,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        shared.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
