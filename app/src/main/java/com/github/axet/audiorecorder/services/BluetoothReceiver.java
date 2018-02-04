@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -26,6 +27,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
     public boolean pausedByBluetooth = false;
     public boolean errors = false; // show errors
     public boolean connecting = false;
+    public IntentFilter filter = new IntentFilter();
 
     public Runnable connected = new Runnable() {
         @Override
@@ -56,6 +58,9 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     public BluetoothReceiver(Context context) {
         this.context = context;
+        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
     }
 
     public void onConnected() {
