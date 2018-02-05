@@ -2,4 +2,6 @@
 <resources>
     <attr name="recColor" format="color" />
     <attr name="cutColor" format="color" />
+    <string name="source_mic">mic</string>
+    <string name="source_bluetooth">bluetooth</string>
 </resources>
