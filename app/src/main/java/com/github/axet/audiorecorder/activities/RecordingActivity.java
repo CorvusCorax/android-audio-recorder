@@ -127,10 +127,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     class RecordingReceiver extends BluetoothReceiver {
 
-        public RecordingReceiver(Context context) {
-            super(context);
-        }
-
         @Override
         public void onConnected() {
             if (thread == null) {
@@ -223,10 +219,10 @@ public class RecordingActivity extends AppCompatThemeActivity {
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
         samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
-        receiver = new RecordingReceiver(this);
+        receiver = new RecordingReceiver();
         receiver.filter.addAction(PAUSE_BUTTON);
         receiver.filter.addAction(ACTION_FINISH_RECORDING);
-        registerReceiver(receiver, receiver.filter);
+        receiver.registerReceiver(this);
 
         edit(false, false);
 

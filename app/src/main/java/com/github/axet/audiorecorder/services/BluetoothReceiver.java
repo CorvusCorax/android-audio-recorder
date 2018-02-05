@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
@@ -16,6 +17,8 @@ import com.github.axet.audiorecorder.activities.RecordingActivity;
 import com.github.axet.audiorecorder.app.MainApplication;
 
 // default bluetooth stack for API25 bugged and has to be cleared using this Receiver.
+//
+// some devices when you call startBluetoothSco twice, you have to call stopBluetoothSco twice, this helper class solve this issue
 public class BluetoothReceiver extends BroadcastReceiver {
 
     public static int CONNECT_DELAY = 3000; // give os time ot initialize device, or startBluetoothSco will be ignored
@@ -56,11 +59,15 @@ public class BluetoothReceiver extends BroadcastReceiver {
         }
     };
 
-    public BluetoothReceiver(Context context) {
-        this.context = context;
+    public BluetoothReceiver() {
         filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+    }
+
+    public void registerReceiver(Context context) {
+        this.context = context;
+        context.registerReceiver(this, filter);
     }
 
     public void onConnected() {
@@ -102,6 +109,10 @@ public class BluetoothReceiver extends BroadcastReceiver {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (am.isBluetoothScoAvailableOffCall()) {
             if (!bluetoothStart) {
+                if (Build.VERSION.SDK_INT == 21) {
+                    if (!am.isWiredHeadsetOn()) // crash on lolipop devices: https://stackoverflow.com/questions/26642218
+                        return false;
+                }
                 am.startBluetoothSco();
                 bluetoothStart = true;
                 onStartBluetoothSco();
