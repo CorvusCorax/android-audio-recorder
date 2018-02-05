@@ -657,7 +657,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         headset(false, false);
 
         if (receiver != null) {
-            unregisterReceiver(receiver);
+            receiver.close();
             receiver = null;
         }
 

@@ -70,6 +70,10 @@ public class BluetoothReceiver extends BroadcastReceiver {
         context.registerReceiver(this, filter);
     }
 
+    public void close() {
+        context.unregisterReceiver(this);
+    }
+
     public void onConnected() {
     }
 
