@@ -127,10 +127,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     class RecordingReceiver extends BluetoothReceiver {
 
-        public RecordingReceiver(Context context) {
-            super(context);
-        }
-
         @Override
         public void onConnected() {
             if (thread == null) {
@@ -203,8 +199,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        showLocked(getWindow());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.activity_recording);
@@ -223,14 +219,10 @@ public class RecordingActivity extends AppCompatThemeActivity {
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
         samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
-        receiver = new RecordingReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PAUSE_BUTTON);
-        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        filter.addAction(ACTION_FINISH_RECORDING);
-        registerReceiver(receiver, filter);
+        receiver = new RecordingReceiver();
+        receiver.filter.addAction(PAUSE_BUTTON);
+        receiver.filter.addAction(ACTION_FINISH_RECORDING);
+        receiver.registerReceiver(this);
 
         edit(false, false);
 

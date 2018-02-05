@@ -48,15 +48,7 @@ public class MainActivity extends AppCompatThemeActivity {
     View progressEmpty;
     View progressText;
 
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String a = intent.getAction();
-            if (a.equals(Intent.ACTION_SCREEN_OFF)) {
-                moveTaskToBack(true);
-            }
-        }
-    };
+    ScreenReceiver receiver;
 
     public static void startActivity(Context context) {
         Intent i = new Intent(context, MainActivity.class);
@@ -74,8 +66,8 @@ public class MainActivity extends AppCompatThemeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        showLocked(getWindow());
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
 
@@ -106,10 +98,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
         RecordingService.startIfPending(this);
 
-        IntentFilter ff = new IntentFilter();
-        ff.addAction(Intent.ACTION_SCREEN_OFF);
-        ff.addAction(Intent.ACTION_SCREEN_ON);
-        registerReceiver(receiver, ff);
+        receiver = new ScreenReceiver(this);
     }
 
     void checkPending() {
@@ -277,7 +266,7 @@ public class MainActivity extends AppCompatThemeActivity {
     protected void onDestroy() {
         super.onDestroy();
         recordings.close();
-        unregisterReceiver(receiver);
+        receiver.close();
     }
 
     void updateHeader() {
