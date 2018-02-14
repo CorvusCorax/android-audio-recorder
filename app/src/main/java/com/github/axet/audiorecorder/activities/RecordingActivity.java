@@ -74,6 +74,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     PhoneStateChangeListener pscl = new PhoneStateChangeListener();
     FileEncoder encoder;
+    Encoder e;
 
     // do we need to start recording immidiatly?
     boolean start = true;
@@ -272,7 +273,18 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     @Override
                     public void run() {
                         stopRecording();
-                        storage.delete(storage.getTempRecording());
+                        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+                            try {
+                                if (e != null) {
+                                    e.close();
+                                    e = null;
+                                }
+                            } catch (RuntimeException e) {
+                                Error(e);
+                            }
+                            storage.delete(targetUri);
+                        }
+                        Storage.delete(storage.getTempRecording());
                         finish();
                     }
                 }, new Runnable() {
@@ -685,6 +697,15 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     void startRecording() {
+        try {
+            startRecordingError();
+        } catch (RuntimeException e) {
+            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    void startRecordingError() {
         headset(true, true);
 
         edit(false, true);
@@ -706,21 +727,21 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        final Encoder e;
-
         if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
             final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
-            e = new Encoder() {
-                @Override
-                public void encode(short[] buf, int pos, int len) {
-                    fly.encode(buf, pos, len);
-                }
+            if (e == null) { // do not recreate encoder if on-fly mode enabled
+                e = new Encoder() {
+                    @Override
+                    public void encode(short[] buf, int pos, int len) {
+                        fly.encode(buf, pos, len);
+                    }
 
-                @Override
-                public void close() {
-                    fly.close();
-                }
-            };
+                    @Override
+                    public void close() {
+                        fly.close();
+                    }
+                };
+            }
         } else {
             final RawSamples rs = new RawSamples(storage.getTempRecording());
             rs.open(samplesTime * Sound.getChannels(this));
@@ -737,14 +758,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             };
         }
 
-        final AudioRecord recorder;
-        try {
-            recorder = Sound.createAudioRecorder(this, sampleRate, ss, 0);
-        } catch (RuntimeException ee) {
-            Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        final AudioRecord recorder = Sound.createAudioRecorder(this, sampleRate, ss, 0);
 
         final Thread old = thread;
         final AtomicBoolean oldb = interrupt;
@@ -864,11 +878,14 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     if (recorder != null)
                         recorder.release();
 
-                    if (e != null) {
+                    if (!shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
                         try {
-                            e.close();
+                            if (e != null) {
+                                e.close();
+                                e = null;
+                            }
                         } catch (RuntimeException e) {
-                            Post(e);
+                            Error(e);
                         }
                     }
                 }
@@ -932,16 +949,26 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     void encoding(final Runnable done) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
+        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
+            try {
+                if (e != null) {
+                    e.close();
+                    e = null;
+                }
+            } catch (RuntimeException e) {
+                Error(e);
+            }
+        }
+
         final File in = storage.getTempRecording();
 
         final Runnable last = new Runnable() {
             @Override
             public void run() {
-                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
                 SharedPreferences.Editor edit = shared.edit();
                 edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
                 edit.commit();
-
                 done.run();
             }
         };
