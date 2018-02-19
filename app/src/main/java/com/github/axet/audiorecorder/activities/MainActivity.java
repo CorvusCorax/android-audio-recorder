@@ -1,11 +1,8 @@
 package com.github.axet.audiorecorder.activities;
 
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -14,7 +11,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -85,13 +82,18 @@ public class MainActivity extends AppCompatThemeActivity {
             public void onClick(View view) {
                 recordings.select(-1);
                 RecordingActivity.startActivity(MainActivity.this, false);
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
 
         list = (ListView) findViewById(R.id.list);
-        recordings = new Recordings(this, list);
+        recordings = new Recordings(this, list) {
+            @Override
+            public void showDialog(AlertDialog.Builder e) {
+                AlertDialog d = e.create();
+                showDialogLocked(d.getWindow());
+                d.show();
+            }
+        };
         list.setAdapter(recordings);
         list.setEmptyView(findViewById(R.id.empty_list));
         recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
