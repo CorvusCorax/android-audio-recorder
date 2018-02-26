@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatThemeActivity {
         RecordingService.startIfPending(this);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        receiver = new ScreenReceiver(this) {
+        receiver = new ScreenReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (!shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false))
@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatThemeActivity {
                 super.onReceive(context, intent);
             }
         };
+        receiver.registerReceiver(this);
     }
 
     void checkPending() {
