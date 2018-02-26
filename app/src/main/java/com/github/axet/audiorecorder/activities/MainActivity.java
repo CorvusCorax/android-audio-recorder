@@ -104,7 +104,9 @@ public class MainActivity extends AppCompatThemeActivity {
         receiver = new ScreenReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (!shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false))
+                boolean p = storage.recordingPending();
+                boolean c = shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false);
+                if (!p && !c)
                     return;
                 super.onReceive(context, intent);
             }
