@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatThemeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        showLocked(getWindow());
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatThemeActivity {
             @Override
             public void onClick(View view) {
                 recordings.select(-1);
+                finish();
                 RecordingActivity.startActivity(MainActivity.this, false);
             }
         });
@@ -100,7 +102,6 @@ public class MainActivity extends AppCompatThemeActivity {
 
         RecordingService.startIfPending(this);
 
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         receiver = new ScreenReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
     void checkPending() {
         if (storage.recordingPending()) {
+            finish();
             RecordingActivity.startActivity(MainActivity.this, true);
             return;
         }
@@ -192,6 +194,13 @@ public class MainActivity extends AppCompatThemeActivity {
         super.onResume();
         Log.d(TAG, "onResume");
 
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false))
+            showLocked(getWindow());
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+
         invalidateOptionsMenu(); // update storage folder intent
 
         try {
@@ -200,7 +209,6 @@ public class MainActivity extends AppCompatThemeActivity {
             Error(e);
         }
 
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         final String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
         Runnable done = new Runnable() {
             @Override
