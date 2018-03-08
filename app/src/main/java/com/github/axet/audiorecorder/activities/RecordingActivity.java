@@ -110,6 +110,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     Storage storage;
     Sound sound;
     RecordingReceiver receiver;
+    ScreenReceiver screen;
     Handler handler = new Handler();
 
     ShortBuffer dbBuffer = null;
@@ -201,8 +202,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         super.onCreate(savedInstanceState);
 
         showLocked(getWindow());
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.activity_recording);
 
@@ -219,6 +219,9 @@ public class RecordingActivity extends AppCompatThemeActivity {
         sampleRate = Sound.getSampleRate(this);
         samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
         samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
+
+        screen = new ScreenReceiver();
+        screen.registerReceiver(this);
 
         receiver = new RecordingReceiver();
         receiver.filter.addAction(PAUSE_BUTTON);
@@ -667,6 +670,11 @@ public class RecordingActivity extends AppCompatThemeActivity {
         stopRecording();
         receiver.stopBluetooth();
         headset(false, false);
+
+        if (screen != null) {
+            screen.close();
+            screen = null;
+        }
 
         if (receiver != null) {
             receiver.close();
