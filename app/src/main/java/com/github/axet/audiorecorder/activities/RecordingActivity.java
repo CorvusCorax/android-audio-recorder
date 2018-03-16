@@ -47,6 +47,8 @@ import com.github.axet.audiolibrary.encoders.EncoderInfo;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
 import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
+import com.github.axet.audiolibrary.filters.AmplifierFilter;
+import com.github.axet.audiolibrary.filters.VoiceFilter;
 import com.github.axet.audiolibrary.widgets.PitchView;
 import com.github.axet.audiorecorder.BuildConfig;
 import com.github.axet.audiorecorder.R;
@@ -989,6 +991,12 @@ public class RecordingActivity extends AppCompatThemeActivity {
         final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
 
         encoder = new FileEncoder(this, in, fly);
+
+        if (shared.getBoolean(MainApplication.PREFERENCE_VOICE, false))
+            encoder.filters.add(new VoiceFilter(getInfo().hz));
+        float amp = shared.getFloat(MainApplication.PREFERENCE_VOLUME, 0);
+        if (amp > 0)
+            encoder.filters.add(new AmplifierFilter(1 + amp));
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
