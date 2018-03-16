@@ -24,11 +24,13 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
+import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
@@ -77,7 +79,9 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             String stringValue = value.toString();
             String key = preference.getKey();
 
-            if (preference instanceof NameFormatPreferenceCompat) {
+            if (preference instanceof SeekBarPreference) {
+                preference.setSummary(((SeekBarPreference) preference).format(Float.valueOf(stringValue)));
+            } else if (preference instanceof NameFormatPreferenceCompat) {
                 preference.setSummary(((NameFormatPreferenceCompat) preference).getFormatted(stringValue));
             } else if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
@@ -127,7 +131,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                        .getAll().get(preference.getKey()));
     }
 
     @Override
@@ -213,6 +217,10 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             NameFormatPreferenceCompat.show(caller, pref.getKey());
             return true;
         }
+        if (pref instanceof SeekBarPreference) {
+            SeekBarPreference.show(caller, pref.getKey());
+            return true;
+        }
         return false;
     }
 
@@ -250,6 +258,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
             bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
+            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_VOLUME));
 
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
             s.setStorage(new Storage(getContext()));
