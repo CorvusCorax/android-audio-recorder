@@ -994,7 +994,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         if (shared.getBoolean(MainApplication.PREFERENCE_VOICE, false))
             encoder.filters.add(new VoiceFilter(getInfo()));
-        float amp = shared.getFloat(MainApplication.PREFERENCE_VOLUME, 0);
+        float amp = shared.getFloat(MainApplication.PREFERENCE_VOLUME, 1);
         if (amp != 1)
             encoder.filters.add(new AmplifierFilter(amp));
 
