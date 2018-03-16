@@ -15,6 +15,8 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
     public static final String PREFERENCE_FLY = "fly";
     public static final String PREFERENCE_BLUETOOTH = "bluetooth";
 
+    public static final String PREFERENCE_VERSION = "version";
+
     public int getUserTheme() {
         return getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
     }
@@ -34,8 +36,27 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
                     edit.putString(MainApplication.PREFERENCE_ENCODING, "flac");
                 edit.commit();
             }
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor edit = shared.edit();
+            edit.putInt(PREFERENCE_VERSION, 1);
+            edit.commit();
+        } else { // second start, check version
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            switch (shared.getInt(PREFERENCE_VERSION, 0)) {
+                case 0:
+                    version_0_to_1();
+                    break;
+            }
         }
         setTheme(getUserTheme());
+    }
+
+    void version_0_to_1() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = shared.edit();
+        edit.putInt(PREFERENCE_VERSION, 1);
+        edit.putFloat(PREFERENCE_VOLUME, shared.getFloat(PREFERENCE_VOLUME, 0) + 1); // update volume from 0..1 to 0..1..4
+        edit.commit();
     }
 
 }
