@@ -48,6 +48,7 @@ import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
 import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
 import com.github.axet.audiolibrary.filters.AmplifierFilter;
+import com.github.axet.audiolibrary.filters.SkipSilenceFilter;
 import com.github.axet.audiolibrary.filters.VoiceFilter;
 import com.github.axet.audiolibrary.widgets.PitchView;
 import com.github.axet.audiorecorder.BuildConfig;
@@ -997,6 +998,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
         float amp = shared.getFloat(MainApplication.PREFERENCE_VOLUME, 1);
         if (amp != 1)
             encoder.filters.add(new AmplifierFilter(amp));
+        if (shared.getBoolean(MainApplication.PREFERENCE_SKIP, false))
+            encoder.filters.add(new SkipSilenceFilter(getInfo()));
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
 
