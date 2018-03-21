@@ -50,4 +50,20 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         }
     }
 
+    public File getNewFile(File path, String ext) {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String format = "%s";
+
+        format = shared.getString(MainApplication.PREFERENCE_FORMAT, format);
+
+        format = getFormatted(format, new Date());
+
+        File f = path;
+        if (!f.exists() && !f.mkdirs()) {
+            throw new RuntimeException("Unable to create: " + path);
+        }
+        return getNextFile(f, format, ext);
+    }
+
 }

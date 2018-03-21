@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
@@ -632,7 +633,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             @Override
             public void run() {
                 stopRecording();
-                storage.delete(storage.getTempRecording());
+                Storage.delete(storage.getTempRecording());
                 finish();
             }
         }, null);
@@ -969,6 +970,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 }
             } catch (RuntimeException e) {
                 Error(e);
+                return;
             }
         }
 
@@ -1001,7 +1003,11 @@ public class RecordingActivity extends AppCompatThemeActivity {
         if (shared.getBoolean(MainApplication.PREFERENCE_SKIP, false))
             encoder.filters.add(new SkipSilenceFilter(getInfo()));
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
+        encoding(encoder, fly, last);
+    }
+
+    void encoding(final FileEncoder encoder, final OnFlyEncoding fly, final Runnable last) {
+        RecordingService.startService(this, Storage.getDocumentName(fly.targetUri), thread != null, encoder != null);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(R.string.encoding_title);
@@ -1020,7 +1026,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }, new Runnable() {
             @Override
             public void run() { // success
-                Storage.delete(in); // delete raw recording
+                Storage.delete(encoder.in); // delete raw recording
 
                 last.run();
 
@@ -1087,6 +1093,29 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 finish();
             }
         });
+        final File in = storage.getTempRecording();
+        if (in.length() > 0) {
+            builder.setNeutralButton(R.string.save_as_wav, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final OpenFileDialog d = new OpenFileDialog(RecordingActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
+                    d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            OnFlyEncoding fly = new OnFlyEncoding(storage, storage.getNewFile(d.getCurrentPath(), "wav"), getInfo());
+                            FileEncoder encoder = new FileEncoder(RecordingActivity.this, in, fly);
+                            encoding(encoder, fly, new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+                        }
+                    });
+                    d.show();
+                }
+            });
+        }
         builder.show();
     }
 
