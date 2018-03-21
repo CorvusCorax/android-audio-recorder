@@ -59,4 +59,5 @@
     <string name="pref_fly_summary">Η ενεργοποίηση της άμεσης κωδικοποίησης απενεργοποιεί την επεξεργασία και την ανάκτηση από κατάρευση</string>
     <string name="hold_by_bluetooth">παύση (αποσύνδεση bluetooth)</string>
     <string name="menu_search">Αναζήτηση</string>
+    <string name="save_as_wav">Save as WAV</string>
 </resources>

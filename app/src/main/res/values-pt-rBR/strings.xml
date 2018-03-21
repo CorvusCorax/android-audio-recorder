@@ -65,4 +65,5 @@
     <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
     <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
     <string name="menu_search">Search</string>
+    <string name="save_as_wav">Save as WAV</string>
 </resources>
