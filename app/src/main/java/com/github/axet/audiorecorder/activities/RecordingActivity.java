@@ -897,7 +897,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                                 e = null;
                             }
                         } catch (RuntimeException e) {
-                            Error(e);
+                            Post(e);
                         }
                     }
                 }

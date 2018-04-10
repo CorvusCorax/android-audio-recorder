@@ -14,8 +14,8 @@
         <item>Bluetooth</item>
     </string-array>
     <string-array name="themes_text">
-        <item>Λευκό Θέμα</item>
-        <item>Σκουρο</item>
+        <item>Φωτεινό</item>
+        <item>Σκοτεινό</item>
     </string-array>
     <string-array name="channels_text">
         <item>Μονοφωνικό (προεπιλογή)</item>
@@ -48,11 +48,11 @@
     <string name="pref_pausecalls_title">Παύση κατά τις κλήσεις</string>
     <string name="pref_pausecalls_summary">Διακοπή εγγραφής στην απάντηση και συνέχεια μετά το τέλος της κλήσης</string>
     <string name="pref_silence_title">Αθόρυβο</string>
-    <string name="pref_silence_summary">Κατά την εγγραφή το τηλέφωνο θα είναι στο \"αθόρυβο"</string>
+    <string name="pref_silence_summary">Κατά την εγγραφή το τηλέφωνο θα είναι στο \"αθόρυβο\"</string>
     <string name="pref_lockscreen_title">Πλήκτρα ελέγχου Οθόνης Κλειδώματος</string>
     <string name="pref_lockscreen_summary">Εμφάνιση πλήκτρων ελέγχου όταν το τηλέφωνο είναι κλειδωμένο</string>
     <string name="pref_theme_title">Θέμα εφαρμογής</string>
-    <string name="pref_theme_summary">Επιλογή θέματος εφαρμογής (σκούρο / ανοιχτό)</string>
+    <string name="pref_theme_summary">Επιλογή θέματος εφαρμογής (σκοτεινό / φωτεινό)</string>
     <string name="pref_application">Εφαρμογή</string>
     <string name="pref_recordings">Εγγραφές</string>
     <string name="pref_fly_title">Άμεση Κωδικοποίηση</string>
