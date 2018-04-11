@@ -712,6 +712,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         try {
             startRecordingError();
         } catch (RuntimeException e) {
+            Log.d(TAG, "unable to start", e);
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
             finish();
         }
