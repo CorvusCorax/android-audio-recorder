@@ -12,13 +12,13 @@
     </string-array>
 
     <string-array name="source_text">
-        <item>Mic</item>
+        <item>Mikrofón</item>
         <item>Bluetooth</item>
     </string-array>
 
     <string-array name="themes_text">
-        <item>Theme Svetlá</item>
-        <item>Theme Tmavá</item>
+        <item>Svetlý vzhľad</item>
+        <item>Tmavý vzhľad</item>
     </string-array>
 
     <string-array name="channels_text">
@@ -37,7 +37,9 @@
     <string name="pause_title">Pozastavené...</string>
     <string name="recording_title">Nahrávanie</string>
     <string name="open_recording_folder">Otvoriť priečinok s nahrávkami</string>
-    <string name="recording_list_is_empty">Zoznam nahrávok je prázdny\n\nZačnite klepnutím na tlačidlo Nahrávať</string>
+    <string name="recording_list_is_empty">Zoznam nahrávok je prázdny\n
+   \n
+   Začnite klepnutím na tlačidlo Nahrávať</string>
     <string name="record_button">Nahrávať</string>
     <string name="cut_button">Odstrihnúť</string>
     <string name="stop_button">Zastaviť</string>
@@ -57,13 +59,13 @@
     <string name="pref_silence_summary">Prepnúť zariadenie do tichého režimu počas nahrávania</string>
     <string name="pref_lockscreen_title">Tlačidlá na uzamikacej obrazovke</string>
     <string name="pref_lockscreen_summary">Zobraziť ovládacie prvky na zamikacej obrazovke</string>
-    <string name="pref_theme_title">Téma</string>
-    <string name="pref_theme_summary">Farebná téma aplikácie (svetlá / tmavá)</string>
-    <string name="pref_application">Application</string>
-    <string name="pref_recordings">Recordings</string>
-    <string name="pref_fly_title">Encoding on Fly</string>
-    <string name="pref_fly_summary">Encoding on fly disable editing, and crash recovery</string>
-    <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
-    <string name="menu_search">Search</string>
-    <string name="save_as_wav">Save as WAV</string>
+    <string name="pref_theme_title">Vzhľad</string>
+    <string name="pref_theme_summary">Farebný vzhľad aplikácie (svetlý / tmavý)</string>
+    <string name="pref_application">Aplikácia</string>
+    <string name="pref_recordings">Nahrávky</string>
+    <string name="pref_fly_title">Kódovať v reálnom čase</string>
+    <string name="pref_fly_summary">Neumožňuje úpravy a obnovenie nahrávky po páde</string>
+    <string name="hold_by_bluetooth">Pozastavené (odpojené bluetooth)</string>
+    <string name="menu_search">Hľadať</string>
+    <string name="save_as_wav">Uložiť vo formáte WAV</string>
 </resources>

@@ -22,6 +22,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -60,8 +61,11 @@ import java.util.List;
 public class SettingsActivity extends AppCompatSettingsThemeActivity implements PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     public static final int RESULT_STORAGE = 1;
+    public static final int RESULT_CALL = 2;
 
     Handler handler = new Handler();
+
+    public static String[] PREMS = new String[]{Manifest.permission.READ_PHONE_STATE};
 
     public static <T> T[] removeElement(Class<T> c, T[] aa, int i) {
         List<T> ll = Arrays.asList(aa);
@@ -273,6 +277,19 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                 bluetooth.setVisible(false);
             }
             bindPreferenceSummaryToValue(bluetooth);
+
+            Preference p = pm.findPreference(MainApplication.PREFERENCE_CALL);
+            p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean b = (boolean) newValue;
+                    if (b) {
+                        if (!Storage.permitted(GeneralPreferenceFragment.this, PREMS, RESULT_CALL))
+                            return false;
+                    }
+                    return true;
+                }
+            });
         }
 
         @Override
@@ -295,12 +312,17 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
-
             switch (requestCode) {
                 case RESULT_STORAGE:
                     s.onRequestPermissionsResult(permissions, grantResults);
+                    break;
+                case RESULT_CALL:
+                    SwitchPreferenceCompat p = (SwitchPreferenceCompat) findPreference(MainApplication.PREFERENCE_CALL);
+                    if (!Storage.permitted(getContext(), PREMS))
+                        p.setChecked(false);
+                    else
+                        p.setChecked(true);
                     break;
             }
         }
@@ -308,9 +330,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
-
             StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
-
             switch (requestCode) {
                 case RESULT_STORAGE:
                     s.onActivityResult(resultCode, data);
