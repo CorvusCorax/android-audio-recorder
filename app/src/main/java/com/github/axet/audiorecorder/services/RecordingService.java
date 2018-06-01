@@ -222,7 +222,7 @@ public class RecordingService extends Service {
                 .setContentTitle(title)
                 .setContentText(text)
                 .setTicker(title)
-                .setSmallIcon(R.drawable.ic_mic_24dp)
+                .setSmallIcon(R.drawable.ic_mic_notification)
                 .setContent(view);
 
         if (Build.VERSION.SDK_INT < 11) {
