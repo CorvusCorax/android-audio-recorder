@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (domyślnie)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (telefon)</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>Mikrofon</item>
+        <item>Bluetooth</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Motyw Jasny</item>
+        <item>Motyw Ciemny</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (domyślnie)</item>
+        <item>Stereo</item>
+    </string-array>
+
+    <string name="hold_by_call">pauza (wstrzymane przez połączenie)</string>
+    <string name="recording_status_recording">nagrywanie</string>
+    <string name="recording_status_encoding">enkodowanie</string>
+    <string name="recording_status_pause">pauza</string>
+    <string name="recording_status_edit">edytuj</string>
+    <string name="confirm_cancel">Potwierdź anulowanie</string>
+    <string name="encoding_title">Enkodowanie...</string>
+    <string name="pause_title">Pauza...</string>
+    <string name="recording_title">Nagrywanie</string>
+    <string name="open_recording_folder">Otwórz Folder Nagrywania</string>
+    <string name="recording_list_is_empty">Lista nagrań jest pusta\n\nKliknij Nagraj, aby rozpocząć nagrywanie</string>
+    <string name="record_button">Nagrywaj</string>
+    <string name="cut_button">Wytnij</string>
+    <string name="stop_button">Stop</string>
+    <string name="cancel_button">Anuluj</string>
+    <string name="pause_button">Pauza</string>
+
+    <string name="pref_storage_title">Ścieżka Przechowywania</string>
+    <string name="pref_rate_title">Tempo Próbkowania</string>
+    <string name="pref_encoding_title">Enkodowanie</string>
+    <string name="pref_encoding_summary">Wyjściowy format pliku (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Tryb</string>
+    <string name="pref_nameformat_title">Format Nazwy</string>
+    <string name="pref_pausecalls_title">Wstrzymaj podczas połączeń</string>
+    <string name="pref_pausecalls_summary">Zatrzymaj nagrywanie po odebraniu i kontynuuj podcas rozłączania</string>
+    <string name="pref_silence_title">Tryb Wyciszenia</string>
+    <string name="pref_silence_summary">Przełącz telefon w \'tryb ciszy\' podczas nagrywania</string>
+    <string name="pref_lockscreen_title">Sterowanie z ekranu blokady</string>
+    <string name="pref_lockscreen_summary">Pokaż elementy sterujące, gdy telefon jest zablokowany</string>
+    <string name="pref_theme_title">Motyw Aplikacji</string>
+    <string name="pref_theme_summary">Ustaw motyw aplikacji (ciemny / jasny)</string>
+    <string name="pref_application">Aplikacja</string>
+    <string name="pref_recordings">Nagrania</string>
+    <string name="pref_fly_title">Enkodowanie w Locie</string>
+    <string name="pref_fly_summary">Włączając enkodowanie w locie, wyłącza edytowanie i odzyskiwanie po awarii</string>
+    <string name="hold_by_bluetooth">pauza (bluetooth rozłaczony)</string>
+    <string name="menu_search">Szukaj</string>
+    <string name="save_as_wav">Zapisz jako WAV</string>
+</resources>
