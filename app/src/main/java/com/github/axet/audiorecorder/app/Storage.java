@@ -46,7 +46,7 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
             }
             return Uri.fromFile(getNextFile(f, format, ext));
         } else {
-            throw new RuntimeException("unknown uri");
+            throw new UnknownUri();
         }
     }
 
