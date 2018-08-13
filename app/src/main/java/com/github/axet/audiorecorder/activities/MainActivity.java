@@ -130,9 +130,9 @@ public class MainActivity extends AppCompatThemeActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
-        Intent intent = StorageProvider.openFolderIntent(this, storage.getStoragePath());
+        Intent intent = StorageProvider.getProvider().openFolderIntent(this, storage.getStoragePath());
         item.setIntent(intent);
-        if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getAuthority())) {
+        if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getProvider().getAuthority())) {
             item.setVisible(false);
         }
 

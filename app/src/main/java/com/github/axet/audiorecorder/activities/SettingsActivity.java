@@ -67,6 +67,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
     public static String[] PREMS = new String[]{Manifest.permission.READ_PHONE_STATE};
 
+    @SuppressWarnings("unchecked")
     public static <T> T[] removeElement(Class<T> c, T[] aa, int i) {
         List<T> ll = Arrays.asList(aa);
         ll = new ArrayList<>(ll);
