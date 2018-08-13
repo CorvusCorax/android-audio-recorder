@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -130,6 +131,7 @@ public class RecordingService extends Service {
             } else if (a.equals(RECORD_BUTTON)) {
                 RecordingActivity.startActivity(this, false);
             } else if (a.equals(SHOW_ACTIVITY)) {
+                ProximityShader.closeSystemDialogs(this);
                 if (intent.getStringExtra("targetFile") == null)
                     MainActivity.startActivity(this);
                 else

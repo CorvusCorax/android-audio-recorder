@@ -132,7 +132,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     class RecordingReceiver extends BluetoothReceiver {
-
         @Override
         public void onConnected() {
             if (thread == null) {
@@ -210,8 +209,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         setContentView(R.layout.activity_recording);
 
-        setupActionBar();
-
         pitch = (PitchView) findViewById(R.id.recording_pitch);
         time = (TextView) findViewById(R.id.recording_time);
         state = (TextView) findViewById(R.id.recording_state);
@@ -221,7 +218,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         sound = new Sound(this);
 
         sampleRate = Sound.getSampleRate(this);
-        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000.0);
+        samplesUpdate = (int) (pitch.getPitchTime() * sampleRate / 1000f);
         samplesUpdateStereo = samplesUpdate * Sound.getChannels(this);
 
         screen = new ScreenReceiver();
@@ -341,13 +338,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
             // pretend we already start it
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
-        }
-    }
-
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-//            actionBar.setBackgroundDrawable(new ColorDrawable(MainApplication.getActionbarColor(this)));
         }
     }
 

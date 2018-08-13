@@ -108,6 +108,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
     public void onStartBluetoothSco() {
     }
 
+    @SuppressWarnings("deprecation")
     public boolean startBluetooth() {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (am.isBluetoothScoAvailableOffCall()) {
