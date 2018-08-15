@@ -15,8 +15,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -24,17 +22,14 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
+import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.widgets.RecordingVolumePreference;
 import com.github.axet.audiorecorder.R;
@@ -204,6 +199,12 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         if (key.equals(MainApplication.PREFERENCE_STORAGE)) {
             Storage.migrateLocalStorageDialog(this, handler, new Storage(this));
         }
+        if (key.equals(MainApplication.PREFERENCE_RATE)) {
+            int sampleRate = Integer.parseInt(sharedPreferences.getString(MainApplication.PREFERENCE_RATE, ""));
+            if (sampleRate != Sound.getValidRecordRate(Sound.getInMode(this), sampleRate)) {
+                Toast.makeText(this, "Not supported Hz", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
@@ -273,7 +274,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                 s.setStorageAccessFramework(this, RESULT_STORAGE);
 
             AudioManager am = (AudioManager) context.getSystemService(AUDIO_SERVICE);
-            Preference bluetooth = pm.findPreference(MainApplication.PREFERENCE_BLUETOOTH);
+            Preference bluetooth = pm.findPreference(MainApplication.PREFERENCE_SOURCE);
             if (!am.isBluetoothScoAvailableOffCall()) {
                 bluetooth.setVisible(false);
             }

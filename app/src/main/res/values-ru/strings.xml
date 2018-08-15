@@ -18,6 +18,8 @@
 
     <string-array name="source_text">
         <item>Микрофон</item>
+        <item>По умолчанию</item>
+        <item>Необработанный</item>
         <item>Bluetooth</item>
     </string-array>
 

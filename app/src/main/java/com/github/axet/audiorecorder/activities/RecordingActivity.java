@@ -15,6 +15,7 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -61,6 +62,7 @@ import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
 import java.nio.ShortBuffer;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecordingActivity extends AppCompatThemeActivity {
@@ -700,7 +702,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void startRecording() {
         try {
-            startRecordingError();
+            startRecordingTry();
         } catch (RuntimeException e) {
             Log.d(TAG, "unable to start", e);
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
@@ -708,7 +710,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }
     }
 
-    void startRecordingError() {
+    void startRecordingTry() {
         headset(true, true);
 
         edit(false, true);
@@ -723,12 +725,21 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         pitch.record();
 
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        TreeMap<String, Integer> map = new TreeMap<>();
+        map.put(getString(R.string.source_mic), MediaRecorder.AudioSource.MIC);
+        map.put(getString(R.string.source_default), MediaRecorder.AudioSource.DEFAULT);
+        if (Sound.isUnprocessedSupported(this))
+            map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.UNPROCESSED);
+        else
+            map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.VOICE_RECOGNITION);
+
         int[] ss = new int[]{
+                map.get(shared.getString(MainApplication.PREFERENCE_SOURCE, getString(R.string.source_mic))),
                 MediaRecorder.AudioSource.MIC,
                 MediaRecorder.AudioSource.DEFAULT
         };
-
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
             final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
