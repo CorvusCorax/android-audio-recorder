@@ -140,7 +140,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     public boolean isRecordingReady() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        if (shared.getString(MainApplication.PREFERENCE_BLUETOOTH, context.getString(R.string.source_mic)).equals(context.getString(R.string.source_bluetooth))) {
+        if (shared.getString(MainApplication.PREFERENCE_SOURCE, context.getString(R.string.source_mic)).equals(context.getString(R.string.source_bluetooth))) {
             bluetoothSource = true;
             if (!startBluetooth())
                 return false;

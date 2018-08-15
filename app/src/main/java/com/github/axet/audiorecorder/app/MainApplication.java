@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.preference.PreferenceManager;
 
+import com.github.axet.audiolibrary.encoders.FormatFLAC;
+import com.github.axet.audiolibrary.encoders.FormatM4A;
 import com.github.axet.audiolibrary.encoders.FormatOGG;
 import com.github.axet.audiorecorder.R;
 
@@ -13,7 +15,7 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
     public static final String PREFERENCE_CONTROLS = "controls";
     public static final String PREFERENCE_TARGET = "target";
     public static final String PREFERENCE_FLY = "fly";
-    public static final String PREFERENCE_BLUETOOTH = "bluetooth";
+    public static final String PREFERENCE_SOURCE = "bluetooth";
 
     public static final String PREFERENCE_VERSION = "version";
 
@@ -31,9 +33,9 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
                 SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor edit = shared.edit();
                 if (Build.VERSION.SDK_INT >= 18)
-                    edit.putString(MainApplication.PREFERENCE_ENCODING, "m4a");
+                    edit.putString(MainApplication.PREFERENCE_ENCODING, FormatM4A.EXT);
                 else
-                    edit.putString(MainApplication.PREFERENCE_ENCODING, "flac");
+                    edit.putString(MainApplication.PREFERENCE_ENCODING, FormatFLAC.EXT);
                 edit.commit();
             }
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
