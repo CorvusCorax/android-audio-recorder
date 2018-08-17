@@ -23,14 +23,12 @@
 
     <string-array name="source_text">
         <item>Mic</item>
-        <item>Default</item>
         <item>Unprocessed</item>
         <item>Bluetooth</item>
     </string-array>
 
     <string-array name="source_values" translatable="false">
         <item>@string/source_mic</item>
-        <item>@string/source_default</item>
         <item>@string/source_raw</item>
         <item>@string/source_bluetooth</item>
     </string-array>

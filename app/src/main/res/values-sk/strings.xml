@@ -13,7 +13,6 @@
 
     <string-array name="source_text">
         <item>Mikrofón</item>
-        <item>Default</item>
         <item>Unprocessed</item>
         <item>Bluetooth</item>
     </string-array>

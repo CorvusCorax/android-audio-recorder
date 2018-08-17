@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">Grabadora de Audio</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (predeterminado)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (llamada telefónica)</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>Mic</item>
+        <item>Unprocessed</item>
+        <item>Bluetooth</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Tema claro</item>
+        <item>Tema oscuro</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (predeterminado)</item>
+        <item>Estéreo</item>
+    </string-array>
+
+    <string name="no_folder_app">No se encontró una aplicación para gestionar archivos.</string>
+    <string name="hold_by_call">pausar (al atender una llamada)</string>
+    <string name="recording_status_recording">grabando</string>
+    <string name="recording_status_encoding">encodificando</string>
+    <string name="recording_status_pause">pausado</string>
+    <string name="recording_status_edit">editando</string>
+    <string name="confirm_cancel">Confirme para cancelar</string>
+    <string name="encoding_title">Codificando...</string>
+    <string name="recording_title">Grabando</string>
+    <string name="pause_title">En pausa...</string>
+    <string name="open_recording_folder">Abrir carpeta de grabaciones</string>
+    <string name="recording_list_is_empty">La lista de grabación está vacía\n\nPulse el ícono de micrófono para comenzar a grabar</string>
+    <string name="record_button">Grabar</string>
+    <string name="cut_button">Cortar</string>
+    <string name="stop_button">Detener</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="pause_button">Pausar</string>
+
+    <string name="pref_storage_title">Carpeta para las grabaciones</string>
+    <string name="pref_rate_title">Frecuencia de muestreo</string>
+    <string name="pref_encoding_title">Codificación</string>
+    <string name="pref_encoding_summary">Formato de salida de archivo (.wav, .mp3, etc.)</string>
+    <string name="pref_mode_title">Modo</string>
+    <string name="pref_mode_summary">Canales de grabación de audio</string>
+    <string name="pref_nameformat_title">Formato para nombrar archivos</string>
+    <string name="pref_pausecalls_title">Pausar en llamadas telefónicas</string>
+    <string name="pref_pausecalls_summary">Dejará de grabar cuando está llamado y volverá cuando cierre la aplicación</string>
+    <string name="pref_silence_title">Modo silencioso</string>
+    <string name="pref_silence_summary">Activa la opción \'No molestar\' durante la grabación</string>
+    <string name="pref_lockscreen_title">Controles en la pantalla de bloqueo</string>
+    <string name="pref_lockscreen_summary">Muestra una notificación para controlar cuando está bloqueada</string>
+    <string name="pref_theme_title">Tema</string>
+    <string name="pref_theme_summary">Define el tema (claro u oscuro)</string>
+    <string name="pref_application">Applicación</string>
+    <string name="pref_recordings">Grabación</string>
+    <string name="pref_fly_title">Encodificación al vuelo</string>
+    <string name="pref_fly_summary">Si se encodifica al vuelo, se desactiva la edición y la recuperación frente a fallos</string>
+    <string name="hold_by_bluetooth">pausar (bluetooth desconectado)</string>
+    <string name="menu_search">Buscar</string>
+    <string name="save_as_wav">Guardar como WAV</string>
+</resources>
