@@ -11,7 +11,6 @@
     </string-array>
     <string-array name="source_text">
         <item>Μικρόφωνο</item>
-        <item>Default</item>
         <item>Unprocessed</item>
         <item>Bluetooth</item>
     </string-array>
