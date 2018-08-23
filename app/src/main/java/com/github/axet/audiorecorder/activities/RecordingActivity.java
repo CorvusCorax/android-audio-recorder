@@ -734,6 +734,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.UNPROCESSED);
         else
             map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.VOICE_RECOGNITION);
+        map.put(getString(R.string.source_bluetooth), MediaRecorder.AudioSource.MIC);
 
         int[] ss = new int[]{
                 map.get(shared.getString(MainApplication.PREFERENCE_SOURCE, getString(R.string.source_mic))),
