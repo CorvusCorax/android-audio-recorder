@@ -727,17 +727,19 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        TreeMap<String, Integer> map = new TreeMap<>();
-        map.put(getString(R.string.source_mic), MediaRecorder.AudioSource.MIC);
-        map.put(getString(R.string.source_default), MediaRecorder.AudioSource.DEFAULT);
-        if (Sound.isUnprocessedSupported(this))
-            map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.UNPROCESSED);
-        else
-            map.put(getString(R.string.source_raw), MediaRecorder.AudioSource.VOICE_RECOGNITION);
-        map.put(getString(R.string.source_bluetooth), MediaRecorder.AudioSource.MIC);
+        int user;
+
+        if (shared.getString(MainApplication.PREFERENCE_SOURCE, getString(R.string.source_mic)).equals(getString(R.string.source_raw))) {
+            if (Sound.isUnprocessedSupported(this))
+                user = MediaRecorder.AudioSource.UNPROCESSED;
+            else
+                user = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+        } else {
+            user = MediaRecorder.AudioSource.MIC;
+        }
 
         int[] ss = new int[]{
-                map.get(shared.getString(MainApplication.PREFERENCE_SOURCE, getString(R.string.source_mic))),
+                user,
                 MediaRecorder.AudioSource.MIC,
                 MediaRecorder.AudioSource.DEFAULT
         };
