@@ -1,0 +1,108 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (bawaan)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (telepon)</item>
+    </string-array>
+
+    <string-array name="sample_rate_values" translatable="false">
+        <item>48000</item>
+        <item>44100</item>
+        <item>32000</item>
+        <item>22050</item>
+        <item>16000</item>
+        <item>11025</item>
+        <item>8000</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>Mik</item>
+        <item>Belum diproses</item>
+        <item>Bluetooth</item>
+    </string-array>
+
+    <string-array name="source_values" translatable="false">
+        <item>@string/source_mic</item>
+        <item>@string/source_raw</item>
+        <item>@string/source_bluetooth</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Tema Terang</item>
+        <item>Tema Gelap</item>
+    </string-array>
+
+    <string-array name="themes_values" translatable="false">
+        <item>@string/Theme_Light</item>
+        <item>@string/Theme_Dark</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (bawaan)</item>
+        <item>Stereo</item>
+    </string-array>
+
+    <string-array name="channels_values" translatable="false">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="format_text" translatable="false">
+        <item>2017-02-01 09.08.01.wav</item>
+        <item>1487926249.wav</item>
+        <item>20170528T043902.wav</item>
+    </string-array>
+
+    <string-array name="format_values" formatted="false" translatable="false">
+        <item>%s</item>
+        <item>%T</item>
+        <item>%I</item>
+    </string-array>
+
+    <string name="no_folder_app">Tak ada aplikasi penampil folder yang terpasang</string>
+    <string name="hold_by_call">jeda (menahan berdasarkan panggilan)</string>
+    <string name="recording_status_recording">merekan</string>
+    <string name="recording_status_encoding">encoding</string>
+    <string name="recording_status_pause">jeda</string>
+    <string name="recording_status_edit">sunting</string>
+    <string name="confirm_cancel">Konfirmasi batal</string>
+    <string name="encoding_title">Encoding...</string>
+    <string name="pause_title">Jeda...</string>
+    <string name="recording_title">Merekam</string>
+    <string name="open_recording_folder">Buka Folder Rekaman</string>
+    <string name="recording_list_is_empty">Daftar Rekaman Kosong\n\nKlik Rekam untuk Memulai Rekaman</string>
+    <string name="record_button">Rekam</string>
+    <string name="cut_button">Potong</string>
+    <string name="stop_button">Berhenti</string>
+    <string name="cancel_button">Batal</string>
+    <string name="pause_button">Jeda</string>
+
+    <string name="pref_storage_title">Jalur Penyimpanan</string>
+    <string name="pref_rate_title">Rasio Sampel</string>
+    <string name="pref_encoding_title">Encoding</string>
+    <string name="pref_encoding_summary">Format file output (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Mode</string>
+    <string name="pref_mode_summary">Saluran rekaman</string>
+    <string name="pref_nameformat_title">Nama Format</string>
+    <string name="pref_pausecalls_title">Jeda Selama ada Panggilan</string>
+    <string name="pref_pausecalls_summary">Berhenti merekam saat menjawab dan lanjutkan saat menutup telepon</string>
+    <string name="pref_silence_title">Mode Senyap</string>
+    <string name="pref_silence_summary">Masukkan telepon dalam \'mode senyap\' saat rekaman</string>
+    <string name="pref_lockscreen_title">Kontrol Layar Lockscreen</string>
+    <string name="pref_lockscreen_summary">Perlihatkan kontrol saat telepon dikunci</string>
+    <string name="pref_theme_title">Tema Aplikasi</string>
+    <string name="pref_theme_summary">Setel tema aplikasi (gelap / terang)</string>
+    <string name="pref_application">Aplikasi</string>
+    <string name="pref_recordings">Rekaman</string>
+    <string name="pref_fly_title">Encoding on Fly</string>
+    <string name="pref_fly_summary">Mengaktifkan encoding on fly menonaktifkan pengeditan, dan pemulihan kerusakan</string>
+    <string name="hold_by_bluetooth">jeda (bluetooth terputus)</string>
+    <string name="menu_search">Cari</string>
+    <string name="save_as_wav">Simpan sebagai WAV</string>
+</resources>
