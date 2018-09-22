@@ -1,14 +1,11 @@
 package com.github.axet.audiorecorder.services;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -16,12 +13,14 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -48,6 +47,7 @@ public class RecordingService extends Service {
     public static String RECORD_BUTTON = RecordingService.class.getCanonicalName() + ".RECORD_BUTTON";
 
     Storage storage; // for storage path
+    Notification notification;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -108,13 +108,19 @@ public class RecordingService extends Service {
     }
 
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+    }
+
+    @Override
     public void onCreate() {
+        setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark));
         super.onCreate();
         Log.d(TAG, "onCreate");
 
         storage = new Storage(this);
 
-        startForeground(NOTIFICATION_RECORDING_ICON, build(new Intent()));
+        showNotificationAlarm(true, new Intent());
     }
 
     @Override
@@ -158,9 +164,6 @@ public class RecordingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestory");
-
-        stopForeground(false);
-
         showNotificationAlarm(false, null);
     }
 
@@ -181,9 +184,9 @@ public class RecordingService extends Service {
                 new Intent(this, RecordingService.class).setAction(RECORD_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(getBaseContext(),
-                R.layout.notifictaion_recording_light,
-                R.layout.notifictaion_recording_dark));
+        RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
+
+        view.setInt(R.id.icon_circle, "setColorFilter", ThemeUtils.getThemeColor(this, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
 
         String title;
         String text;
@@ -237,13 +240,20 @@ public class RecordingService extends Service {
         return builder.build();
     }
 
-    // alarm dismiss button
     public void showNotificationAlarm(boolean show, Intent intent) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         if (!show) {
-            notificationManager.cancel(NOTIFICATION_RECORDING_ICON);
+            stopForeground(false);
+            nm.cancel(NOTIFICATION_RECORDING_ICON);
+            notification = null;
         } else {
-            notificationManager.notify(NOTIFICATION_RECORDING_ICON, build(intent));
+            Notification n = build(intent);
+            ((MainApplication) getApplication()).channelStatus.apply(n);
+            if (notification == null)
+                startForeground(NOTIFICATION_RECORDING_ICON, n);
+            else
+                nm.notify(NOTIFICATION_RECORDING_ICON, n);
+            notification = n;
         }
     }
 

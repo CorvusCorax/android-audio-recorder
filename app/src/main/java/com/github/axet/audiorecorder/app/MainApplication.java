@@ -3,8 +3,10 @@ package com.github.axet.audiorecorder.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.preference.PreferenceManager;
 
+import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.audiolibrary.encoders.FormatFLAC;
 import com.github.axet.audiolibrary.encoders.FormatM4A;
 import com.github.axet.audiolibrary.encoders.FormatOGG;
@@ -19,8 +21,16 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
 
     public static final String PREFERENCE_VERSION = "version";
 
+    public NotificationChannelCompat channelStatus;
+
     public int getUserTheme() {
         return getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
     }
 
     @Override

@@ -2,6 +2,7 @@
 <resources>
     <attr name="recColor" format="color" />
     <attr name="cutColor" format="color" />
+
     <string name="source_mic" translatable="false">mic</string>
     <string name="source_default" translatable="false">default</string>
     <string name="source_raw" translatable="false">raw</string>
