@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.ProximityShader;
+import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
@@ -186,7 +187,8 @@ public class RecordingService extends Service {
 
         RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
 
-        view.setInt(R.id.icon_circle, "setColorFilter", ThemeUtils.getThemeColor(this, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
+        RemoteViewsCompat.setImageViewTint(view, R.id.icon_circle, ThemeUtils.getThemeColor(this, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
+        RemoteViewsCompat.applyTheme(this, view);
 
         String title;
         String text;
@@ -219,14 +221,14 @@ public class RecordingService extends Service {
         view.setTextViewText(R.id.notification_text, text);
         view.setOnClickPendingIntent(R.id.notification_pause, pe);
         view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
-        if (Build.VERSION.SDK_INT >= 15)
-            view.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
+        RemoteViewsCompat.setContentDescription(view, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setOngoing(true)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setTicker(title)
+                .setWhen(notification == null ? System.currentTimeMillis() : notification.when)
                 .setSmallIcon(R.drawable.ic_mic)
                 .setContent(view);
 
@@ -237,7 +239,9 @@ public class RecordingService extends Service {
         if (Build.VERSION.SDK_INT >= 21)
             builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
-        return builder.build();
+        Notification n = builder.build();
+        ((MainApplication) getApplication()).channelStatus.apply(n);
+        return n;
     }
 
     public void showNotificationAlarm(boolean show, Intent intent) {
@@ -248,7 +252,6 @@ public class RecordingService extends Service {
             notification = null;
         } else {
             Notification n = build(intent);
-            ((MainApplication) getApplication()).channelStatus.apply(n);
             if (notification == null)
                 startForeground(NOTIFICATION_RECORDING_ICON, n);
             else
