@@ -11,26 +11,10 @@
         <item>8 kHz (telephone)</item>
     </string-array>
 
-    <string-array name="sample_rate_values" translatable="false">
-        <item>48000</item>
-        <item>44100</item>
-        <item>32000</item>
-        <item>22050</item>
-        <item>16000</item>
-        <item>11025</item>
-        <item>8000</item>
-    </string-array>
-
     <string-array name="source_text">
         <item>Mic</item>
         <item>Unprocessed</item>
         <item>Bluetooth</item>
-    </string-array>
-
-    <string-array name="source_values" translatable="false">
-        <item>@string/source_mic</item>
-        <item>@string/source_raw</item>
-        <item>@string/source_bluetooth</item>
     </string-array>
 
     <string-array name="themes_text">
@@ -38,31 +22,9 @@
         <item>Theme Dark</item>
     </string-array>
 
-    <string-array name="themes_values" translatable="false">
-        <item>@string/Theme_Light</item>
-        <item>@string/Theme_Dark</item>
-    </string-array>
-
     <string-array name="channels_text">
         <item>Mono (default)</item>
         <item>Stereo</item>
-    </string-array>
-
-    <string-array name="channels_values" translatable="false">
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-
-    <string-array name="format_text" translatable="false">
-        <item>2017-02-01 09.08.01.wav</item>
-        <item>1487926249.wav</item>
-        <item>20170528T043902.wav</item>
-    </string-array>
-
-    <string-array name="format_values" formatted="false" translatable="false">
-        <item>%s</item>
-        <item>%T</item>
-        <item>%I</item>
     </string-array>
 
     <string name="no_folder_app">No folder view application installed</string>
