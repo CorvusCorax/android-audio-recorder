@@ -235,9 +235,8 @@ public class RecordingService extends Service {
                 .setSmallIcon(R.drawable.ic_mic)
                 .setContent(view);
 
-        if (Build.VERSION.SDK_INT < 11) {
+        if (Build.VERSION.SDK_INT < 11)
             builder.setContentIntent(main);
-        }
 
         if (Build.VERSION.SDK_INT >= 21)
             builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
