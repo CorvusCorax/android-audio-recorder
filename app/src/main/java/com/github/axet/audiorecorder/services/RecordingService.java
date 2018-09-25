@@ -1,5 +1,6 @@
 package com.github.axet.audiorecorder.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -14,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -115,7 +117,6 @@ public class RecordingService extends Service {
 
     @Override
     public void onCreate() {
-        setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark));
         super.onCreate();
         Log.d(TAG, "onCreate");
 
@@ -168,6 +169,7 @@ public class RecordingService extends Service {
         showNotificationAlarm(false, null);
     }
 
+    @SuppressLint("RestrictedApi")
     public Notification build(Intent intent) {
         String targetFile = intent.getStringExtra("targetFile");
         boolean recording = intent.getBooleanExtra("recording", false);
@@ -187,8 +189,9 @@ public class RecordingService extends Service {
 
         RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
 
-        RemoteViewsCompat.setImageViewTint(view, R.id.icon_circle, ThemeUtils.getThemeColor(this, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
-        RemoteViewsCompat.applyTheme(this, view);
+        ContextThemeWrapper theme = new ContextThemeWrapper(this, MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark));
+        RemoteViewsCompat.setImageViewTint(view, R.id.icon_circle, ThemeUtils.getThemeColor(theme, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
+        RemoteViewsCompat.applyTheme(theme, view);
 
         String title;
         String text;
@@ -232,9 +235,8 @@ public class RecordingService extends Service {
                 .setSmallIcon(R.drawable.ic_mic)
                 .setContent(view);
 
-        if (Build.VERSION.SDK_INT < 11) {
+        if (Build.VERSION.SDK_INT < 11)
             builder.setContentIntent(main);
-        }
 
         if (Build.VERSION.SDK_INT >= 21)
             builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
