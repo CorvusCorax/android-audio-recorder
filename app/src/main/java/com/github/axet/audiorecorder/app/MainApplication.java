@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
+import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.encoders.FormatFLAC;
@@ -90,32 +91,18 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
             PendingIntent main = PendingIntent.getService(this, 0,
                     new Intent(this, MainActivity.class),
                     PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
-            ContextThemeWrapper theme = new ContextThemeWrapper(this, MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark));
-            RemoteViewsCompat.setImageViewTint(view, R.id.icon_circle, ThemeUtils.getThemeColor(theme, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
-            RemoteViewsCompat.applyTheme(theme, view);
-            view.setViewVisibility(R.id.notification_record, View.GONE);
-            view.setViewVisibility(R.id.notification_pause, View.GONE);
-            view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-            view.setTextViewText(R.id.notification_title, title);
-            view.setTextViewText(R.id.notification_text, text);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(title)
-                    .setContentText(text)
-                    .setTicker(title)
-                    .setSmallIcon(R.drawable.ic_mic)
-                    .setContent(view);
-
-            if (Build.VERSION.SDK_INT < 11)
-                builder.setContentIntent(main);
-
-            if (Build.VERSION.SDK_INT >= 21)
-                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-            Notification n = builder.build();
-            channelStatus.apply(n);
+            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
+            builder.view.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                    .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
+                    .setTitle(title)
+                    .setText(text)
+                    .setMainIntent(main)
+                    .setChannel(channelStatus)
+                    .setSmallIcon(R.drawable.ic_mic);
             NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-            nm.notify((int) System.currentTimeMillis(), n);
+            nm.notify((int) System.currentTimeMillis(), builder.build());
         }
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = shared.edit();

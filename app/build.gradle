@@ -10,8 +10,8 @@ android {
         applicationId "com.github.axet.audiorecorder"
         minSdkVersion 9
         targetSdkVersion 23 // 24+ file:// unable to open
-        versionCode 279
-        versionName "3.2.21"
+        versionCode 280
+        versionName "3.2.22"
     }
     signingConfigs {
         release {
@@ -57,5 +57,5 @@ android {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    implementation 'com.github.axet:android-audio-library:1.0.123' // implementation project(':android-audio-library')
+    implementation 'com.github.axet:android-audio-library:1.0.126' // implementation project(':android-audio-library')
 }

@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.ProximityShader;
+import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.app.Storage;
@@ -187,11 +188,7 @@ public class RecordingService extends Service {
                 new Intent(this, RecordingService.class).setAction(RECORD_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews view = new RemoteViews(getPackageName(), MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
-
-        ContextThemeWrapper theme = new ContextThemeWrapper(this, MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark));
-        RemoteViewsCompat.setImageViewTint(view, R.id.icon_circle, ThemeUtils.getThemeColor(theme, R.attr.colorButtonNormal)); // android:tint="?attr/colorButtonNormal" not working API16
-        RemoteViewsCompat.applyTheme(theme, view);
+        RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
 
         String title;
         String text;
@@ -201,49 +198,39 @@ public class RecordingService extends Service {
             long free = storage.getFree(f);
             long sec = Storage.average(this, free);
             text = MainApplication.formatFree(this, free, sec);
-            view.setViewVisibility(R.id.notification_record, View.VISIBLE);
-            view.setOnClickPendingIntent(R.id.notification_record, re);
-            view.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.view.setViewVisibility(R.id.notification_record, View.VISIBLE);
+            builder.view.setOnClickPendingIntent(R.id.notification_record, re);
+            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
         } else {
             if (recording)
                 title = getString(R.string.recording_title);
             else
                 title = getString(R.string.pause_title);
             text = ".../" + targetFile;
-            view.setViewVisibility(R.id.notification_record, View.GONE);
-            view.setViewVisibility(R.id.notification_pause, View.VISIBLE);
+            builder.view.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.view.setViewVisibility(R.id.notification_pause, View.VISIBLE);
         }
 
         if (encoding) {
-            view.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
             title = getString(R.string.encoding_title);
         }
 
-        view.setOnClickPendingIntent(R.id.status_bar_latest_event_content, main);
-        view.setTextViewText(R.id.notification_title, title);
-        view.setTextViewText(R.id.notification_text, text);
-        view.setOnClickPendingIntent(R.id.notification_pause, pe);
-        view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
-        RemoteViewsCompat.setContentDescription(view, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
+        builder.view.setOnClickPendingIntent(R.id.notification_pause, pe);
+        builder.view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
+        RemoteViewsCompat.setContentDescription(builder.view, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        builder.setMainIntent(main)
+                .setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
+                .setTitle(title)
+                .setText(text)
+                .setChannel(((MainApplication) getApplication()).channelStatus)
+                .setWhen(notification)
                 .setOngoing(true)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setTicker(title)
-                .setWhen(notification == null ? System.currentTimeMillis() : notification.when)
-                .setSmallIcon(R.drawable.ic_mic)
-                .setContent(view);
+                .setSmallIcon(R.drawable.ic_mic);
 
-        if (Build.VERSION.SDK_INT < 11)
-            builder.setContentIntent(main);
-
-        if (Build.VERSION.SDK_INT >= 21)
-            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-        Notification n = builder.build();
-        ((MainApplication) getApplication()).channelStatus.apply(n);
-        return n;
+        return builder.build();
     }
 
     public void showNotificationAlarm(boolean show, Intent intent) {
