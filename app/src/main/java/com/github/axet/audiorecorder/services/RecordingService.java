@@ -214,12 +214,12 @@ public class RecordingService extends Service {
         builder.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
         RemoteViewsCompat.setContentDescription(builder.compact, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
-        builder.setMainIntent(main)
-                .setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+        builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                .setChannel(AudioApplication.from(this).channelStatus)
                 .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
                 .setTitle(title)
                 .setText(text)
-                .setChannel(AudioApplication.from(this).channelStatus)
+                .setMainIntent(main)
                 .setWhen(notification)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_mic);

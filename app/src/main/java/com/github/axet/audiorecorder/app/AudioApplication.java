@@ -35,19 +35,12 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         return (AudioApplication) com.github.axet.audiolibrary.app.MainApplication.from(context);
     }
 
-    public int getUserTheme() {
-        return getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
+
+        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+
         switch (getVersion(PREFERENCE_VERSION, R.xml.pref_general)) {
             case -1:
                 SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
@@ -69,7 +62,6 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                 version_1_to_2();
                 break;
         }
-        setTheme(getUserTheme());
     }
 
     void version_0_to_1() {
