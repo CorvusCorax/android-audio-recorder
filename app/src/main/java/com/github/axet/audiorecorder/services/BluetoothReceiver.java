@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.github.axet.audiorecorder.R;
-import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.app.AudioApplication;
 
 // default bluetooth stack for API25 bugged and has to be cleared using this Receiver.
 //
@@ -140,7 +140,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     public boolean isRecordingReady() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        if (shared.getString(MainApplication.PREFERENCE_SOURCE, context.getString(R.string.source_mic)).equals(context.getString(R.string.source_bluetooth))) {
+        if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_mic)).equals(context.getString(R.string.source_bluetooth))) {
             bluetoothSource = true;
             if (!startBluetooth())
                 return false;

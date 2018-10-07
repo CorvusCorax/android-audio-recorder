@@ -2,20 +2,16 @@ package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -23,9 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
@@ -55,14 +49,13 @@ import com.github.axet.audiolibrary.filters.VoiceFilter;
 import com.github.axet.audiolibrary.widgets.PitchView;
 import com.github.axet.audiorecorder.BuildConfig;
 import com.github.axet.audiorecorder.R;
-import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.app.AudioApplication;
 import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.BluetoothReceiver;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
 import java.nio.ShortBuffer;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RecordingActivity extends AppCompatThemeActivity {
@@ -199,7 +192,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     @Override
     public int getAppTheme() {
-        return MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
+        return AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
     }
 
     @Override
@@ -237,7 +230,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         try {
             if (storage.recordingPending()) {
-                String file = shared.getString(MainApplication.PREFERENCE_TARGET, null);
+                String file = shared.getString(AudioApplication.PREFERENCE_TARGET, null);
                 if (file != null) {
                     if (file.startsWith(ContentResolver.SCHEME_CONTENT))
                         targetUri = Uri.parse(file);
@@ -250,7 +243,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             if (targetUri == null)
                 targetUri = storage.getNewFile();
             SharedPreferences.Editor editor = shared.edit();
-            editor.putString(MainApplication.PREFERENCE_TARGET, targetUri.toString());
+            editor.putString(AudioApplication.PREFERENCE_TARGET, targetUri.toString());
             editor.commit();
         } catch (RuntimeException e) {
             Log.d(TAG, "onCreate", e);
@@ -261,7 +254,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         title.setText(Storage.getDocumentName(targetUri));
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_CALL, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
@@ -279,7 +272,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     @Override
                     public void run() {
                         stopRecording();
-                        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+                        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
                             try {
                                 if (e != null) {
                                     e.close();
@@ -317,7 +310,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 if (encoder != null)
                     return;
                 String msg;
-                if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+                if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
                     msg = getString(R.string.recording_status_recording);
                 } else
                     msg = getString(R.string.recording_status_encoding);
@@ -449,7 +442,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
             pitch.setOnTouchListener(null);
         } else {
             pitch.setOnTouchListener(new View.OnTouchListener() {
@@ -536,21 +529,21 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int rate = Integer.parseInt(shared.getString(MainApplication.PREFERENCE_RATE, ""));
+        int rate = Integer.parseInt(shared.getString(AudioApplication.PREFERENCE_RATE, ""));
         int m = Sound.getChannels(this);
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
         long perSec = (c * m * rate);
 
-        String ext = shared.getString(MainApplication.PREFERENCE_ENCODING, "");
+        String ext = shared.getString(AudioApplication.PREFERENCE_ENCODING, "");
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
             perSec = Factory.getEncoderRate(ext, sampleRate);
         }
 
         long sec = free / perSec * 1000;
 
-        state.setText(s + "\n(" + MainApplication.formatFree(this, free, sec) + ")");
+        state.setText(s + "\n(" + AudioApplication.formatFree(this, free, sec) + ")");
     }
 
     void editPlay(boolean show) {
@@ -697,7 +690,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = shared.edit();
-        editor.remove(MainApplication.PREFERENCE_TARGET);
+        editor.remove(AudioApplication.PREFERENCE_TARGET);
     }
 
     void startRecording() {
@@ -729,7 +722,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         int user;
 
-        if (shared.getString(MainApplication.PREFERENCE_SOURCE, getString(R.string.source_mic)).equals(getString(R.string.source_raw))) {
+        if (shared.getString(AudioApplication.PREFERENCE_SOURCE, getString(R.string.source_mic)).equals(getString(R.string.source_raw))) {
             if (Sound.isUnprocessedSupported(this))
                 user = MediaRecorder.AudioSource.UNPROCESSED;
             else
@@ -744,7 +737,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 MediaRecorder.AudioSource.DEFAULT
         };
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
             final OnFlyEncoding fly = new OnFlyEncoding(storage, targetUri, getInfo());
             if (e == null) { // do not recreate encoder if on-fly mode enabled
                 e = new Encoder() {
@@ -895,7 +888,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     if (recorder != null)
                         recorder.release();
 
-                    if (!shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
+                    if (!shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
                         try {
                             if (e != null) {
                                 e.close();
@@ -941,7 +934,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void updateSamples(long samplesTime) {
         long ms = samplesTime / sampleRate * 1000;
-        time.setText(MainApplication.formatDuration(this, ms));
+        time.setText(AudioApplication.formatDuration(this, ms));
     }
 
     @Override
@@ -967,7 +960,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void encoding(final Runnable done) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(RecordingActivity.this);
-        if (shared.getBoolean(MainApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) { // keep encoder open if encoding on fly enabled
             try {
                 if (e != null) {
                     e.close();
@@ -985,7 +978,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             @Override
             public void run() {
                 SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
+                edit.putString(AudioApplication.PREFERENCE_LAST, Storage.getDocumentName(targetUri));
                 edit.commit();
                 done.run();
             }
@@ -1000,12 +993,12 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         encoder = new FileEncoder(this, in, fly);
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_VOICE, false))
+        if (shared.getBoolean(AudioApplication.PREFERENCE_VOICE, false))
             encoder.filters.add(new VoiceFilter(getInfo()));
-        float amp = shared.getFloat(MainApplication.PREFERENCE_VOLUME, 1);
+        float amp = shared.getFloat(AudioApplication.PREFERENCE_VOLUME, 1);
         if (amp != 1)
             encoder.filters.add(new AmplifierFilter(amp));
-        if (shared.getBoolean(MainApplication.PREFERENCE_SKIP, false))
+        if (shared.getBoolean(AudioApplication.PREFERENCE_SKIP, false))
             encoder.filters.add(new SkipSilenceFilter(getInfo()));
 
         encoding(encoder, fly, last);

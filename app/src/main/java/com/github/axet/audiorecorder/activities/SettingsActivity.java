@@ -33,7 +33,7 @@ import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.widgets.RecordingVolumePreference;
 import com.github.axet.audiorecorder.R;
-import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.app.AudioApplication;
 import com.github.axet.audiorecorder.app.Storage;
 import com.github.axet.audiorecorder.services.RecordingService;
 
@@ -137,12 +137,12 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
     @Override
     public int getAppTheme() {
-        return MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
+        return AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
     }
 
     @Override
     public String getAppThemeKey() {
-        return MainApplication.PREFERENCE_THEME;
+        return AudioApplication.PREFERENCE_THEME;
     }
 
     @Override
@@ -162,7 +162,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         if (actionBar != null) {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
-//            actionBar.setBackgroundDrawable(new ColorDrawable(MainApplication.getActionbarColor(this)));
+//            actionBar.setBackgroundDrawable(new ColorDrawable(AudioApplication.getActionbarColor(this)));
         }
     }
 
@@ -189,18 +189,18 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         super.onSharedPreferenceChanged(sharedPreferences, key);
-        if (key.equals(MainApplication.PREFERENCE_CONTROLS)) {
-            if (sharedPreferences.getBoolean(MainApplication.PREFERENCE_CONTROLS, false)) {
+        if (key.equals(AudioApplication.PREFERENCE_CONTROLS)) {
+            if (sharedPreferences.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false)) {
                 RecordingService.start(this);
             } else {
                 RecordingService.stopService(this);
             }
         }
-        if (key.equals(MainApplication.PREFERENCE_STORAGE)) {
+        if (key.equals(AudioApplication.PREFERENCE_STORAGE)) {
             Storage.migrateLocalStorageDialog(this, handler, new Storage(this));
         }
-        if (key.equals(MainApplication.PREFERENCE_RATE)) {
-            int sampleRate = Integer.parseInt(sharedPreferences.getString(MainApplication.PREFERENCE_RATE, ""));
+        if (key.equals(AudioApplication.PREFERENCE_RATE)) {
+            int sampleRate = Integer.parseInt(sharedPreferences.getString(AudioApplication.PREFERENCE_RATE, ""));
             if (sampleRate != Sound.getValidRecordRate(Sound.getInMode(this), sampleRate)) {
                 Toast.makeText(this, "Not supported Hz", Toast.LENGTH_SHORT).show();
             }
@@ -241,7 +241,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
 
         void initPrefs(PreferenceManager pm, PreferenceScreen screen) {
             final Context context = screen.getContext();
-            ListPreference enc = (ListPreference) pm.findPreference(MainApplication.PREFERENCE_ENCODING);
+            ListPreference enc = (ListPreference) pm.findPreference(AudioApplication.PREFERENCE_ENCODING);
             String v = enc.getValue();
             CharSequence[] ee = Factory.getEncodingTexts(context);
             CharSequence[] vv = Factory.getEncodingValues(context);
@@ -261,26 +261,26 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
                 screen.removePreference(enc);
             }
 
-            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_RATE));
-            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_THEME));
-            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_CHANNELS));
-            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_FORMAT));
-            bindPreferenceSummaryToValue(pm.findPreference(MainApplication.PREFERENCE_VOLUME));
+            bindPreferenceSummaryToValue(pm.findPreference(AudioApplication.PREFERENCE_RATE));
+            bindPreferenceSummaryToValue(pm.findPreference(AudioApplication.PREFERENCE_THEME));
+            bindPreferenceSummaryToValue(pm.findPreference(AudioApplication.PREFERENCE_CHANNELS));
+            bindPreferenceSummaryToValue(pm.findPreference(AudioApplication.PREFERENCE_FORMAT));
+            bindPreferenceSummaryToValue(pm.findPreference(AudioApplication.PREFERENCE_VOLUME));
 
-            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(MainApplication.PREFERENCE_STORAGE);
+            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) pm.findPreference(AudioApplication.PREFERENCE_STORAGE);
             s.setStorage(new Storage(getContext()));
             s.setPermissionsDialog(this, Storage.PERMISSIONS_RW, RESULT_STORAGE);
             if (Build.VERSION.SDK_INT >= 21)
                 s.setStorageAccessFramework(this, RESULT_STORAGE);
 
             AudioManager am = (AudioManager) context.getSystemService(AUDIO_SERVICE);
-            Preference bluetooth = pm.findPreference(MainApplication.PREFERENCE_SOURCE);
+            Preference bluetooth = pm.findPreference(AudioApplication.PREFERENCE_SOURCE);
             if (!am.isBluetoothScoAvailableOffCall()) {
                 bluetooth.setVisible(false);
             }
             bindPreferenceSummaryToValue(bluetooth);
 
-            Preference p = pm.findPreference(MainApplication.PREFERENCE_CALL);
+            Preference p = pm.findPreference(AudioApplication.PREFERENCE_CALL);
             p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -314,13 +314,13 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
+            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(AudioApplication.PREFERENCE_STORAGE);
             switch (requestCode) {
                 case RESULT_STORAGE:
                     s.onRequestPermissionsResult(permissions, grantResults);
                     break;
                 case RESULT_CALL:
-                    SwitchPreferenceCompat p = (SwitchPreferenceCompat) findPreference(MainApplication.PREFERENCE_CALL);
+                    SwitchPreferenceCompat p = (SwitchPreferenceCompat) findPreference(AudioApplication.PREFERENCE_CALL);
                     if (!Storage.permitted(getContext(), PREMS))
                         p.setChecked(false);
                     else
@@ -332,7 +332,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
-            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(MainApplication.PREFERENCE_STORAGE);
+            StoragePathPreferenceCompat s = (StoragePathPreferenceCompat) findPreference(AudioApplication.PREFERENCE_STORAGE);
             switch (requestCode) {
                 case RESULT_STORAGE:
                     s.onActivityResult(resultCode, data);
@@ -343,7 +343,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
         @Override
         public void onResume() {
             super.onResume();
-            SilencePreferenceCompat silent = (SilencePreferenceCompat) findPreference(MainApplication.PREFERENCE_SILENT);
+            SilencePreferenceCompat silent = (SilencePreferenceCompat) findPreference(AudioApplication.PREFERENCE_SILENT);
             silent.onResume();
         }
     }

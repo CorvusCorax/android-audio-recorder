@@ -9,27 +9,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
 import com.github.axet.audiorecorder.activities.RecordingActivity;
-import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.app.AudioApplication;
 
 import java.io.File;
 
@@ -55,7 +49,7 @@ public class RecordingService extends Service {
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false))
+        if (!shared.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false))
             return;
         start(context);
     }
@@ -64,7 +58,7 @@ public class RecordingService extends Service {
         Storage st = new Storage(context);
         if (st.recordingPending()) {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            String f = shared.getString(MainApplication.PREFERENCE_TARGET, "");
+            String f = shared.getString(AudioApplication.PREFERENCE_TARGET, "");
             String d;
             if (f.startsWith(ContentResolver.SCHEME_CONTENT)) {
                 Uri u = Uri.parse(f);
@@ -97,7 +91,7 @@ public class RecordingService extends Service {
 
     public static void stopRecording(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        if (shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false)) {
             start(context);
             return;
         }
@@ -188,7 +182,7 @@ public class RecordingService extends Service {
                 new Intent(this, RecordingService.class).setAction(RECORD_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
+        RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
 
         String title;
         String text;
@@ -197,35 +191,35 @@ public class RecordingService extends Service {
             Uri f = storage.getStoragePath();
             long free = storage.getFree(f);
             long sec = Storage.average(this, free);
-            text = MainApplication.formatFree(this, free, sec);
-            builder.view.setViewVisibility(R.id.notification_record, View.VISIBLE);
-            builder.view.setOnClickPendingIntent(R.id.notification_record, re);
-            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
+            text = AudioApplication.formatFree(this, free, sec);
+            builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
+            builder.setOnClickPendingIntent(R.id.notification_record, re);
+            builder.setViewVisibility(R.id.notification_pause, View.GONE);
         } else {
             if (recording)
                 title = getString(R.string.recording_title);
             else
                 title = getString(R.string.pause_title);
             text = ".../" + targetFile;
-            builder.view.setViewVisibility(R.id.notification_record, View.GONE);
-            builder.view.setViewVisibility(R.id.notification_pause, View.VISIBLE);
+            builder.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
         }
 
         if (encoding) {
-            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.setViewVisibility(R.id.notification_pause, View.GONE);
             title = getString(R.string.encoding_title);
         }
 
-        builder.view.setOnClickPendingIntent(R.id.notification_pause, pe);
-        builder.view.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
-        RemoteViewsCompat.setContentDescription(builder.view, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
+        builder.setOnClickPendingIntent(R.id.notification_pause, pe);
+        builder.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
+        RemoteViewsCompat.setContentDescription(builder.compact, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
         builder.setMainIntent(main)
-                .setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                .setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
                 .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
                 .setTitle(title)
                 .setText(text)
-                .setChannel(((MainApplication) getApplication()).channelStatus)
+                .setChannel(AudioApplication.from(this).channelStatus)
                 .setWhen(notification)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_mic);
