@@ -42,6 +42,7 @@ import com.github.axet.audiolibrary.encoders.Encoder;
 import com.github.axet.audiolibrary.encoders.EncoderInfo;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.encoders.FileEncoder;
+import com.github.axet.audiolibrary.encoders.FormatWAV;
 import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
 import com.github.axet.audiolibrary.filters.AmplifierFilter;
 import com.github.axet.audiolibrary.filters.SkipSilenceFilter;
@@ -188,6 +189,83 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     break;
             }
         }
+    }
+
+    public void Post(final Throwable e) {
+        Log.d(TAG, "error", e);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Error(toMessage(e));
+            }
+        });
+    }
+
+    public String toMessage(Throwable e) {
+        String msg = e.getMessage();
+        if (msg == null || msg.isEmpty()) {
+            Throwable t;
+            if (encoder == null) {
+                t = e;
+            } else {
+                t = encoder.getException();
+                if (t == null)
+                    t = e;
+            }
+            while (t.getCause() != null)
+                t = t.getCause();
+            msg = t.getMessage();
+            if (msg == null || msg.isEmpty())
+                msg = t.getClass().getSimpleName();
+        }
+        return msg;
+    }
+
+    public void Error(Throwable e) {
+        Log.d(TAG, "error", e);
+        Error(toMessage(e));
+    }
+
+    public void Error(String msg) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Error");
+        builder.setMessage(msg);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+            }
+        });
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        final File in = storage.getTempRecording();
+        if (in.length() > 0) {
+            builder.setNeutralButton(R.string.save_as_wav, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final OpenFileDialog d = new OpenFileDialog(RecordingActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
+                    d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            OnFlyEncoding fly = new OnFlyEncoding(storage, storage.getNewFile(d.getCurrentPath(), FormatWAV.EXT), getInfo());
+                            FileEncoder encoder = new FileEncoder(RecordingActivity.this, in, fly);
+                            encoding(encoder, fly, new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+                        }
+                    });
+                    d.show();
+                }
+            });
+        }
+        builder.show();
     }
 
     @Override
@@ -1040,103 +1118,17 @@ public class RecordingActivity extends AppCompatThemeActivity {
         });
     }
 
-    void Post(final Throwable e) {
-        Log.d(TAG, "error", e);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Error(toMessage(e));
-            }
-        });
-    }
-
-    public String toMessage(Throwable e) {
-        String msg = e.getMessage();
-        if (msg == null || msg.isEmpty()) {
-            Throwable t;
-            if (encoder == null) {
-                t = e;
-            } else {
-                t = encoder.getException();
-                if (t == null)
-                    t = e;
-            }
-            while (t.getCause() != null)
-                t = t.getCause();
-            msg = t.getMessage();
-            if (msg == null || msg.isEmpty())
-                msg = t.getClass().getSimpleName();
-        }
-        return msg;
-    }
-
-    void Error(Throwable e) {
-        Log.d(TAG, "error", e);
-        Error(toMessage(e));
-    }
-
-    void Error(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Error");
-        builder.setMessage(msg);
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                finish();
-            }
-        });
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-        final File in = storage.getTempRecording();
-        if (in.length() > 0) {
-            builder.setNeutralButton(R.string.save_as_wav, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    final OpenFileDialog d = new OpenFileDialog(RecordingActivity.this, OpenFileDialog.DIALOG_TYPE.FOLDER_DIALOG);
-                    d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            OnFlyEncoding fly = new OnFlyEncoding(storage, storage.getNewFile(d.getCurrentPath(), "wav"), getInfo());
-                            FileEncoder encoder = new FileEncoder(RecordingActivity.this, in, fly);
-                            encoding(encoder, fly, new Runnable() {
-                                @Override
-                                public void run() {
-                                    finish();
-                                }
-                            });
-                        }
-                    });
-                    d.show();
-                }
-            });
-        }
-        builder.show();
-    }
-
     @Override
     public void finish() {
         super.finish();
         MainActivity.startActivity(this);
     }
 
-    static PlaybackStateCompat buildState(boolean recording) {
-        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
-                .setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_PLAY_PAUSE |
-                        PlaybackStateCompat.ACTION_STOP)
-                .setState(recording ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED, 0, 1);
-        return builder.build();
-    }
-
     void headset(boolean b, final boolean recording) {
         if (b) {
             if (msc == null) {
                 Log.d(TAG, "headset mediabutton on");
-                ComponentName tr = new ComponentName(this, RecordingReceiver.class);
-                msc = new MediaSessionCompat(this, TAG, tr, null);
+                msc = new MediaSessionCompat(this, TAG, new ComponentName(this, RecordingReceiver.class), null);
                 msc.setCallback(new MediaSessionCompat.Callback() {
                     @Override
                     public void onPlay() {
@@ -1155,9 +1147,13 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 });
                 msc.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
                 msc.setActive(true);
-                msc.setPlaybackState(buildState(true)); // bug, when after device boot we have to set playing state to 'playing' to make mediabutton work
+                msc.setPlaybackState(new PlaybackStateCompat.Builder().setState(PlaybackStateCompat.STATE_PLAYING, 0, 1).build()); // bug, when after device reboots we have to set playing state to 'playing' to make mediabutton work
             }
-            msc.setPlaybackState(buildState(recording));
+            PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
+                    .setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_PLAY_PAUSE |
+                            PlaybackStateCompat.ACTION_STOP)
+                    .setState(recording ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED, 0, 1);
+            msc.setPlaybackState(builder.build());
         } else {
             if (msc != null) {
                 Log.d(TAG, "headset mediabutton off");

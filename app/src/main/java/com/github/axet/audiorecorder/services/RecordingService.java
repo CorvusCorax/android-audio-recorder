@@ -106,11 +106,6 @@ public class RecordingService extends Service {
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-    }
-
-    @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
@@ -193,7 +188,6 @@ public class RecordingService extends Service {
             long sec = Storage.average(this, free);
             text = AudioApplication.formatFree(this, free, sec);
             builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
-            builder.setOnClickPendingIntent(R.id.notification_record, re);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
         } else {
             if (recording)
@@ -211,8 +205,9 @@ public class RecordingService extends Service {
         }
 
         builder.setOnClickPendingIntent(R.id.notification_pause, pe);
+        builder.setOnClickPendingIntent(R.id.notification_record, re);
         builder.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
-        RemoteViewsCompat.setContentDescription(builder.compact, R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
+        builder.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
         builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
                 .setChannel(AudioApplication.from(this).channelStatus)
