@@ -32,5 +32,4 @@
         android:background="?attr/colorAccent"
         android:src="@drawable/ic_mic_24dp"
         android:contentDescription="@string/record_button" />
-
 </android.support.design.widget.CoordinatorLayout>

@@ -102,6 +102,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     TextView title;
     TextView time;
+    String duration;
     TextView state;
     ImageButton pause;
     View done;
@@ -113,7 +114,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     ScreenReceiver screen;
     Handler handler = new Handler();
 
-    ShortBuffer dbBuffer = null;
+    ShortBuffer dbBuffer = null; // PinchView samples buffer
 
     MediaSessionCompat msc;
 
@@ -490,7 +491,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         boolean recording = thread != null;
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), recording, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), recording, encoder != null, duration);
 
         if (recording) {
             pitch.record();
@@ -516,7 +517,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -873,8 +874,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     recorder.startRecording();
 
                     int samplesTimeCount = 0;
-                    // how many samples we need to update 'samples'. time clock. every 1000ms.
-                    int samplesTimeUpdate = 1000 * sampleRate / 1000;
+                    final int samplesTimeUpdate = 1000 * sampleRate / 1000; // how many samples we need to update 'samples'. time clock. every 1000ms.
 
                     short[] buffer = null;
 
@@ -887,9 +887,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
                         }
 
                         int readSize = recorder.read(buffer, 0, buffer.length);
-                        if (readSize < 0) {
+                        if (readSize < 0)
                             return;
-                        }
                         long end = System.currentTimeMillis();
 
                         long diff = (end - start) * sampleRate / 1000;
@@ -981,7 +980,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }, "RecordingThread");
         thread.start();
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
     }
 
     // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
@@ -1012,7 +1011,9 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void updateSamples(long samplesTime) {
         long ms = samplesTime / sampleRate * 1000;
-        time.setText(AudioApplication.formatDuration(this, ms));
+        duration = AudioApplication.formatDuration(this, ms);
+        time.setText(duration);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
     }
 
     @Override
@@ -1083,7 +1084,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     void encoding(final FileEncoder encoder, final OnFlyEncoding fly, final Runnable last) {
-        RecordingService.startService(this, Storage.getDocumentName(fly.targetUri), thread != null, encoder != null);
+        RecordingService.startService(this, Storage.getDocumentName(fly.targetUri), thread != null, encoder != null, duration);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(R.string.encoding_title);

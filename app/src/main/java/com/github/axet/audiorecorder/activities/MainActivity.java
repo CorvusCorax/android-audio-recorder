@@ -1,5 +1,6 @@
 package com.github.axet.audiorecorder.activities;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -128,6 +129,11 @@ public class MainActivity extends AppCompatThemeActivity {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode()) {
+            menu.findItem(R.id.action_settings).setVisible(false);
+        }
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
         Intent intent = StorageProvider.getProvider().openFolderIntent(storage.getStoragePath());

@@ -65,13 +65,13 @@ public class RecordingService extends Service {
                 d = Storage.getDocumentName(u);
             } else if (f.startsWith(ContentResolver.SCHEME_FILE)) {
                 Uri u = Uri.parse(f);
-                File file = new File(u.getPath());
+                File file = Storage.getFile(u);
                 d = file.getName();
             } else {
                 File file = new File(f);
                 d = file.getName();
             }
-            startService(context, d, false, false);
+            startService(context, d, false, false, null);
             return;
         }
         startIfEnabled(context);
@@ -81,11 +81,12 @@ public class RecordingService extends Service {
         context.startService(new Intent(context, RecordingService.class));
     }
 
-    public static void startService(Context context, String targetFile, boolean recording, boolean encoding) {
+    public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
         context.startService(new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
+                .putExtra("duration", duration)
         );
     }
 
@@ -164,6 +165,7 @@ public class RecordingService extends Service {
         String targetFile = intent.getStringExtra("targetFile");
         boolean recording = intent.getBooleanExtra("recording", false);
         boolean encoding = intent.getBooleanExtra("encoding", false);
+        String duration = intent.getStringExtra("duration");
 
         PendingIntent main = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY).putExtra("targetFile", targetFile).putExtra("recording", recording),
@@ -194,6 +196,8 @@ public class RecordingService extends Service {
                 title = getString(R.string.recording_title);
             else
                 title = getString(R.string.pause_title);
+            if (duration != null)
+                title += " (" + duration + ")";
             text = ".../" + targetFile;
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
