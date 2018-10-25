@@ -1,5 +1,6 @@
 package com.github.axet.audiorecorder.activities;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,7 +31,7 @@ import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
-import com.github.axet.audiorecorder.app.MainApplication;
+import com.github.axet.audiorecorder.app.AudioApplication;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 public class MainActivity extends AppCompatThemeActivity {
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
     @Override
     public int getAppTheme() {
-        return MainApplication.getTheme(this, R.style.RecThemeLight_NoActionBar, R.style.RecThemeDark_NoActionBar);
+        return AudioApplication.getTheme(this, R.style.RecThemeLight_NoActionBar, R.style.RecThemeDark_NoActionBar);
     }
 
     @Override
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatThemeActivity {
             @Override
             public void onScreenOff() {
                 boolean p = storage.recordingPending();
-                boolean c = shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false);
+                boolean c = shared.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false);
                 if (!p && !c)
                     return;
                 super.onScreenOff();
@@ -128,6 +129,10 @@ public class MainActivity extends AppCompatThemeActivity {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKM.inKeyguardRestrictedInputMode())
+            menu.findItem(R.id.action_settings).setVisible(false);
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
         Intent intent = StorageProvider.getProvider().openFolderIntent(storage.getStoragePath());
@@ -196,11 +201,6 @@ public class MainActivity extends AppCompatThemeActivity {
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (shared.getBoolean(MainApplication.PREFERENCE_CONTROLS, false))
-            showLocked(getWindow());
-        else
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-
         invalidateOptionsMenu(); // update storage folder intent
 
         try {
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatThemeActivity {
             Error(e);
         }
 
-        final String last = shared.getString(MainApplication.PREFERENCE_LAST, "");
+        final String last = shared.getString(AudioApplication.PREFERENCE_LAST, "");
         Runnable done = new Runnable() {
             @Override
             public void run() {
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatThemeActivity {
             Storage.RecordingUri f = recordings.getItem(i);
             if (f.name.equals(last)) {
                 SharedPreferences.Editor edit = shared.edit();
-                edit.putString(MainApplication.PREFERENCE_LAST, "");
+                edit.putString(AudioApplication.PREFERENCE_LAST, "");
                 edit.commit();
                 return i;
             }
@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatThemeActivity {
         long free = storage.getFree(uri);
         long sec = Storage.average(this, free);
         TextView text = (TextView) findViewById(R.id.space_left);
-        text.setText(MainApplication.formatFree(this, free, sec));
+        text.setText(AudioApplication.formatFree(this, free, sec));
     }
 
     public void Error(Throwable e) {

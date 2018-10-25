@@ -1,23 +1,18 @@
 package com.github.axet.audiorecorder.app;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.support.v7.view.ContextThemeWrapper;
+import android.util.Log;
 import android.view.View;
-import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
-import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.audiolibrary.encoders.FormatFLAC;
 import com.github.axet.audiolibrary.encoders.FormatM4A;
 import com.github.axet.audiolibrary.encoders.FormatOGG;
@@ -26,7 +21,7 @@ import com.github.axet.audiorecorder.activities.MainActivity;
 
 import java.util.Locale;
 
-public class MainApplication extends com.github.axet.audiolibrary.app.MainApplication {
+public class AudioApplication extends com.github.axet.audiolibrary.app.MainApplication {
 
     public static final String PREFERENCE_CONTROLS = "controls";
     public static final String PREFERENCE_TARGET = "target";
@@ -37,28 +32,26 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
 
     public NotificationChannelCompat channelStatus;
 
-    public int getUserTheme() {
-        return getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
-    }
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+    public static AudioApplication from(Context context) {
+        return (AudioApplication) com.github.axet.audiolibrary.app.MainApplication.from(context);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate");
+
+        channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
+
         switch (getVersion(PREFERENCE_VERSION, R.xml.pref_general)) {
             case -1:
                 SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor edit = shared.edit();
                 if (!FormatOGG.supported(this)) {
                     if (Build.VERSION.SDK_INT >= 18)
-                        edit.putString(MainApplication.PREFERENCE_ENCODING, FormatM4A.EXT);
+                        edit.putString(AudioApplication.PREFERENCE_ENCODING, FormatM4A.EXT);
                     else
-                        edit.putString(MainApplication.PREFERENCE_ENCODING, FormatFLAC.EXT);
+                        edit.putString(AudioApplication.PREFERENCE_ENCODING, FormatFLAC.EXT);
                 }
                 edit.putInt(PREFERENCE_VERSION, 2);
                 edit.commit();
@@ -71,7 +64,6 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
                 version_1_to_2();
                 break;
         }
-        setTheme(getUserTheme());
     }
 
     void version_0_to_1() {
@@ -91,10 +83,10 @@ public class MainApplication extends com.github.axet.audiolibrary.app.MainApplic
             PendingIntent main = PendingIntent.getService(this, 0,
                     new Intent(this, MainActivity.class),
                     PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, MainApplication.getTheme(this, R.layout.notifictaion_recording_light, R.layout.notifictaion_recording_dark));
-            builder.view.setViewVisibility(R.id.notification_record, View.GONE);
-            builder.view.setViewVisibility(R.id.notification_pause, View.GONE);
-            builder.setTheme(MainApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
+            builder.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
                     .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
                     .setTitle(title)
                     .setText(text)
