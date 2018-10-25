@@ -182,7 +182,7 @@ public class RecordingService extends Service {
             text = AudioApplication.formatFree(this, free, sec);
             builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            PendingIntent main = PendingIntent.getActivity(this, 0, new Intent(this, RecordingService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(main);
         } else {
             builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
