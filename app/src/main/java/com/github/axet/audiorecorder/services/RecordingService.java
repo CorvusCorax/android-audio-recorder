@@ -18,7 +18,6 @@ import android.view.View;
 
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
-import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -28,12 +27,7 @@ import com.github.axet.audiorecorder.app.AudioApplication;
 import java.io.File;
 
 /**
- * RecordingActivity more likly to be removed from memory when paused then service. Notification button
- * does not handle getActvity without unlocking screen. The only option is to have Service.
- * <p/>
- * So, lets have it.
- * <p/>
- * Maybe later this class will be converted for fully feature recording service with recording thread.
+ * Sometimes RecordingActivity started twice when launched from lockscreen. We need service and move recording into Application object.
  */
 public class RecordingService extends Service {
     public static final String TAG = RecordingService.class.getSimpleName();
@@ -113,7 +107,7 @@ public class RecordingService extends Service {
 
         storage = new Storage(this);
 
-        showNotificationAlarm(true, new Intent());
+        showNotification(true, new Intent());
     }
 
     @Override
@@ -123,7 +117,7 @@ public class RecordingService extends Service {
         if (intent != null) {
             String a = intent.getAction();
             if (a == null) {
-                showNotificationAlarm(true, intent);
+                showNotification(true, intent);
             } else if (a.equals(PAUSE_BUTTON)) {
                 Intent i = new Intent(RecordingActivity.PAUSE_BUTTON);
                 sendBroadcast(i);
@@ -157,7 +151,7 @@ public class RecordingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestory");
-        showNotificationAlarm(false, null);
+        showNotification(false, null);
     }
 
     @SuppressLint("RestrictedApi")
@@ -167,10 +161,6 @@ public class RecordingService extends Service {
         boolean encoding = intent.getBooleanExtra("encoding", false);
         String duration = intent.getStringExtra("duration");
 
-        PendingIntent main = PendingIntent.getService(this, 0,
-                new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY).putExtra("targetFile", targetFile).putExtra("recording", recording),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
         PendingIntent pe = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(PAUSE_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -179,11 +169,12 @@ public class RecordingService extends Service {
                 new Intent(this, RecordingService.class).setAction(RECORD_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
+        RemoteNotificationCompat.Builder builder;
 
         String title;
         String text;
         if (targetFile == null) {
+            builder = new RemoteNotificationCompat.Low(this, R.layout.notifictaion);
             title = getString(R.string.app_name);
             Uri f = storage.getStoragePath();
             long free = storage.getFree(f);
@@ -191,7 +182,10 @@ public class RecordingService extends Service {
             text = AudioApplication.formatFree(this, free, sec);
             builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
+            PendingIntent main = PendingIntent.getActivity(this, 0, new Intent(this, RecordingService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(main);
         } else {
+            builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
             if (recording)
                 title = getString(R.string.recording_title);
             else
@@ -201,6 +195,12 @@ public class RecordingService extends Service {
             text = ".../" + targetFile;
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
+            PendingIntent main = PendingIntent.getService(this, 0,
+                    new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
+                            .putExtra("targetFile", targetFile)
+                            .putExtra("recording", recording),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setMainIntent(main);
         }
 
         if (encoding) {
@@ -218,7 +218,6 @@ public class RecordingService extends Service {
                 .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
                 .setTitle(title)
                 .setText(text)
-                .setMainIntent(main)
                 .setWhen(notification)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_mic);
@@ -226,7 +225,7 @@ public class RecordingService extends Service {
         return builder.build();
     }
 
-    public void showNotificationAlarm(boolean show, Intent intent) {
+    public void showNotification(boolean show, Intent intent) {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         if (!show) {
             stopForeground(false);

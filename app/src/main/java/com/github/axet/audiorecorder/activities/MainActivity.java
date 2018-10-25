@@ -131,9 +131,8 @@ public class MainActivity extends AppCompatThemeActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         KeyguardManager myKM = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (myKM.inKeyguardRestrictedInputMode()) {
+        if (myKM.inKeyguardRestrictedInputMode())
             menu.findItem(R.id.action_settings).setVisible(false);
-        }
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
         Intent intent = StorageProvider.getProvider().openFolderIntent(storage.getStoragePath());
@@ -201,11 +200,6 @@ public class MainActivity extends AppCompatThemeActivity {
         Log.d(TAG, "onResume");
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (shared.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false))
-            showLocked(getWindow());
-        else
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
         invalidateOptionsMenu(); // update storage folder intent
 

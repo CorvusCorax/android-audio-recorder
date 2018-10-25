@@ -35,6 +35,7 @@
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,7 +76,6 @@
             android:name="com.github.axet.androidlibrary.services.StorageProvider"
             android:authorities="com.github.axet.audiorecorder"
             android:exported="false"
-            android:grantUriPermissions="true"></provider>
+            android:grantUriPermissions="true" />
     </application>
-
 </manifest>

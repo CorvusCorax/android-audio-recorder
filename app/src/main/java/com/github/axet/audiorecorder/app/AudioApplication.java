@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
@@ -38,6 +39,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate");
 
         channelStatus = new NotificationChannelCompat(this, "status", "Status", NotificationManagerCompat.IMPORTANCE_LOW);
 

@@ -119,10 +119,10 @@ public class RecordingActivity extends AppCompatThemeActivity {
     MediaSessionCompat msc;
 
     public static void startActivity(Context context, boolean pause) {
+        Log.d(TAG, "startActivity");
         Intent i = new Intent(context, RecordingActivity.class);
-        if (pause) {
+        if (pause)
             i.setAction(RecordingActivity.START_PAUSE);
-        }
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(i);
@@ -277,6 +277,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         showLocked(getWindow());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
@@ -540,7 +541,12 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void stopRecording() {
         if (thread != null) {
-            interrupt.set(true);
+            interrupt.set(true); // soft interrupt
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             thread = null;
         }
         pitch.stop();
@@ -854,7 +860,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         interrupt = new AtomicBoolean(false);
 
-        thread = new Thread(new Runnable() {
+        thread = new Thread("RecordingThread") {
             @Override
             public void run() {
                 if (old != null) {
@@ -977,7 +983,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     }
                 }
             }
-        }, "RecordingThread");
+        };
         thread.start();
 
         RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
@@ -1104,9 +1110,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             @Override
             public void run() { // success
                 Storage.delete(encoder.in); // delete raw recording
-
                 last.run();
-
                 d.cancel();
             }
         }, new Runnable() {
