@@ -137,9 +137,8 @@ public class MainActivity extends AppCompatThemeActivity {
         MenuItem item = menu.findItem(R.id.action_show_folder);
         Intent intent = StorageProvider.getProvider().openFolderIntent(storage.getStoragePath());
         item.setIntent(intent);
-        if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getProvider().getAuthority())) {
+        if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getProvider().getAuthority()))
             item.setVisible(false);
-        }
 
         MenuItem search = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(search);

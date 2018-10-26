@@ -161,6 +161,8 @@ public class RecordingService extends Service {
         boolean encoding = intent.getBooleanExtra("encoding", false);
         String duration = intent.getStringExtra("duration");
 
+        PendingIntent main;
+
         PendingIntent pe = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(PAUSE_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -182,8 +184,7 @@ public class RecordingService extends Service {
             text = AudioApplication.formatFree(this, free, sec);
             builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            PendingIntent main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setMainIntent(main);
+            main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
             builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
             if (recording)
@@ -195,12 +196,8 @@ public class RecordingService extends Service {
             text = ".../" + targetFile;
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
-            PendingIntent main = PendingIntent.getService(this, 0,
-                    new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
-                            .putExtra("targetFile", targetFile)
-                            .putExtra("recording", recording),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setMainIntent(main);
+            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
+                    .putExtra("targetFile", targetFile).putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         if (encoding) {
@@ -219,6 +216,7 @@ public class RecordingService extends Service {
                 .setTitle(title)
                 .setText(text)
                 .setWhen(notification)
+                .setMainIntent(main)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_mic);
 
