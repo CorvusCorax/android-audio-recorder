@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
@@ -41,7 +40,6 @@ public class RecordingService extends Service {
 
     Storage storage; // for storage path
     Notification notification;
-    PowerManager.WakeLock wlcpu;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -110,10 +108,6 @@ public class RecordingService extends Service {
         storage = new Storage(this);
 
         showNotification(true, new Intent());
-
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wlcpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecordingService.class.getCanonicalName() + "_cpulock");
-        wlcpu.acquire();
     }
 
     @Override
