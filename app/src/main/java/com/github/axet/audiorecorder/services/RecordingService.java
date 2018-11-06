@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
@@ -40,6 +41,7 @@ public class RecordingService extends Service {
 
     Storage storage; // for storage path
     Notification notification;
+    PowerManager.WakeLock wlcpu;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -108,6 +110,10 @@ public class RecordingService extends Service {
         storage = new Storage(this);
 
         showNotification(true, new Intent());
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wlcpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecordingService.class.getCanonicalName() + "_cpulock");
+        wlcpu.acquire();
     }
 
     @Override
@@ -152,6 +158,7 @@ public class RecordingService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestory");
         showNotification(false, null);
+        wlcpu.release();
     }
 
     @SuppressLint("RestrictedApi")
@@ -160,6 +167,8 @@ public class RecordingService extends Service {
         boolean recording = intent.getBooleanExtra("recording", false);
         boolean encoding = intent.getBooleanExtra("encoding", false);
         String duration = intent.getStringExtra("duration");
+
+        PendingIntent main;
 
         PendingIntent pe = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(PAUSE_BUTTON),
@@ -182,8 +191,7 @@ public class RecordingService extends Service {
             text = AudioApplication.formatFree(this, free, sec);
             builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            PendingIntent main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setMainIntent(main);
+            main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
             builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
             if (recording)
@@ -195,12 +203,8 @@ public class RecordingService extends Service {
             text = ".../" + targetFile;
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
-            PendingIntent main = PendingIntent.getService(this, 0,
-                    new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
-                            .putExtra("targetFile", targetFile)
-                            .putExtra("recording", recording),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setMainIntent(main);
+            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
+                    .putExtra("targetFile", targetFile).putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         if (encoding) {
@@ -219,6 +223,7 @@ public class RecordingService extends Service {
                 .setTitle(title)
                 .setText(text)
                 .setWhen(notification)
+                .setMainIntent(main)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_mic);
 

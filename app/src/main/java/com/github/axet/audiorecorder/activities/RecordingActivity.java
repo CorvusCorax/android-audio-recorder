@@ -76,29 +76,20 @@ public class RecordingActivity extends AppCompatThemeActivity {
     FileEncoder encoder;
     Encoder e;
 
-    // do we need to start recording immidiatly?
-    boolean start = true;
+    boolean start = true; // do we need to start recording immidiatly?
 
     AtomicBoolean interrupt = new AtomicBoolean(); // nio throws ClosedByInterruptException if thread interrupted
     Thread thread;
-    // lock for bufferSize
-    final Object bufferSizeLock = new Object();
-    // dynamic buffer size. big for backgound recording. small for realtime view updates.
-    int bufferSize;
-    // variable from settings. how may samples per second.
-    int sampleRate;
-    // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
-    int samplesUpdate;
-    int samplesUpdateStereo;
-    // output target file 2016-01-01 01.01.01.wav
-    Uri targetUri = null;
-    // how many samples passed for current recording, stereo = samplesTime * 2
-    long samplesTime;
-    // current cut position in mono samples, stereo = editSample * 2
-    long editSample = -1;
+    final Object bufferSizeLock = new Object(); // lock for bufferSize
+    int bufferSize; // dynamic buffer size. big for backgound recording. small for realtime view updates.
+    int sampleRate; // variable from settings. how may samples per second.
+    int samplesUpdate; // pitch size in samples. how many samples count need to update view. 4410 for 100ms update.
+    int samplesUpdateStereo; // samplesUpdate * number of channels
+    Uri targetUri = null; // output target file 2016-01-01 01.01.01.wav
+    long samplesTime; // how many samples passed for current recording, stereo = samplesTime * 2
+    long editSample = -1; // current cut position in mono samples, stereo = editSample * 2
 
-    // current play sound track
-    AudioTrack play;
+    AudioTrack play; // current play sound track
 
     TextView title;
     TextView time;
@@ -193,7 +184,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Post(final Throwable e) {
-        Log.d(TAG, "error", e);
+        Log.e(TAG, "error", e);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -223,7 +214,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Error(Throwable e) {
-        Log.d(TAG, "error", e);
+        Log.e(TAG, "error", e);
         Error(toMessage(e));
     }
 
@@ -409,8 +400,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         });
 
         String a = getIntent().getAction();
-        if (a != null && a.equals(START_PAUSE)) {
-            // pretend we already start it
+        if (a != null && a.equals(START_PAUSE)) { // pretend we already start it
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
         }
@@ -479,8 +469,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         updateBufferSize(false);
 
-        // start once
-        if (start) {
+        if (start) { // start once
             start = false;
             if (Storage.permitted(this, PERMISSIONS_AUDIO, RESULT_START)) { // audio perm
                 if (receiver.isRecordingReady())
@@ -518,7 +507,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), false, encoder != null, duration);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -541,7 +530,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     void stopRecording() {
         if (thread != null) {
-            interrupt.set(true); // soft interrupt
+            interrupt.set(true);
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -622,9 +611,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         String ext = shared.getString(AudioApplication.PREFERENCE_ENCODING, "");
 
-        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false))
             perSec = Factory.getEncoderRate(ext, sampleRate);
-        }
 
         long sec = free / perSec * 1000;
 
@@ -986,7 +974,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         };
         thread.start();
 
-        RecordingService.startService(this, Storage.getDocumentName(targetUri), thread != null, encoder != null, duration);
+        RecordingService.startService(this, Storage.getDocumentName(targetUri), true, encoder != null, duration);
     }
 
     // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
