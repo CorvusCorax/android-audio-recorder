@@ -184,7 +184,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Post(final Throwable e) {
-        Log.d(TAG, "error", e);
+        Log.e(TAG, "error", e);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -214,7 +214,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Error(Throwable e) {
-        Log.d(TAG, "error", e);
+        Log.e(TAG, "error", e);
         Error(toMessage(e));
     }
 
