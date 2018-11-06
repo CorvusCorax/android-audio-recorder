@@ -14,6 +14,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
@@ -861,6 +862,10 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     }
                 }
 
+                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                PowerManager.WakeLock wlcpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecordingService.class.getCanonicalName() + "_cpulock");
+                wlcpu.acquire();
+
                 android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 
                 try {
@@ -947,6 +952,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 } catch (final RuntimeException e) {
                     Post(e);
                 } finally {
+                    wlcpu.release();
+
                     // redraw view, we may add one last pich which is not been drawen because draw tread already interrupted.
                     // to prevent resume recording jump - draw last added pitch here.
                     handler.post(new Runnable() {
