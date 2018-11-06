@@ -152,7 +152,6 @@ public class RecordingService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestory");
         showNotification(false, null);
-        wlcpu.release();
     }
 
     @SuppressLint("RestrictedApi")
