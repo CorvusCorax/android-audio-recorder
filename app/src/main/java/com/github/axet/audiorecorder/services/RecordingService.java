@@ -18,6 +18,7 @@ import android.view.View;
 
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
+import com.github.axet.audiolibrary.app.MainApplication;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -72,11 +73,11 @@ public class RecordingService extends Service {
     }
 
     public static void start(Context context) {
-        context.startService(new Intent(context, RecordingService.class));
+        MainApplication.startService(context, new Intent(context, RecordingService.class));
     }
 
     public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
-        context.startService(new Intent(context, RecordingService.class)
+        MainApplication.startService(context, new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
