@@ -296,8 +296,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
         receiver.filter.addAction(ACTION_FINISH_RECORDING);
         receiver.registerReceiver(this);
 
-        edit(false, false);
-
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         AudioApplication app = AudioApplication.from(this);
 
@@ -314,6 +312,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
             finish();
             return;
         }
+
+        edit(false, false);
 
         title.setText(Storage.getDocumentName(recording.targetUri));
 

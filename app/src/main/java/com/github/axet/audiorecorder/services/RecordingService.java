@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
 
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.audiolibrary.app.MainApplication;
@@ -76,11 +77,11 @@ public class RecordingService extends Service {
     }
 
     public static void start(Context context) {
-        MainApplication.startService(context, new Intent(context, RecordingService.class));
+        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class));
     }
 
     public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
-        MainApplication.startService(context, new Intent(context, RecordingService.class)
+        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
