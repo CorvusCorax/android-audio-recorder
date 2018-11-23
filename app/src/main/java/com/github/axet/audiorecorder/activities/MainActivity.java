@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatThemeActivity {
             menu.findItem(R.id.action_settings).setVisible(false);
 
         MenuItem item = menu.findItem(R.id.action_show_folder);
-        Intent intent = StorageProvider.getProvider().openFolderIntent(storage.getStoragePath());
+        Intent intent = StorageProvider.openFolderIntent(this, storage.getStoragePath());
         item.setIntent(intent);
         if (!StorageProvider.isFolderCallable(this, intent, StorageProvider.getProvider().getAuthority()))
             item.setVisible(false);

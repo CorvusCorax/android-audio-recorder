@@ -27,6 +27,7 @@
         <item>Stereo</item>
     </string-array>
 
+    <string name="no_folder_app">No folder view application installed</string>
     <string name="hold_by_call">pauza (wstrzymane przez połączenie)</string>
     <string name="recording_status_recording">nagrywanie</string>
     <string name="recording_status_encoding">enkodowanie</string>
@@ -49,6 +50,7 @@
     <string name="pref_encoding_title">Enkodowanie</string>
     <string name="pref_encoding_summary">Wyjściowy format pliku (.wav, .m4a, ...)</string>
     <string name="pref_mode_title">Tryb</string>
+    <string name="pref_mode_summary">Recording channels</string>
     <string name="pref_nameformat_title">Format Nazwy</string>
     <string name="pref_pausecalls_title">Wstrzymaj podczas połączeń</string>
     <string name="pref_pausecalls_summary">Zatrzymaj nagrywanie po odebraniu i kontynuuj podcas rozłączania</string>

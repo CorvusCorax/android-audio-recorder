@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -16,6 +18,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
 
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.audiolibrary.app.MainApplication;
@@ -41,6 +44,7 @@ public class RecordingService extends Service {
 
     Storage storage; // for storage path
     Notification notification;
+    Intent notificationIntent;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -57,7 +61,7 @@ public class RecordingService extends Service {
             String d;
             if (f.startsWith(ContentResolver.SCHEME_CONTENT)) {
                 Uri u = Uri.parse(f);
-                d = Storage.getDocumentName(u);
+                d = Storage.getDocumentName(context, u);
             } else if (f.startsWith(ContentResolver.SCHEME_FILE)) {
                 Uri u = Uri.parse(f);
                 File file = Storage.getFile(u);
@@ -73,11 +77,11 @@ public class RecordingService extends Service {
     }
 
     public static void start(Context context) {
-        MainApplication.startService(context, new Intent(context, RecordingService.class));
+        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class));
     }
 
     public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
-        MainApplication.startService(context, new Intent(context, RecordingService.class)
+        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
@@ -108,7 +112,7 @@ public class RecordingService extends Service {
 
         storage = new Storage(this);
 
-        showNotification(true, new Intent());
+        showNotification(new Intent());
     }
 
     @Override
@@ -118,7 +122,7 @@ public class RecordingService extends Service {
         if (intent != null) {
             String a = intent.getAction();
             if (a == null) {
-                showNotification(true, intent);
+                showNotification(intent);
             } else if (a.equals(PAUSE_BUTTON)) {
                 Intent i = new Intent(RecordingActivity.PAUSE_BUTTON);
                 sendBroadcast(i);
@@ -142,17 +146,11 @@ public class RecordingService extends Service {
         return null;
     }
 
-    public class Binder extends android.os.Binder {
-        public RecordingService getService() {
-            return RecordingService.this;
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestory");
-        showNotification(false, null);
+        showNotification(null);
     }
 
     @SuppressLint("RestrictedApi")
@@ -164,6 +162,42 @@ public class RecordingService extends Service {
 
         PendingIntent main;
 
+        RemoteNotificationCompat.Builder builder;
+
+        String title;
+        String text;
+        if (targetFile == null) {
+            title = getString(R.string.app_name);
+            Uri f = storage.getStoragePath();
+            long free = storage.getFree(f);
+            long sec = Storage.average(this, free);
+            text = AudioApplication.formatFree(this, free, sec);
+            builder = new RemoteNotificationCompat.Low(this, R.layout.notifictaion);
+            builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
+            builder.setViewVisibility(R.id.notification_pause, View.GONE);
+            main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            if (recording)
+                title = getString(R.string.recording_title);
+            else
+                title = getString(R.string.pause_title);
+            if (duration != null) {
+                title += " (" + duration + ")";
+                if (notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
+                    notification.contentView.setTextViewText(R.id.title, title);
+                    if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null)
+                        notification.bigContentView.setTextViewText(R.id.title, title);
+                    return notification;
+                }
+            }
+            text = ".../" + targetFile;
+            builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
+            builder.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
+            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
+                    .putExtra("targetFile", targetFile).putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
         PendingIntent pe = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(PAUSE_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -171,35 +205,6 @@ public class RecordingService extends Service {
         PendingIntent re = PendingIntent.getService(this, 0,
                 new Intent(this, RecordingService.class).setAction(RECORD_BUTTON),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-
-        RemoteNotificationCompat.Builder builder;
-
-        String title;
-        String text;
-        if (targetFile == null) {
-            builder = new RemoteNotificationCompat.Low(this, R.layout.notifictaion);
-            title = getString(R.string.app_name);
-            Uri f = storage.getStoragePath();
-            long free = storage.getFree(f);
-            long sec = Storage.average(this, free);
-            text = AudioApplication.formatFree(this, free, sec);
-            builder.setViewVisibility(R.id.notification_record, View.VISIBLE);
-            builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
-            if (recording)
-                title = getString(R.string.recording_title);
-            else
-                title = getString(R.string.pause_title);
-            if (duration != null)
-                title += " (" + duration + ")";
-            text = ".../" + targetFile;
-            builder.setViewVisibility(R.id.notification_record, View.GONE);
-            builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
-            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
-                    .putExtra("targetFile", targetFile).putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
-        }
 
         if (encoding) {
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
@@ -224,19 +229,21 @@ public class RecordingService extends Service {
         return builder.build();
     }
 
-    public void showNotification(boolean show, Intent intent) {
+    public void showNotification(Intent intent) {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        if (!show) {
+        if (intent == null) {
             stopForeground(false);
             nm.cancel(NOTIFICATION_RECORDING_ICON);
             notification = null;
+            notificationIntent = null;
         } else {
             Notification n = build(intent);
-            if (notification == null)
+            if (notification == null) {
                 startForeground(NOTIFICATION_RECORDING_ICON, n);
-            else
+            } else
                 nm.notify(NOTIFICATION_RECORDING_ICON, n);
             notification = n;
+            notificationIntent = intent;
         }
     }
 

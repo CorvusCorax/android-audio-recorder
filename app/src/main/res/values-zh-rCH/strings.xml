@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (默认)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (电话)</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>话筒</item>
+        <item>未处理</item>
+        <item>蓝牙</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>亮色主题</item>
+        <item>暗色主题</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>单声道 (默认)</item>
+        <item>立体声</item>
+    </string-array>
+
+    <string name="no_folder_app">文件管理应用未安装</string>
+    <string name="hold_by_call">暂停 (来电时)</string>
+    <string name="recording_status_recording">录音</string>
+    <string name="recording_status_encoding">编码</string>
+    <string name="recording_status_pause">暂停</string>
+    <string name="recording_status_edit">编辑</string>
+    <string name="confirm_cancel">确认取消</string>
+    <string name="encoding_title">编码...</string>
+    <string name="pause_title">暂停...</string>
+    <string name="recording_title">录音</string>
+    <string name="open_recording_folder">打开录音文件夹</string>
+    <string name="recording_list_is_empty">录音列表为空\n\n点击录音开始录制</string>
+    <string name="record_button">录音</string>
+    <string name="cut_button">剪切</string>
+    <string name="stop_button">停止</string>
+    <string name="cancel_button">取消</string>
+    <string name="pause_button">暂停</string>
+
+    <string name="pref_storage_title">存储路径</string>
+    <string name="pref_rate_title">采样率</string>
+    <string name="pref_encoding_title">编码</string>
+    <string name="pref_encoding_summary">输出文件格式 (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">模式</string>
+    <string name="pref_mode_summary">录音频道</string>
+    <string name="pref_nameformat_title">格式名称</string>
+    <string name="pref_pausecalls_title">通话时暂停</string>
+    <string name="pref_pausecalls_summary">通话时停止 挂断继续</string>
+    <string name="pref_silence_title">安静模式</string>
+    <string name="pref_silence_summary">录音时将手机设为安静模式</string>
+    <string name="pref_lockscreen_title">锁屏控制</string>
+    <string name="pref_lockscreen_summary">锁屏时显示控制</string>
+    <string name="pref_theme_title">应用主题</string>
+    <string name="pref_theme_summary">设置应用主题 (暗 / 亮)</string>
+    <string name="pref_application">应用</string>
+    <string name="pref_recordings">录音</string>
+    <string name="pref_fly_title">飞行编码</string>
+    <string name="pref_fly_summary">启用该选项会禁用编辑和崩溃恢复</string>
+    <string name="hold_by_bluetooth">暂停 (蓝牙未连接)</string>
+    <string name="menu_search">搜索</string>
+    <string name="save_as_wav">另存为WAV</string>
+</resources>
