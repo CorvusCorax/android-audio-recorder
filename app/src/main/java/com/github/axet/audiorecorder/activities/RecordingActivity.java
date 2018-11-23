@@ -315,7 +315,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         edit(false, false);
 
-        title.setText(Storage.getDocumentName(this, recording.targetUri));
+        title.setText(Storage.getName(this, recording.targetUri));
 
         if (shared.getBoolean(AudioApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -473,7 +473,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         boolean r = recording.thread != null;
 
-        RecordingService.startService(this, Storage.getDocumentName(this, recording.targetUri), r, encoder != null, duration);
+        RecordingService.startService(this, Storage.getName(this, recording.targetUri), r, encoder != null, duration);
 
         if (r) {
             pitch.record();
@@ -499,7 +499,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         stopRecording();
 
-        RecordingService.startService(this, Storage.getDocumentName(this, recording.targetUri), false, encoder != null, duration);
+        RecordingService.startService(this, Storage.getName(this, recording.targetUri), false, encoder != null, duration);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -766,7 +766,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
             recording.startRecording();
 
-            RecordingService.startService(this, Storage.getDocumentName(this, recording.targetUri), true, encoder != null, duration);
+            RecordingService.startService(this, Storage.getName(this, recording.targetUri), true, encoder != null, duration);
         } catch (RuntimeException e) {
             Log.d(TAG, "unable to start", e);
             Toast.makeText(RecordingActivity.this, "Unable to initialize AudioRecord", Toast.LENGTH_SHORT).show();
@@ -778,7 +778,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         long ms = samplesTime / recording.sampleRate * 1000;
         duration = AudioApplication.formatDuration(this, ms);
         time.setText(duration);
-        RecordingService.startService(this, Storage.getDocumentName(this, recording.targetUri), recording.thread != null, encoder != null, duration);
+        RecordingService.startService(this, Storage.getName(this, recording.targetUri), recording.thread != null, encoder != null, duration);
     }
 
     @Override
@@ -816,7 +816,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             @Override
             public void run() {
                 SharedPreferences.Editor edit = shared.edit();
-                edit.putString(AudioApplication.PREFERENCE_LAST, Storage.getDocumentName(RecordingActivity.this, recording.targetUri));
+                edit.putString(AudioApplication.PREFERENCE_LAST, Storage.getName(RecordingActivity.this, recording.targetUri));
                 edit.commit();
                 done.run();
             }
@@ -843,11 +843,11 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     void encoding(final FileEncoder encoder, final OnFlyEncoding fly, final Runnable last) {
-        RecordingService.startService(this, Storage.getDocumentName(this, fly.targetUri), recording.thread != null, encoder != null, duration);
+        RecordingService.startService(this, Storage.getName(this, fly.targetUri), recording.thread != null, encoder != null, duration);
 
         final ProgressDialog d = new ProgressDialog(this);
         d.setTitle(R.string.encoding_title);
-        d.setMessage(".../" + Storage.getDocumentName(this, recording.targetUri));
+        d.setMessage(".../" + Storage.getName(this, recording.targetUri));
         d.setMax(100);
         d.setCancelable(false);
         d.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
