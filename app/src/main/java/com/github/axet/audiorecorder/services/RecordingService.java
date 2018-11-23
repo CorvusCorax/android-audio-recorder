@@ -61,7 +61,7 @@ public class RecordingService extends Service {
             String d;
             if (f.startsWith(ContentResolver.SCHEME_CONTENT)) {
                 Uri u = Uri.parse(f);
-                d = Storage.getDocumentName(u);
+                d = Storage.getDocumentName(context, u);
             } else if (f.startsWith(ContentResolver.SCHEME_FILE)) {
                 Uri u = Uri.parse(f);
                 File file = Storage.getFile(u);
