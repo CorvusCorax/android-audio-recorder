@@ -28,3 +28,4 @@
 -dontwarn com.jssrc.resample.**
 -dontwarn org.apache.commons.**
 -dontwarn org.slf4j.**
+-dontwarn de.innosystec.unrar.**
