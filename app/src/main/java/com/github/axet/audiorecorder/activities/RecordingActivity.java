@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
+import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
@@ -202,23 +203,15 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public String toMessage(Throwable e) {
-        String msg = e.getMessage();
-        if (msg == null || msg.isEmpty()) {
-            Throwable t;
-            if (encoder == null) {
+        Throwable t;
+        if (encoder == null) {
+            t = e;
+        } else {
+            t = encoder.getException();
+            if (t == null)
                 t = e;
-            } else {
-                t = encoder.getException();
-                if (t == null)
-                    t = e;
-            }
-            while (t.getCause() != null)
-                t = t.getCause();
-            msg = t.getMessage();
-            if (msg == null || msg.isEmpty())
-                msg = t.getClass().getSimpleName();
         }
-        return msg;
+        return SuperUser.toMessage(t);
     }
 
     public void Error(Throwable e) {
