@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
@@ -298,14 +299,7 @@ public class MainActivity extends AppCompatThemeActivity {
     }
 
     public void Error(Throwable e) {
-        String msg = e.getMessage();
-        if (msg == null || msg.isEmpty()) {
-            Throwable t = e;
-            while (t.getCause() != null)
-                t = t.getCause();
-            msg = t.getClass().getSimpleName();
-        }
-        Error(msg);
+        Error(SuperUser.toMessage(e));
     }
 
     public void Error(String msg) {
