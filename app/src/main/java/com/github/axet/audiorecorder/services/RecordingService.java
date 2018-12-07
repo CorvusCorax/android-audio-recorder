@@ -10,8 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.os.TransactionTooLargeException;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -21,7 +21,6 @@ import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
-import com.github.axet.audiolibrary.app.MainApplication;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -240,8 +239,9 @@ public class RecordingService extends Service {
             Notification n = build(intent);
             if (notification == null) {
                 startForeground(NOTIFICATION_RECORDING_ICON, n);
-            } else
+            } else {
                 nm.notify(NOTIFICATION_RECORDING_ICON, n);
+            }
             notification = n;
             notificationIntent = intent;
         }
