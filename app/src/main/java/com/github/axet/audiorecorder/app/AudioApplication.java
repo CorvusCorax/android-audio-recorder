@@ -14,11 +14,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Process;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
+import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.audiolibrary.app.RawSamples;
