@@ -32,6 +32,7 @@ import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
@@ -192,16 +193,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }
     }
 
-    public void Post(final Throwable e) {
-        Log.e(TAG, "error", e);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Error(toMessage(e));
-            }
-        });
-    }
-
     public String toMessage(Throwable e) {
         Throwable t;
         if (encoder == null) {
@@ -220,9 +211,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Error(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Error");
-        builder.setMessage(msg);
+        ErrorDialog builder = new ErrorDialog(this, msg);
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -337,7 +326,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                             } catch (RuntimeException e) {
                                 Error(e);
                             }
-                            recording.storage.delete(recording.targetUri);
+                            Storage.delete(RecordingActivity.this, recording.targetUri);
                         }
                         Storage.delete(recording.storage.getTempRecording());
                         finish();
@@ -862,7 +851,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }, new Runnable() {
             @Override
             public void run() { // or error
-                recording.storage.delete(fly.targetUri); // fly has fd, delete target manually
+                Storage.delete(RecordingActivity.this, fly.targetUri); // fly has fd, delete target manually
                 d.cancel();
                 Error(encoder.getException());
             }

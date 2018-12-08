@@ -168,7 +168,7 @@ public class RecordingService extends Service {
         if (targetFile == null) {
             title = getString(R.string.app_name);
             Uri f = storage.getStoragePath();
-            long free = storage.getFree(f);
+            long free = Storage.getFree(this, f);
             long sec = Storage.average(this, free);
             text = AudioApplication.formatFree(this, free, sec);
             builder = new RemoteNotificationCompat.Low(this, R.layout.notifictaion);
