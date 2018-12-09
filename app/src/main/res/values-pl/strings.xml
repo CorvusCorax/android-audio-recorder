@@ -67,4 +67,7 @@
     <string name="hold_by_bluetooth">pauza (bluetooth rozłaczony)</string>
     <string name="menu_search">Szukaj</string>
     <string name="save_as_wav">Zapisz jako WAV</string>
+    <string name="auto_close">Auto close in (%1$d)</string>
+    <string name="mic_muted_error">Mic muted</string>
+    <string name="mic_muted_pie">Android Pie and above prevent idle background apps from using microphone. Please disable selinux or install previous android version!</string>
 </resources>

@@ -36,6 +36,7 @@ import com.github.axet.audiorecorder.services.RecordingService;
 import java.io.File;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -59,6 +60,8 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         public static final int UPDATESAMPLES = 2;
         public static final int END = 3;
         public static final int ERROR = 4;
+        public static final int MUTED = 5;
+        public static final int UNMUTED = 6;
 
         public Context context;
         public final ArrayList<Handler> handlers = new ArrayList<>();
@@ -191,6 +194,9 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
 
                     android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 
+                    boolean silenceDetected = false;
+                    long silence = samplesTime; // last silence 0-frame
+
                     try {
                         long start = System.currentTimeMillis();
                         recorder.startRecording();
@@ -242,6 +248,11 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                 }
                                 readSizeUpdate = dbSize / samplesUpdateStereo * samplesUpdateStereo;
                                 for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
+                                    for (int k = 0; k < samplesUpdateStereo; k++) {
+                                        int off = i + k;
+                                        if (dbBuf[off] != 0)
+                                            silence = samplesTime + off / Sound.getChannels(context);
+                                    }
                                     double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
                                     Post(PINCH, dB);
                                 }
@@ -259,6 +270,16 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                     final long m = samplesTime;
                                     Post(UPDATESAMPLES, m);
                                     samplesTimeCount -= samplesTimeUpdate;
+                                }
+
+                                if (samplesTime - silence > 2 * sampleRate) { // 2 second of mic muted
+                                    if (!silenceDetected) {
+                                        silenceDetected = true;
+                                        Post(MUTED, null);
+                                    }
+                                } else {
+                                    Post(UNMUTED, null);
+                                    silenceDetected = false;
                                 }
                             }
                         }
@@ -332,6 +353,12 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                 }
 
                 bufferSize = samplesUpdate * Sound.getChannels(context);
+            }
+        }
+
+        public boolean isForeground() {
+            synchronized (bufferSizeLock) {
+                return bufferSize == this.samplesUpdate * Sound.getChannels(context);
             }
         }
 
