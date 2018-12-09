@@ -36,7 +36,6 @@ import com.github.axet.audiorecorder.services.RecordingService;
 import java.io.File;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -278,8 +277,10 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                         Post(MUTED, null);
                                     }
                                 } else {
-                                    Post(UNMUTED, null);
-                                    silenceDetected = false;
+                                    if (silenceDetected) {
+                                        Post(UNMUTED, null);
+                                        silenceDetected = false;
+                                    }
                                 }
                             }
                         }
