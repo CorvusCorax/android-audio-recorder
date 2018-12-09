@@ -58,7 +58,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     public static final int RESULT_STORAGE = 1;
     public static final int RESULT_CALL = 2;
 
-    Storage storage = new Storage(this);
+    Storage storage;
 
     public static String[] PREMS = new String[]{Manifest.permission.READ_PHONE_STATE};
 
@@ -148,6 +148,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        storage = new Storage(this);
 
         setupActionBar();
 
