@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,16 +24,17 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
-import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
+import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Factory;
@@ -84,7 +86,13 @@ public class RecordingActivity extends AppCompatThemeActivity {
     View done;
     PitchView pitch;
 
+    ScreenReceiver screen;
+
+    AudioApplication.RecordingStorage recording;
+
     RecordingReceiver receiver;
+
+    AlertDialog muted;
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -92,15 +100,57 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 pitch.add((Double) msg.obj);
             if (msg.what == AudioApplication.RecordingStorage.UPDATESAMPLES)
                 updateSamples((Long) msg.obj);
-            if (msg.what == AudioApplication.RecordingStorage.END)
+            if (msg.what == AudioApplication.RecordingStorage.MUTED) {
+                if (Build.VERSION.SDK_INT >= 28)
+                    muted = new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(getString(R.string.mic_muted_error)).show();
+                else
+                    muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
+                RecordingActivity.startActivity(RecordingActivity.this, true);
+            }
+            if (msg.what == AudioApplication.RecordingStorage.UNMUTED) {
+                if (muted != null) {
+                    Runnable run = new Runnable() {
+                        int count = 5;
+                        AlertDialog d = muted;
+
+                        @Override
+                        public void run() {
+                            if (count <= 0) {
+                                d.dismiss();
+                                return;
+                            }
+                            Button b = d.getButton(DialogInterface.BUTTON_NEUTRAL);
+                            b.setText(getString(R.string.auto_close, count));
+                            b.setVisibility(View.VISIBLE);
+                            b.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                }
+                            });
+                            count--;
+                            handler.postDelayed(this, 1000);
+                        }
+                    };
+                    run.run();
+                    muted = null;
+                }
+            }
+            if (msg.what == AudioApplication.RecordingStorage.END) {
                 pitch.drawEnd();
+                if (!recording.interrupt.get()) {
+                    stopRecording(getString(R.string.recording_status_pause));
+                    String text = "Error reading from stream";
+                    if (Build.VERSION.SDK_INT >= 28)
+                        new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(text).show();
+                    else
+                        ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
+                    RecordingActivity.startActivity(RecordingActivity.this, true);
+                }
+            }
             if (msg.what == AudioApplication.RecordingStorage.ERROR)
                 Error((Exception) msg.obj);
         }
     };
-    ScreenReceiver screen;
-
-    AudioApplication.RecordingStorage recording;
 
     public static void startActivity(Context context, boolean pause) {
         Log.d(TAG, "startActivity");
@@ -143,22 +193,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 done.performClick();
                 return;
             }
-            if (a.equals(AudioApplication.RecordingStorage.PINCH)) {
-                pitch.add(intent.getDoubleExtra("data", 0));
-                return;
-            }
-            if (a.equals(AudioApplication.RecordingStorage.UPDATESAMPLES)) {
-                updateSamples(intent.getLongExtra("data", 0));
-                return;
-            }
-            if (a.equals(AudioApplication.RecordingStorage.END)) {
-                pitch.drawEnd();
-                return;
-            }
-            if (a.equals(AudioApplication.RecordingStorage.ERROR)) {
-                Error((Throwable) intent.getSerializableExtra("data"));
-                return;
-            }
             MediaButtonReceiver.handleIntent(msc, intent);
         }
     }
@@ -192,16 +226,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }
     }
 
-    public void Post(final Throwable e) {
-        Log.e(TAG, "error", e);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Error(toMessage(e));
-            }
-        });
-    }
-
     public String toMessage(Throwable e) {
         Throwable t;
         if (encoder == null) {
@@ -211,7 +235,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             if (t == null)
                 t = e;
         }
-        return SuperUser.toMessage(t);
+        return ErrorDialog.toMessage(t);
     }
 
     public void Error(Throwable e) {
@@ -220,9 +244,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     public void Error(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Error");
-        builder.setMessage(msg);
+        ErrorDialog builder = new ErrorDialog(this, msg);
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -289,9 +311,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         receiver.filter.addAction(ACTION_FINISH_RECORDING);
         receiver.registerReceiver(this);
 
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         AudioApplication app = AudioApplication.from(this);
-
         try {
             if (app.recording == null)
                 app.recording = new AudioApplication.RecordingStorage(this, pitch.getPitchTime());
@@ -301,7 +321,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             }
         } catch (RuntimeException e) {
             Log.d(TAG, "onCreate", e);
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.Error(this, e);
             finish();
             return;
         }
@@ -310,6 +330,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         title.setText(Storage.getName(this, recording.targetUri));
 
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         if (shared.getBoolean(AudioApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
@@ -337,7 +358,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                             } catch (RuntimeException e) {
                                 Error(e);
                             }
-                            recording.storage.delete(recording.targetUri);
+                            Storage.delete(RecordingActivity.this, recording.targetUri);
                         }
                         Storage.delete(recording.storage.getTempRecording());
                         finish();
@@ -741,6 +762,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = shared.edit();
         editor.remove(AudioApplication.PREFERENCE_TARGET);
+        editor.commit();
     }
 
     void startRecording() {
@@ -862,7 +884,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }, new Runnable() {
             @Override
             public void run() { // or error
-                recording.storage.delete(fly.targetUri); // fly has fd, delete target manually
+                Storage.delete(RecordingActivity.this, fly.targetUri); // fly has fd, delete target manually
                 d.cancel();
                 Error(encoder.getException());
             }

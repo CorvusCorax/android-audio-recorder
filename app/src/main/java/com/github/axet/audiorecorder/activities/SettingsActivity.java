@@ -58,7 +58,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     public static final int RESULT_STORAGE = 1;
     public static final int RESULT_CALL = 2;
 
-    Handler handler = new Handler();
+    Storage storage = new Storage(this);
 
     public static String[] PREMS = new String[]{Manifest.permission.READ_PHONE_STATE};
 
@@ -197,7 +197,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             }
         }
         if (key.equals(AudioApplication.PREFERENCE_STORAGE)) {
-            Storage.migrateLocalStorageDialog(this, handler, new Storage(this));
+            storage.migrateLocalStorageDialog();
         }
         if (key.equals(AudioApplication.PREFERENCE_RATE)) {
             int sampleRate = Integer.parseInt(sharedPreferences.getString(AudioApplication.PREFERENCE_RATE, ""));

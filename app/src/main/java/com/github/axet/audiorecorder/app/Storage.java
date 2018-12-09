@@ -23,6 +23,7 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         super(context);
     }
 
+    @Override
     public Uri getNewFile() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         String ext = shared.getString(AudioApplication.PREFERENCE_ENCODING, "");
@@ -36,21 +37,19 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
         Uri path = getStoragePath();
         String s = path.getScheme();
 
-        if (Build.VERSION.SDK_INT >= 21 && s.startsWith(ContentResolver.SCHEME_CONTENT)) {
-            Uri n = getNextFile(path, format, ext);
-            return n;
-        } else if (s.startsWith(ContentResolver.SCHEME_FILE)) {
+        if (Build.VERSION.SDK_INT >= 21 && s.equals(ContentResolver.SCHEME_CONTENT)) {
+            return getNextFile(context, path, format, ext);
+        } else if (s.equals(ContentResolver.SCHEME_FILE)) {
             File f = getFile(path);
-            if (!f.exists() && !f.mkdirs()) {
+            if (!f.exists() && !f.mkdirs())
                 throw new RuntimeException("Unable to create: " + path);
-            }
             return Uri.fromFile(getNextFile(f, format, ext));
         } else {
             throw new UnknownUri();
         }
     }
 
-    public File getNewFile(File path, String ext) {
+    public File getNewFile(File f, String ext) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
         String format = "%s";
@@ -59,10 +58,8 @@ public class Storage extends com.github.axet.audiolibrary.app.Storage {
 
         format = getFormatted(format, new Date());
 
-        File f = path;
-        if (!f.exists() && !f.mkdirs()) {
-            throw new RuntimeException("Unable to create: " + path);
-        }
+        if (!f.exists() && !f.mkdirs())
+            throw new RuntimeException("Unable to create: " + f);
         return getNextFile(f, format, ext);
     }
 

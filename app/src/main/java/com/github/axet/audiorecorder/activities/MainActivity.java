@@ -28,6 +28,7 @@ import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
@@ -206,7 +207,7 @@ public class MainActivity extends AppCompatThemeActivity {
         try {
             storage.migrateLocalStorage();
         } catch (RuntimeException e) {
-            Error(e);
+            ErrorDialog.Error(this, e);
         }
 
         final String last = shared.getString(AudioApplication.PREFERENCE_LAST, "");
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatThemeActivity {
                     try {
                         storage.migrateLocalStorage();
                     } catch (RuntimeException e) {
-                        Error(e);
+                        ErrorDialog.Error(MainActivity.this, e);
                     }
                     recordings.load(false, null);
                     checkPending();
@@ -292,30 +293,9 @@ public class MainActivity extends AppCompatThemeActivity {
 
     void updateHeader() {
         Uri uri = storage.getStoragePath();
-        long free = storage.getFree(uri);
+        long free = Storage.getFree(this, uri);
         long sec = Storage.average(this, free);
         TextView text = (TextView) findViewById(R.id.space_left);
         text.setText(AudioApplication.formatFree(this, free, sec));
-    }
-
-    public void Error(Throwable e) {
-        Error(SuperUser.toMessage(e));
-    }
-
-    public void Error(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Error");
-        builder.setMessage(msg);
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-        builder.show();
     }
 }
