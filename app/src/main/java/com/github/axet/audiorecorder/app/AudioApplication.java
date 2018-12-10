@@ -264,8 +264,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                 samplesTime += samples;
                                 samplesTimeCount += samples;
                                 if (samplesTimeCount > samplesTimeUpdate) {
-                                    final long m = samplesTime;
-                                    Post(UPDATESAMPLES, m);
+                                    Post(UPDATESAMPLES, samplesTime);
                                     samplesTimeCount -= samplesTimeUpdate;
                                 }
 
@@ -276,8 +275,8 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                     }
                                 } else {
                                     if (silenceDetected) {
-                                        Post(UNMUTED, null);
                                         silenceDetected = false;
+                                        Post(UNMUTED, null);
                                     }
                                 }
                             }
