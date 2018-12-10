@@ -6,11 +6,9 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
@@ -22,13 +20,13 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
 import com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
 import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
+import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Factory;
 import com.github.axet.audiolibrary.widgets.RecordingVolumePreference;
@@ -42,17 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p/>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
 public class SettingsActivity extends AppCompatSettingsThemeActivity implements PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     public static final int RESULT_STORAGE = 1;
@@ -133,12 +120,12 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             }
         }
         if (key.equals(AudioApplication.PREFERENCE_STORAGE)) {
-            storage.migrateLocalStorageDialog();
+            storage.migrateLocalStorageDialog(this);
         }
         if (key.equals(AudioApplication.PREFERENCE_RATE)) {
             int sampleRate = Integer.parseInt(sharedPreferences.getString(AudioApplication.PREFERENCE_RATE, ""));
             if (sampleRate != Sound.getValidRecordRate(Sound.getInMode(this), sampleRate)) {
-                Toast.makeText(this, "Not supported Hz", Toast.LENGTH_SHORT).show();
+                Toast.Error(this, "Not supported Hz");
             }
         }
     }
