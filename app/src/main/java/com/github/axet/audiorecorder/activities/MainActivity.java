@@ -39,6 +39,8 @@ import com.github.axet.audiorecorder.services.RecordingService;
 public class MainActivity extends AppCompatThemeActivity {
     public final static String TAG = MainActivity.class.getSimpleName();
 
+    public static final int RESULT_PERMS = 1;
+
     FloatingActionButton fab;
     Handler handler = new Handler();
 
@@ -170,12 +172,8 @@ public class MainActivity extends AppCompatThemeActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar base clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -257,7 +255,7 @@ public class MainActivity extends AppCompatThemeActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 1:
+            case RESULT_PERMS:
                 if (Storage.permitted(MainActivity.this, permissions)) {
                     try {
                         storage.migrateLocalStorage();
