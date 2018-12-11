@@ -11,11 +11,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.TransactionTooLargeException;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
@@ -101,6 +101,14 @@ public class RecordingService extends Service {
         context.stopService(new Intent(context, RecordingService.class));
     }
 
+    public static void mergeRemoteViews(RemoteViews view, RemoteViews a) {
+        try {
+            view.getClass().getDeclaredMethod("mergeRemoteViews", RemoteViews.class).invoke(view, a);
+        } catch (Exception e) {
+            Log.e(TAG, "merge", e);
+        }
+    }
+
     public RecordingService() {
     }
 
@@ -183,9 +191,11 @@ public class RecordingService extends Service {
             if (duration != null) {
                 title += " (" + duration + ")";
                 if (notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
-                    notification.contentView.setTextViewText(R.id.title, title);
+                    RemoteViews a = new RemoteViews(getPackageName(), notification.contentView.getLayoutId());
+                    a.setTextViewText(R.id.title, title);
+                    mergeRemoteViews(notification.contentView, a);
                     if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null)
-                        notification.bigContentView.setTextViewText(R.id.title, title);
+                        mergeRemoteViews(notification.bigContentView, a);
                     return notification;
                 }
             }

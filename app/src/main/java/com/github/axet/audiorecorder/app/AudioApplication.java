@@ -194,7 +194,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
 
                     boolean silenceDetected = false;
-                    long silence = samplesTime; // last silence 0-frame
+                    long silence = samplesTime; // last non silence frame
 
                     try {
                         long start = System.currentTimeMillis();
@@ -247,12 +247,10 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                 }
                                 readSizeUpdate = dbSize / samplesUpdateStereo * samplesUpdateStereo;
                                 for (int i = 0; i < readSizeUpdate; i += samplesUpdateStereo) {
-                                    for (int k = 0; k < samplesUpdateStereo; k++) {
-                                        int off = i + k;
-                                        if (dbBuf[off] != 0)
-                                            silence = samplesTime + off / Sound.getChannels(context);
-                                    }
-                                    double dB = RawSamples.getDB(dbBuf, i, samplesUpdateStereo);
+                                    double a = RawSamples.getAmplitude(dbBuf, i, samplesUpdateStereo);
+                                    if (a != 0)
+                                        silence = samplesTime + (i + samplesUpdateStereo) / Sound.getChannels(context);
+                                    double dB = RawSamples.getDB(a);
                                     Post(PINCH, dB);
                                 }
                                 int readSizeLen = dbSize - readSizeUpdate;
@@ -266,8 +264,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                 samplesTime += samples;
                                 samplesTimeCount += samples;
                                 if (samplesTimeCount > samplesTimeUpdate) {
-                                    final long m = samplesTime;
-                                    Post(UPDATESAMPLES, m);
+                                    Post(UPDATESAMPLES, samplesTime);
                                     samplesTimeCount -= samplesTimeUpdate;
                                 }
 
@@ -278,8 +275,8 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                     }
                                 } else {
                                     if (silenceDetected) {
-                                        Post(UNMUTED, null);
                                         silenceDetected = false;
+                                        Post(UNMUTED, null);
                                     }
                                 }
                             }
