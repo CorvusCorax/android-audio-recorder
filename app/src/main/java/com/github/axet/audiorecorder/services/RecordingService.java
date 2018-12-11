@@ -184,12 +184,19 @@ public class RecordingService extends Service {
             if (duration != null) {
                 title += " (" + duration + ")";
                 if (notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
-                    RemoteViews a = new RemoteViews(getPackageName(), notification.contentView.getLayoutId());
-                    a.setTextViewText(R.id.title, title);
-                    RemoteViewsCompat.mergeRemoteViews(notification.contentView, a);
-                    if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null)
-                        RemoteViewsCompat.mergeRemoteViews(notification.bigContentView, a);
-                    return notification;
+                    try {
+                        RemoteViews a = new RemoteViews(getPackageName(), notification.contentView.getLayoutId());
+                        a.setTextViewText(R.id.title, title);
+                        RemoteViewsCompat.mergeRemoteViews(notification.contentView, a);
+                        if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null) {
+                            a = new RemoteViews(getPackageName(), notification.bigContentView.getLayoutId());
+                            a.setTextViewText(R.id.title, title);
+                            RemoteViewsCompat.mergeRemoteViews(notification.bigContentView, a);
+                        }
+                        return notification;
+                    } catch (RuntimeException e) {
+                        Log.d(TAG, "merge failed", e);
+                    }
                 }
             }
             text = ".../" + targetFile;

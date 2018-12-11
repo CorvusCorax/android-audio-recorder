@@ -2,7 +2,6 @@ package com.github.axet.audiorecorder.activities;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -24,16 +23,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.axet.androidlibrary.app.SuperUser;
 import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.SearchView;
-import com.github.axet.audiolibrary.app.Recordings;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.app.AudioApplication;
+import com.github.axet.audiorecorder.app.Recordings;
 import com.github.axet.audiorecorder.services.RecordingService;
 
 public class MainActivity extends AppCompatThemeActivity {
@@ -47,8 +45,6 @@ public class MainActivity extends AppCompatThemeActivity {
     ListView list;
     Recordings recordings;
     Storage storage;
-    View progressEmpty;
-    View progressText;
 
     ScreenReceiver receiver;
 
@@ -74,9 +70,6 @@ public class MainActivity extends AppCompatThemeActivity {
 
         setContentView(R.layout.activity_main);
 
-        progressEmpty = findViewById(R.id.progress_empty);
-        progressText = findViewById(R.id.progress_text);
-
         storage = new Storage(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,6 +86,7 @@ public class MainActivity extends AppCompatThemeActivity {
         });
 
         list = (ListView) findViewById(R.id.list);
+        list.setEmptyView(findViewById(R.id.empty_list));
         recordings = new Recordings(this, list) {
             @Override
             public void showDialog(AlertDialog.Builder e) {
@@ -102,7 +96,6 @@ public class MainActivity extends AppCompatThemeActivity {
             }
         };
         list.setAdapter(recordings);
-        list.setEmptyView(findViewById(R.id.empty_list));
         recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
 
         RecordingService.startIfPending(this);
@@ -213,8 +206,8 @@ public class MainActivity extends AppCompatThemeActivity {
             @Override
             public void run() {
                 final int selected = getLastRecording(last);
-                progressEmpty.setVisibility(View.GONE);
-                progressText.setVisibility(View.VISIBLE);
+                recordings.progressEmpty.setVisibility(View.GONE);
+                recordings.progressText.setVisibility(View.VISIBLE);
                 if (selected != -1) {
                     recordings.select(selected);
                     list.smoothScrollToPosition(selected);
@@ -227,8 +220,8 @@ public class MainActivity extends AppCompatThemeActivity {
                 }
             }
         };
-        progressEmpty.setVisibility(View.VISIBLE);
-        progressText.setVisibility(View.GONE);
+        recordings.progressEmpty.setVisibility(View.VISIBLE);
+        recordings.progressText.setVisibility(View.GONE);
 
         recordings.load(!last.isEmpty(), done);
 
