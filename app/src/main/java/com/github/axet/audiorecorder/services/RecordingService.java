@@ -21,6 +21,7 @@ import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
+import com.github.axet.androidlibrary.widgets.RemoteViewsCompat;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
@@ -99,14 +100,6 @@ public class RecordingService extends Service {
 
     public static void stopService(Context context) {
         context.stopService(new Intent(context, RecordingService.class));
-    }
-
-    public static void mergeRemoteViews(RemoteViews view, RemoteViews a) {
-        try {
-            view.getClass().getDeclaredMethod("mergeRemoteViews", RemoteViews.class).invoke(view, a);
-        } catch (Exception e) {
-            Log.e(TAG, "merge", e);
-        }
     }
 
     public RecordingService() {
@@ -193,9 +186,9 @@ public class RecordingService extends Service {
                 if (notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
                     RemoteViews a = new RemoteViews(getPackageName(), notification.contentView.getLayoutId());
                     a.setTextViewText(R.id.title, title);
-                    mergeRemoteViews(notification.contentView, a);
+                    RemoteViewsCompat.mergeRemoteViews(notification.contentView, a);
                     if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null)
-                        mergeRemoteViews(notification.bigContentView, a);
+                        RemoteViewsCompat.mergeRemoteViews(notification.bigContentView, a);
                     return notification;
                 }
             }
