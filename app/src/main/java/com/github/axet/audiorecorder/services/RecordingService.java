@@ -183,7 +183,7 @@ public class RecordingService extends Service {
                 title = getString(R.string.pause_title);
             if (duration != null) {
                 title += " (" + duration + ")";
-                if (notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
+                if (recording && notificationIntent != null && notificationIntent.hasExtra("duration") && notificationIntent.getBooleanExtra("recording", false)) { // speed up
                     try {
                         RemoteViews a = new RemoteViews(getPackageName(), notification.contentView.getLayoutId());
                         a.setTextViewText(R.id.title, title);
@@ -203,8 +203,10 @@ public class RecordingService extends Service {
             builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.VISIBLE);
-            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class).setAction(SHOW_ACTIVITY)
-                    .putExtra("targetFile", targetFile).putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
+            main = PendingIntent.getService(this, 0, new Intent(this, RecordingService.class)
+                    .setAction(SHOW_ACTIVITY)
+                    .putExtra("targetFile", targetFile)
+                    .putExtra("recording", recording), PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         PendingIntent pe = PendingIntent.getService(this, 0,

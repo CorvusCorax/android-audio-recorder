@@ -105,7 +105,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     muted = new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(getString(R.string.mic_muted_error)).show();
                 else
                     muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
-                RecordingActivity.startActivity(RecordingActivity.this, true);
+                RecordingActivity.startActivity(RecordingActivity.this);
             }
             if (msg.what == AudioApplication.RecordingStorage.UNMUTED) {
                 if (muted != null) {
@@ -144,7 +144,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
                         new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(text).show();
                     else
                         ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
-                    RecordingActivity.startActivity(RecordingActivity.this, true);
+                    RecordingActivity.startActivity(RecordingActivity.this);
                 }
             }
             if (msg.what == AudioApplication.RecordingStorage.ERROR)
@@ -159,6 +159,13 @@ public class RecordingActivity extends AppCompatThemeActivity {
             i.setAction(RecordingActivity.START_PAUSE);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(i);
+    }
+
+    public static void startActivity(Context context) {
+        Log.d(TAG, "startActivity");
+        Intent i = new Intent(context, RecordingActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(i);
     }
 
@@ -412,6 +419,12 @@ public class RecordingActivity extends AppCompatThemeActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
     void loadSamples() {
         File f = recording.storage.getTempRecording();
         if (!f.exists()) {
@@ -535,7 +548,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
     }
 
     void stopRecording() {
-        recording.stopRecording();
+        if (recording != null) // not possible, but some devices do not call onCreate
+            recording.stopRecording();
         AudioApplication.from(this).recording = null;
         handler.removeCallbacks(receiver.connected);
         pitch.stop();
@@ -605,7 +619,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         int m = Sound.getChannels(this);
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
-        long perSec = (c * m * rate);
+        long perSec = c * m * rate;
 
         String ext = shared.getString(AudioApplication.PREFERENCE_ENCODING, "");
 
