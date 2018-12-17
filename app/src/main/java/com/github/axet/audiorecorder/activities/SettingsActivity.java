@@ -71,9 +71,7 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         storage = new Storage(this);
-
         setupActionBar();
-
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
     }
 
@@ -97,16 +95,6 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
-    @TargetApi(11)
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
