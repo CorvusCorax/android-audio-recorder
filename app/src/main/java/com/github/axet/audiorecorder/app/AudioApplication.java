@@ -231,11 +231,6 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
 
                                 e.encode(buffer, 0, readSize);
 
-                                try {
-                                    Thread.sleep(100);
-                                } catch (Exception e) {
-                                    ;
-                                }
                                 short[] dbBuf;
                                 int dbSize;
                                 int readSizeUpdate;
