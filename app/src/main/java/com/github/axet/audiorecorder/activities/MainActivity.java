@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
@@ -40,7 +39,6 @@ public class MainActivity extends AppCompatThemeActivity {
     public static final int RESULT_PERMS = 1;
 
     FloatingActionButton fab;
-    Handler handler = new Handler();
 
     ListView list;
     Recordings recordings;
@@ -211,7 +209,7 @@ public class MainActivity extends AppCompatThemeActivity {
                 if (selected != -1) {
                     recordings.select(selected);
                     list.smoothScrollToPosition(selected);
-                    handler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             list.setSelection(selected);
@@ -267,7 +265,7 @@ public class MainActivity extends AppCompatThemeActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        handler.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 list.smoothScrollToPosition(recordings.getSelected());
