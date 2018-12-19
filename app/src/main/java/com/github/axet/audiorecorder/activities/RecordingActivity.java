@@ -100,6 +100,12 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 pitch.add((Double) msg.obj);
             if (msg.what == AudioApplication.RecordingStorage.UPDATESAMPLES)
                 updateSamples((Long) msg.obj);
+            if (msg.what == AudioApplication.RecordingStorage.PAUSED) {
+                muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_paused));
+                RecordingActivity.startActivity(RecordingActivity.this);
+                AutoClose run = new AutoClose(muted);
+                run.run();
+            }
             if (msg.what == AudioApplication.RecordingStorage.MUTED) {
                 if (Build.VERSION.SDK_INT >= 28)
                     muted = new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(getString(R.string.mic_muted_error)).show();
@@ -109,28 +115,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             }
             if (msg.what == AudioApplication.RecordingStorage.UNMUTED) {
                 if (muted != null) {
-                    Runnable run = new Runnable() {
-                        int count = 5;
-                        AlertDialog d = muted;
-
-                        @Override
-                        public void run() {
-                            if (count <= 0) {
-                                d.dismiss();
-                                return;
-                            }
-                            Button b = d.getButton(DialogInterface.BUTTON_NEUTRAL);
-                            b.setText(getString(R.string.auto_close, count));
-                            b.setVisibility(View.VISIBLE);
-                            b.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                }
-                            });
-                            count--;
-                            handler.postDelayed(this, 1000);
-                        }
-                    };
+                    AutoClose run = new AutoClose(muted);
                     run.run();
                     muted = null;
                 }
@@ -167,6 +152,33 @@ public class RecordingActivity extends AppCompatThemeActivity {
         Intent i = new Intent(context, RecordingActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(i);
+    }
+
+    public class AutoClose implements Runnable {
+        int count = 5;
+        AlertDialog d;
+
+        public AutoClose(AlertDialog muted) {
+            d = muted;
+        }
+
+        @Override
+        public void run() {
+            if (count <= 0) {
+                d.dismiss();
+                return;
+            }
+            Button b = d.getButton(DialogInterface.BUTTON_NEUTRAL);
+            b.setText(d.getContext().getString(R.string.auto_close, count));
+            b.setVisibility(View.VISIBLE);
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
+            count--;
+            handler.postDelayed(this, 1000);
+        }
     }
 
     class RecordingReceiver extends BluetoothReceiver {

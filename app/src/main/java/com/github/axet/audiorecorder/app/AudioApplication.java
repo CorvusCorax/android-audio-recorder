@@ -61,6 +61,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         public static final int ERROR = 4;
         public static final int MUTED = 5;
         public static final int UNMUTED = 6;
+        public static final int PAUSED = 7;
 
         public Context context;
         public final ArrayList<Handler> handlers = new ArrayList<>();
@@ -196,8 +197,11 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     boolean silenceDetected = false;
                     long silence = samplesTime; // last non silence frame
 
+                    long start = System.currentTimeMillis(); // recording start time
+                    long session = 0; // samples count from start of recording
+
                     try {
-                        long start = System.currentTimeMillis();
+                        long last = System.currentTimeMillis();
                         recorder.startRecording();
 
                         int samplesTimeCount = 0;
@@ -216,18 +220,21 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                             int readSize = recorder.read(buffer, 0, buffer.length);
                             if (readSize < 0)
                                 return;
-                            long end = System.currentTimeMillis();
+                            long now = System.currentTimeMillis();
+                            long diff = (now - last) * sampleRate / 1000;
+                            last = now;
 
-                            long diff = (end - start) * sampleRate / 1000;
-
-                            start = end;
-
-                            int samples = readSize / Sound.getChannels(context);
+                            int samples = readSize / Sound.getChannels(context); // mono samples (for booth channels)
 
                             if (stableRefresh || diff >= samples) {
                                 stableRefresh = true;
 
                                 e.encode(buffer, 0, readSize);
+
+                                try {
+                                    Thread.sleep(100);
+                                }catch(InterruptedException e) {
+                                }
 
                                 short[] dbBuf;
                                 int dbSize;
@@ -267,6 +274,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                     Post(UPDATESAMPLES, samplesTime);
                                     samplesTimeCount -= samplesTimeUpdate;
                                 }
+                                session += samples;
 
                                 if (samplesTime - silence > 2 * sampleRate) { // 2 second of mic muted
                                     if (!silenceDetected) {
@@ -278,6 +286,11 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                                         silenceDetected = false;
                                         Post(UNMUTED, null);
                                     }
+                                }
+                                diff = (now - start) * sampleRate / 1000; // number of samples we expect by this moment
+                                if (diff - session > 2 * sampleRate) { // 2 second of silence / paused by os
+                                    Post(PAUSED, null);
+                                    session = diff; // reset
                                 }
                             }
                         }

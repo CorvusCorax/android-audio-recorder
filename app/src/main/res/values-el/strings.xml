@@ -64,4 +64,5 @@
     <string name="auto_close">Auto close in (%1$d)</string>
     <string name="mic_muted_error">Mic muted</string>
     <string name="mic_muted_pie">Android Pie and above prevent idle background apps from using microphone. Please disable selinux or install previous android version!</string>
+    <string name="mic_paused">Mic paused by OS, recording time is less then data recorded, check if you device supports background recording or it is fast enougth for selected settings</string>
 </resources>
