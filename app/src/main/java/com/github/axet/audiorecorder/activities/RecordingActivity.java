@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.media.AudioFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,12 +18,15 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.WindowCallbackWrapper;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -34,6 +38,7 @@ import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
+import com.github.axet.androidlibrary.widgets.PopupWindowCompat;
 import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
@@ -103,7 +108,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             if (msg.what == AudioApplication.RecordingStorage.PAUSED) {
                 muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_paused));
                 RecordingActivity.startActivity(RecordingActivity.this);
-                AutoClose run = new AutoClose(muted);
+                AutoClose run = new AutoClose(muted, 10);
                 run.run();
             }
             if (msg.what == AudioApplication.RecordingStorage.MUTED) {
@@ -158,8 +163,40 @@ public class RecordingActivity extends AppCompatThemeActivity {
         int count = 5;
         AlertDialog d;
 
+        public AutoClose(AlertDialog muted, int count) {
+            this(muted);
+            this.count = count;
+        }
+
         public AutoClose(AlertDialog muted) {
             d = muted;
+            Window w = d.getWindow();
+            touchListener(w);
+        }
+
+        public void touchListener(final Window w) {
+            final Window.Callback c = w.getCallback();
+            w.setCallback(new WindowCallbackWrapper(c) {
+                @Override
+                public boolean dispatchKeyEvent(KeyEvent event) {
+                    onUserInteraction();
+                    return c.dispatchKeyEvent(event);
+                }
+
+                @Override
+                public boolean dispatchTouchEvent(MotionEvent event) {
+                    Rect rect = PopupWindowCompat.getOnScreenRect(w.getDecorView());
+                    if (rect.contains((int) event.getRawX(), (int) event.getRawY()))
+                        onUserInteraction();
+                    return c.dispatchTouchEvent(event);
+                }
+            });
+        }
+
+        public void onUserInteraction() {
+            Button b = d.getButton(DialogInterface.BUTTON_NEUTRAL);
+            b.setVisibility(View.GONE);
+            handler.removeCallbacks(this);
         }
 
         @Override
