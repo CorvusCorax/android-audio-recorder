@@ -589,7 +589,11 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     float x = event.getX();
                     if (x < 0)
                         x = 0;
-                    editSample = pitch.edit(x) * recording.samplesUpdate;
+                    long edit = pitch.edit(x);
+                    if (edit == -1)
+                        edit(false, false);
+                    else
+                        editSample = pitch.edit(x) * recording.samplesUpdate;
                     return true;
                 }
             });
