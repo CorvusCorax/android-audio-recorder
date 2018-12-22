@@ -162,6 +162,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
     public class AutoClose implements Runnable {
         int count = 5;
         AlertDialog d;
+        Button button;
 
         public AutoClose(AlertDialog muted, int count) {
             this(muted);
@@ -170,8 +171,15 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         public AutoClose(AlertDialog muted) {
             d = muted;
+            button = d.getButton(DialogInterface.BUTTON_NEUTRAL);
             Window w = d.getWindow();
             touchListener(w);
+            d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    handler.removeCallbacks(AutoClose.this);
+                }
+            });
         }
 
         public void touchListener(final Window w) {
@@ -205,10 +213,9 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 d.dismiss();
                 return;
             }
-            Button b = d.getButton(DialogInterface.BUTTON_NEUTRAL);
-            b.setText(d.getContext().getString(R.string.auto_close, count));
-            b.setVisibility(View.VISIBLE);
-            b.setOnClickListener(new View.OnClickListener() {
+            button.setText(d.getContext().getString(R.string.auto_close, count));
+            button.setVisibility(View.VISIBLE);
+            button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                 }
@@ -797,6 +804,11 @@ public class RecordingActivity extends AppCompatThemeActivity {
         stopRecording();
         receiver.stopBluetooth();
         headset(false, false);
+
+        if (muted != null) {
+            muted.dismiss();
+            muted = null;
+        }
 
         if (screen != null) {
             screen.close();
