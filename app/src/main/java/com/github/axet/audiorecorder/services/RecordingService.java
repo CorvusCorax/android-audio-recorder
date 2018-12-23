@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.github.axet.androidlibrary.app.AlarmManager;
 import com.github.axet.androidlibrary.app.NotificationManagerCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
@@ -45,6 +46,7 @@ public class RecordingService extends Service {
     Storage storage; // for storage path
     Notification notification;
     Intent notificationIntent;
+    OptimizationPreferenceCompat.ServiceReceiver optimization;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -109,15 +111,35 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-
         storage = new Storage(this);
-
         showNotification(new Intent());
+        OptimizationPreferenceCompat.REFRESH = AlarmManager.MIN1;
+        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
+            @Override
+            public void register() { // do not call super
+                long cur = System.currentTimeMillis();
+                if (next < cur)
+                    next = cur + OptimizationPreferenceCompat.REFRESH;
+                am.set(next, OptimizationPreferenceCompat.serviceCheck(context, service));
+                OptimizationPreferenceCompat.setKillCheck(RecordingService.this, next, AudioApplication.PREFERENCE_NEXT);
+            }
+
+            @Override
+            public void unregister() {
+                super.unregister();
+                OptimizationPreferenceCompat.setKillCheck(RecordingService.this, 0, AudioApplication.PREFERENCE_NEXT);
+            }
+        };
+        optimization.create();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+
+        if (optimization.onStartCommand(intent, flags, startId)) {
+            Log.d(TAG, "onStartCommand restart");
+        }
 
         if (intent != null) {
             String a = intent.getAction();
@@ -149,8 +171,13 @@ public class RecordingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestory");
+        Log.d(TAG, "onDestroy");
         showNotification(null);
+
+        if (optimization != null) {
+            optimization.close();
+            optimization = null;
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -263,5 +290,6 @@ public class RecordingService extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Log.d(TAG, "onTaskRemoved");
+        optimization.onTaskRemoved(rootIntent);
     }
 }

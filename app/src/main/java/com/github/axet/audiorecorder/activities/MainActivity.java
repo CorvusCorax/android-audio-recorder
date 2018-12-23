@@ -2,10 +2,12 @@ package com.github.axet.audiorecorder.activities;
 
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +28,7 @@ import com.github.axet.androidlibrary.services.StorageProvider;
 import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
+import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
@@ -96,8 +99,6 @@ public class MainActivity extends AppCompatThemeActivity {
         list.setAdapter(recordings);
         recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
 
-        RecordingService.startIfPending(this);
-
         receiver = new ScreenReceiver() {
             @Override
             public void onScreenOff() {
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatThemeActivity {
             }
         };
         receiver.registerReceiver(this);
+
+        RecordingService.startIfPending(this);
     }
 
     void checkPending() {
@@ -223,7 +226,22 @@ public class MainActivity extends AppCompatThemeActivity {
 
         recordings.load(!last.isEmpty(), done);
 
-        checkPending();
+        if (OptimizationPreferenceCompat.needKillWarning(this, AudioApplication.PREFERENCE_NEXT)) {
+            AlertDialog.Builder muted;
+            if (Build.VERSION.SDK_INT >= 28)
+                muted = new ErrorDialog(this, getString(R.string.optimization_killed) + "\n\n" + getString(R.string.mic_muted_pie)).setTitle("Error");
+            else
+                muted = new ErrorDialog(this, getString(R.string.optimization_killed)).setTitle("Error");
+            muted.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    checkPending();
+                }
+            });
+            muted.show();
+        } else {
+            checkPending();
+        }
 
         updateHeader();
     }
