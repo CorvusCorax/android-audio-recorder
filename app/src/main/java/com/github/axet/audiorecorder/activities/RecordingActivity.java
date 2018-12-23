@@ -174,12 +174,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
             button = d.getButton(DialogInterface.BUTTON_NEUTRAL);
             Window w = d.getWindow();
             touchListener(w);
-            d.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    handler.removeCallbacks(AutoClose.this);
-                }
-            });
         }
 
         public void touchListener(final Window w) {
@@ -209,6 +203,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         @Override
         public void run() {
+            if (!d.isShowing())
+                return;
             if (count <= 0) {
                 d.dismiss();
                 return;
