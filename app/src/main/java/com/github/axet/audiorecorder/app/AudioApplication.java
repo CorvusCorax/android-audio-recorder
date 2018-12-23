@@ -47,6 +47,9 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
 
     public static final String PREFERENCE_VERSION = "version";
 
+    public static final String PREFERENCE_OPTIMIZATION = "optimization";
+    public static final String PREFERENCE_NEXT = "next";
+
     public NotificationChannelCompat channelStatus;
     public RecordingStorage recording;
 
