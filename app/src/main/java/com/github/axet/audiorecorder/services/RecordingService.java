@@ -117,9 +117,7 @@ public class RecordingService extends Service {
         optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
             @Override
             public void register() { // do not call super
-                long cur = System.currentTimeMillis();
-                if (next < cur)
-                    next = cur + OptimizationPreferenceCompat.REFRESH;
+                next();
                 am.set(next, OptimizationPreferenceCompat.serviceCheck(context, service));
                 OptimizationPreferenceCompat.setKillCheck(RecordingService.this, next, AudioApplication.PREFERENCE_NEXT);
             }
