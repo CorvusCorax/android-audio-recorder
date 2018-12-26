@@ -1,6 +1,7 @@
 package com.github.axet.audiorecorder.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -69,6 +70,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             Manifest.permission.RECORD_AUDIO
     };
 
+    public static final String ERROR = RecordingActivity.class.getCanonicalName() + ".ERROR";
     public static final String START_PAUSE = RecordingActivity.class.getCanonicalName() + ".START_PAUSE";
     public static final String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static final String ACTION_FINISH_RECORDING = BuildConfig.APPLICATION_ID + ".STOP_RECORDING";
@@ -106,17 +108,17 @@ public class RecordingActivity extends AppCompatThemeActivity {
             if (msg.what == AudioApplication.RecordingStorage.UPDATESAMPLES)
                 updateSamples((Long) msg.obj);
             if (msg.what == AudioApplication.RecordingStorage.PAUSED) {
-                muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_paused));
-                RecordingActivity.startActivity(RecordingActivity.this);
-                AutoClose run = new AutoClose(muted, 10);
-                run.run();
+                muted = RecordingActivity.startActivity(RecordingActivity.this, "Error", getString(R.string.mic_paused));
+                if (muted != null) {
+                    AutoClose ac = new AutoClose(muted, 10);
+                    ac.run();
+                }
             }
             if (msg.what == AudioApplication.RecordingStorage.MUTED) {
                 if (Build.VERSION.SDK_INT >= 28)
-                    muted = new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(getString(R.string.mic_muted_error)).show();
+                    muted = RecordingActivity.startActivity(RecordingActivity.this, getString(R.string.mic_muted_error), getString(R.string.mic_muted_pie));
                 else
-                    muted = ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
-                RecordingActivity.startActivity(RecordingActivity.this);
+                    muted = RecordingActivity.startActivity(RecordingActivity.this, "Error", getString(R.string.mic_muted_error));
             }
             if (msg.what == AudioApplication.RecordingStorage.UNMUTED) {
                 if (muted != null) {
@@ -131,10 +133,9 @@ public class RecordingActivity extends AppCompatThemeActivity {
                     stopRecording(getString(R.string.recording_status_pause));
                     String text = "Error reading from stream";
                     if (Build.VERSION.SDK_INT >= 28)
-                        new ErrorDialog(RecordingActivity.this, getString(R.string.mic_muted_pie)).setTitle(text).show();
+                        muted = RecordingActivity.startActivity(RecordingActivity.this, text, getString(R.string.mic_muted_pie));
                     else
-                        ErrorDialog.Error(RecordingActivity.this, getString(R.string.mic_muted_error));
-                    RecordingActivity.startActivity(RecordingActivity.this);
+                        muted = RecordingActivity.startActivity(RecordingActivity.this, getString(R.string.mic_muted_error), text);
                 }
             }
             if (msg.what == AudioApplication.RecordingStorage.ERROR)
@@ -152,11 +153,35 @@ public class RecordingActivity extends AppCompatThemeActivity {
         context.startActivity(i);
     }
 
-    public static void startActivity(Context context) {
+    public static AlertDialog startActivity(final Activity a, final String title, final String msg) {
         Log.d(TAG, "startActivity");
-        Intent i = new Intent(context, RecordingActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        context.startActivity(i);
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                Intent i = new Intent(a, RecordingActivity.class);
+                i.setAction(RecordingActivity.ERROR);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                i.putExtra("error", title);
+                i.putExtra("msg", msg);
+                a.startActivity(i);
+            }
+        };
+        if (a.isFinishing()) {
+            run.run();
+            return null;
+        }
+        try {
+            AlertDialog muted = new ErrorDialog(a, msg).setTitle(title).show();
+            Intent i = new Intent(a, RecordingActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            a.startActivity(i);
+            return muted;
+        } catch (Exception e) {
+            Log.d(TAG, "startActivity", e);
+            run.run();
+            return null;
+        }
     }
 
     public class AutoClose implements Runnable {
@@ -464,10 +489,14 @@ public class RecordingActivity extends AppCompatThemeActivity {
             }
         });
 
-        String a = getIntent().getAction();
+        Intent intent = getIntent();
+        String a = intent.getAction();
         if (a != null && a.equals(START_PAUSE)) { // pretend we already start it
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
+        }
+        if (a != null && a.equals(ERROR)) {
+            muted = new ErrorDialog(this, intent.getStringExtra("msg")).setTitle(intent.getStringExtra("title")).show();
         }
     }
 
