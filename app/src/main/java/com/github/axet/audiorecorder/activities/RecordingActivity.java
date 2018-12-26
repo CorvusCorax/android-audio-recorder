@@ -228,6 +228,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
         @Override
         public void run() {
+            if (isFinishing())
+                return;
             if (!d.isShowing())
                 return;
             if (count <= 0) {
