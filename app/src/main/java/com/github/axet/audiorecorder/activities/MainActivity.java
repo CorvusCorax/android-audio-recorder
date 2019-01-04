@@ -90,6 +90,12 @@ public class MainActivity extends AppCompatThemeActivity {
         list.setEmptyView(findViewById(R.id.empty_list));
         recordings = new Recordings(this, list) {
             @Override
+            public boolean getPrefCall() {
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getContext());
+                return shared.getBoolean(AudioApplication.PREFERENCE_CALL, false);
+            }
+
+            @Override
             public void showDialog(AlertDialog.Builder e) {
                 AlertDialog d = e.create();
                 showDialogLocked(d.getWindow());
