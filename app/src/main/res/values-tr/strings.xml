@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Ses Kaydedici</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz (varsayılan)</item>
+        <item>11 kHz</item>
+        <item>8 kHz (telefon)</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>Mikrofon</item>
+        <item>İşlenmemiş</item>
+        <item>Bluetooth</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Beyaz Tema</item>
+        <item>Koyu Tema</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>Mono (varsayılan)</item>
+        <item>Stereo</item>
+    </string-array>
+
+    <string name="no_folder_app">Yüklenmiş klasör seçme uygulaması yok</string>
+    <string name="hold_by_call">durdur (çağrı bekletme)</string>
+    <string name="recording_status_recording">kayıt</string>
+    <string name="recording_status_encoding">kodlama</string>
+    <string name="recording_status_pause">duraklat</string>
+    <string name="recording_status_edit">düzenle</string>
+    <string name="confirm_cancel">İptal etmeyi onayla</string>
+    <string name="encoding_title">kodlanıyor...</string>
+    <string name="pause_title">Duraklat...</string>
+    <string name="recording_title">Kaydediliyor</string>
+    <string name="open_recording_folder">Kayıt klasörünü aç</string>
+    <string name="recording_list_is_empty">Kayıt listesi boş\n\nKaydetmeye başlamak için düşmeye dokunun</string>
+    <string name="record_button">Kayıt</string>
+    <string name="cut_button">Kes</string>
+    <string name="stop_button">Durdur</string>
+    <string name="cancel_button">İptal</string>
+    <string name="pause_button">Duraklat</string>
+
+    <string name="pref_storage_title">Depolama konumu</string>
+    <string name="pref_rate_title">Örnek Oran</string>
+    <string name="pref_encoding_title">Kodlama</string>
+    <string name="pref_encoding_summary">Kayıt dosya formatları (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">Kip</string>
+    <string name="pref_mode_summary">Kayıt kanalları</string>
+    <string name="pref_nameformat_title">Ad biçimi</string>
+    <string name="pref_pausecalls_title">Arama esnasında durdur</string>
+    <string name="pref_pausecalls_summary">Aramadayken kaydı durdur ve bitince devam et</string>
+    <string name="pref_silence_title">Sessiz Kipi</string>
+    <string name="pref_silence_summary">Kayıt esnasında telefonu \'sessiz kip\'e alın</string>
+    <string name="pref_lockscreen_title">Kilit ekranı kontrolleri</string>
+    <string name="pref_lockscreen_summary">Cihaz kilitliyken kontrolleri göster</string>
+    <string name="pref_theme_title">Uygulama Teması</string>
+    <string name="pref_theme_summary">Uygulama teması seçin (koyu / açık)</string>
+    <string name="pref_application">Uygulama</string>
+    <string name="pref_recordings">Kayıtlar</string>
+    <string name="pref_fly_title">Anında Kodlama</string>
+    <string name="pref_fly_summary">Anında kodlamayı etkinleştirmek, düzenlemeyi ve kilitlenme kurtarmayı devre dışı bırakır</string>
+    <string name="hold_by_bluetooth">duraklat (bluetooth bağlantısı kesildi)</string>
+    <string name="menu_search">Ara</string>
+    <string name="save_as_wav">WAV olarak kaydet</string>
+    <string name="auto_close">Kendiliğinden kapat: (%1$d)</string>
+    <string name="mic_muted_error">Mikrofon sessiz</string>
+    <string name="mic_muted_pie">Android Pie ve üstü, boşta çalışan arka plan uygulamalarının mikrofon kullanmasını önler. Lütfen selinux'u devre dışı bırakın veya önceki android sürümünü yükleyin!</string>
+    <string name="mic_paused">Mikrofon, işletim sistemi tarafından duraklatılmış. Kayıt süresi, kaydedilenden daha az. Cihazınızın arka plan kaydını desteklediğini veya seçilen ayarlar için yeterince hızlı olup olmadığını kontrol edin.</string>
+</resources>

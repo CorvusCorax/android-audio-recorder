@@ -254,7 +254,7 @@ public class RecordingService extends Service {
 
         builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
                 .setChannel(AudioApplication.from(this).channelStatus)
-                .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
+                .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
                 .setTitle(title)
                 .setText(text)
                 .setWhen(notification)
