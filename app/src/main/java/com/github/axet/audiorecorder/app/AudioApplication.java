@@ -400,7 +400,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     else
                         edit.putString(AudioApplication.PREFERENCE_ENCODING, FormatFLAC.EXT);
                 }
-                edit.putInt(PREFERENCE_VERSION, 2);
+                edit.putInt(PREFERENCE_VERSION, 3);
                 edit.commit();
                 break;
             case 0:
@@ -409,6 +409,9 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                 break;
             case 1:
                 version_1_to_2();
+                break;
+            case 2:
+                version_2_to_3();
                 break;
         }
     }
@@ -446,6 +449,34 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt(PREFERENCE_VERSION, 2);
+        edit.commit();
+    }
+
+    @SuppressLint("RestrictedApi")
+    void version_2_to_3() {
+        Locale locale = Locale.getDefault();
+        if (locale.toString().startsWith("tr")) {
+            String title = "Application renamed";
+            String text = "'Audio Recorder' -> '" + getString(R.string.app_name) + "'";
+            PendingIntent main = PendingIntent.getService(this, 0,
+                    new Intent(this, MainActivity.class),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
+            builder.setViewVisibility(R.id.notification_record, View.GONE);
+            builder.setViewVisibility(R.id.notification_pause, View.GONE);
+            builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                    .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
+                    .setTitle(title)
+                    .setText(text)
+                    .setMainIntent(main)
+                    .setChannel(channelStatus)
+                    .setSmallIcon(R.drawable.ic_mic);
+            NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+            nm.notify((int) System.currentTimeMillis(), builder.build());
+        }
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = shared.edit();
+        edit.putInt(PREFERENCE_VERSION, 3);
         edit.commit();
     }
 }
