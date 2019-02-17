@@ -69,6 +69,6 @@
     <string name="save_as_wav">WAV olarak kaydet</string>
     <string name="auto_close">Kendiliğinden kapat: (%1$d)</string>
     <string name="mic_muted_error">Mikrofon sessiz</string>
-    <string name="mic_muted_pie">Android Pie ve üstü, boşta çalışan arka plan uygulamalarının mikrofon kullanmasını önler. Lütfen selinux'u devre dışı bırakın veya önceki android sürümünü yükleyin!</string>
+    <string name="mic_muted_pie">Android Pie ve üstü, boşta çalışan arka plan uygulamalarının mikrofon kullanmasını önler. Lütfen selinux\'u devre dışı bırakın veya önceki android sürümünü yükleyin!</string>
     <string name="mic_paused">Mikrofon, işletim sistemi tarafından duraklatılmış. Kayıt süresi, kaydedilenden daha az. Cihazınızın arka plan kaydını desteklediğini veya seçilen ayarlar için yeterince hızlı olup olmadığını kontrol edin.</string>
 </resources>
