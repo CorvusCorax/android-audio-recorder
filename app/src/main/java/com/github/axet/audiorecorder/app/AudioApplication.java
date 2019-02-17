@@ -434,7 +434,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
             builder.setViewVisibility(R.id.notification_record, View.GONE);
             builder.setViewVisibility(R.id.notification_pause, View.GONE);
             builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
-                    .setImageViewTint(R.id.icon_circle, R.attr.colorButtonNormal)
+                    .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
                     .setTitle(title)
                     .setText(text)
                     .setMainIntent(main)
