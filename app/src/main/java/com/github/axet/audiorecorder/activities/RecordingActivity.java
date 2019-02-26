@@ -75,6 +75,9 @@ public class RecordingActivity extends AppCompatThemeActivity {
     public static final String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static final String ACTION_FINISH_RECORDING = BuildConfig.APPLICATION_ID + ".STOP_RECORDING";
 
+    public static String START_RECORDING = RecordingService.class.getCanonicalName() + ".START_RECORDING";
+    public static String STOP_RECORDING = RecordingService.class.getCanonicalName() + ".STOP_RECORDING";
+
     PhoneStateChangeListener pscl = new PhoneStateChangeListener();
     FileEncoder encoder;
     MediaSessionCompat msc;
@@ -182,6 +185,10 @@ public class RecordingActivity extends AppCompatThemeActivity {
             run.run();
             return null;
         }
+    }
+
+    public static void stopRecording(Context context) {
+        context.sendBroadcast(new Intent(ACTION_FINISH_RECORDING));
     }
 
     public class AutoClose implements Runnable {
@@ -412,6 +419,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
             return;
         }
 
+        sendBroadcast(new Intent(START_RECORDING));
+
         edit(false, false);
 
         title.setText(Storage.getName(this, recording.targetUri));
@@ -640,6 +649,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         AudioApplication.from(this).recording = null;
         handler.removeCallbacks(receiver.connected);
         pitch.stop();
+        sendBroadcast(new Intent(STOP_RECORDING));
     }
 
     void edit(boolean show, boolean animate) {

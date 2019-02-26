@@ -424,27 +424,31 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         edit.commit();
     }
 
+    void show(String title, String text) {
+        PendingIntent main = PendingIntent.getService(this, 0,
+                new Intent(this, MainActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
+        builder.setViewVisibility(R.id.notification_record, View.GONE);
+        builder.setViewVisibility(R.id.notification_pause, View.GONE);
+        builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
+                .setTitle(title)
+                .setText(text)
+                .setMainIntent(main)
+                .setChannel(channelStatus)
+                .setSmallIcon(R.drawable.ic_mic);
+        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+        nm.notify((int) System.currentTimeMillis(), builder.build());
+    }
+
     @SuppressLint("RestrictedApi")
     void version_1_to_2() {
         Locale locale = Locale.getDefault();
         if (locale.toString().startsWith("ru")) {
             String title = "Программа переименована";
             String text = "'Аудио Рекордер' -> '" + getString(R.string.app_name) + "'";
-            PendingIntent main = PendingIntent.getService(this, 0,
-                    new Intent(this, MainActivity.class),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
-            builder.setViewVisibility(R.id.notification_record, View.GONE);
-            builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
-                    .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
-                    .setTitle(title)
-                    .setText(text)
-                    .setMainIntent(main)
-                    .setChannel(channelStatus)
-                    .setSmallIcon(R.drawable.ic_mic);
-            NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-            nm.notify((int) System.currentTimeMillis(), builder.build());
+            show(title, text);
         }
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = shared.edit();
@@ -458,21 +462,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         if (locale.toString().startsWith("tr")) {
             String title = "Application renamed";
             String text = "'Audio Recorder' -> '" + getString(R.string.app_name) + "'";
-            PendingIntent main = PendingIntent.getService(this, 0,
-                    new Intent(this, MainActivity.class),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteNotificationCompat.Builder builder = new RemoteNotificationCompat.Builder(this, R.layout.notifictaion);
-            builder.setViewVisibility(R.id.notification_record, View.GONE);
-            builder.setViewVisibility(R.id.notification_pause, View.GONE);
-            builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
-                    .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
-                    .setTitle(title)
-                    .setText(text)
-                    .setMainIntent(main)
-                    .setChannel(channelStatus)
-                    .setSmallIcon(R.drawable.ic_mic);
-            NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-            nm.notify((int) System.currentTimeMillis(), builder.build());
+            show(title, text);
         }
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = shared.edit();
