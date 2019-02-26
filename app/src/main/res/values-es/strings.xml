@@ -71,4 +71,6 @@
     <string name="mic_muted_error">Micro silenciado</string>
     <string name="mic_muted_pie">En Android Pie y posteriores, se está evitando que las aplicaciones en segundo plano utilicen el micrófono. Por favor, ¡desactive selinux o instale la versión anterior de Android!</string>
     <string name="mic_paused">Micro pausado por el sistema, el tiempo de grabación es menor que la fecha grabada, revise si su dispositivo soporta grabación en segundo plano o ajuste la configuración actual.</string>
+    <string name="tile_start_recording">Start Recording</string>
+    <string name="tile_stop_recording">Stop Recording</string>
 </resources>

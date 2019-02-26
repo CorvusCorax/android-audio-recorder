@@ -71,4 +71,6 @@
     <string name="mic_muted_error">麦克风静音</string>
     <string name="mic_muted_pie">Android Pie及以上版本可防止空闲后台应用使用麦克风。请禁用selinux或安装Android旧版本！</string>
     <string name="mic_paused">麦克风被占用，录制时间少于已录制数据，请确认您的设备是否支持后台录音，或调整当前设置。</string>
+    <string name="tile_start_recording">Start Recording</string>
+    <string name="tile_stop_recording">Stop Recording</string>
 </resources>
