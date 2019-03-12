@@ -47,7 +47,7 @@
             android:summary="@string/pref_mode_summary"
             android:title="@string/pref_mode_title" />
 
-        <ListPreference
+        <com.github.axet.audiorecorder.widgets.NameFormatPreferenceCompat
             android:defaultValue="%s"
             android:entries="@array/format_text"
             android:entryValues="@array/format_values"
