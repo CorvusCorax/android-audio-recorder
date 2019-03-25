@@ -705,23 +705,29 @@ public class RecordingActivity extends AppCompatThemeActivity {
     void setState(String s) {
         long free = 0;
 
-        try {
-            free = Storage.getFree(recording.storage.getTempRecording());
-        } catch (RuntimeException e) { // IllegalArgumentException
-        }
-
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
         int rate = Integer.parseInt(shared.getString(AudioApplication.PREFERENCE_RATE, ""));
         int m = Sound.getChannels(this);
         int c = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 2 : 1;
 
-        long perSec = c * m * rate;
+        long perSec;
 
         String ext = shared.getString(AudioApplication.PREFERENCE_ENCODING, "");
 
-        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false))
+        if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
             perSec = Factory.getEncoderRate(ext, recording.sampleRate);
+            try {
+                free = Storage.getFree(this, recording.targetUri);
+            } catch (RuntimeException e) { // IllegalArgumentException
+            }
+        } else { // raw file on tmp device
+            perSec = c * m * rate;
+            try {
+                free = Storage.getFree(recording.storage.getTempRecording());
+            } catch (RuntimeException e) { // IllegalArgumentException
+            }
+        }
 
         long sec = free / perSec * 1000;
 
