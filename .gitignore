@@ -7,3 +7,4 @@
 /build
 /captures
 android-library
+app/src/main/assets/*.dex

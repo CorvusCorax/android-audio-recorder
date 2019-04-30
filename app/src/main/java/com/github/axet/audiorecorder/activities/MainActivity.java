@@ -118,6 +118,12 @@ public class MainActivity extends AppCompatThemeActivity {
         receiver.registerReceiver(this);
 
         RecordingService.startIfPending(this);
+
+        try {
+            new Recordings.ExoLoader(this, false);
+        } catch (Exception e) {
+            Log.e(TAG, "error", e);
+        }
     }
 
     void checkPending() {
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
         try {
             storage.migrateLocalStorage();
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             ErrorDialog.Error(this, e);
         }
 
