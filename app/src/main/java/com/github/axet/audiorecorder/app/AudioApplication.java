@@ -29,9 +29,9 @@ import com.github.axet.audiolibrary.encoders.FormatFLAC;
 import com.github.axet.audiolibrary.encoders.FormatM4A;
 import com.github.axet.audiolibrary.encoders.FormatOGG;
 import com.github.axet.audiolibrary.encoders.OnFlyEncoding;
+import com.github.axet.audiorecorder.BuildConfig;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
-import com.github.axet.audiorecorder.services.RecordingService;
 
 import java.io.File;
 import java.nio.ShortBuffer;
@@ -192,7 +192,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     }
 
                     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-                    PowerManager.WakeLock wlcpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecordingService.class.getCanonicalName() + "_cpulock");
+                    PowerManager.WakeLock wlcpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BuildConfig.APPLICATION_ID + ":recordinglock");
                     wlcpu.acquire();
 
                     android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
