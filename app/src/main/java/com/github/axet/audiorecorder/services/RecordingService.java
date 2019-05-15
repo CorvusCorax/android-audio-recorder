@@ -18,6 +18,7 @@ import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.app.AlarmManager;
 import com.github.axet.androidlibrary.services.PersistentService;
+import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
@@ -112,21 +113,14 @@ public class RecordingService extends PersistentService {
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        CHANNEL_STATUS = AudioApplication.from(base).channelStatus;
-        storage = new Storage(base);
-    }
-
-    @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
     }
 
     @Override
-    public ServiceReceiver createOptimization() {
-        PersistentService.ServiceReceiver optimization = new PersistentService.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
+    public void onCreateOptimization() {
+        optimization = new PersistentService.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
             @Override
             public void register() { // do not call super
                 next();
@@ -141,7 +135,8 @@ public class RecordingService extends PersistentService {
             }
         };
         optimization.create();
-        return optimization;
+
+        storage = new Storage(this);
     }
 
     @Override
@@ -172,11 +167,6 @@ public class RecordingService extends PersistentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public int getAppTheme() {
-        return AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark);
     }
 
     @SuppressLint("RestrictedApi")
@@ -253,8 +243,8 @@ public class RecordingService extends PersistentService {
         builder.setImageViewResource(R.id.notification_pause, !recording ? R.drawable.ic_play_arrow_black_24dp : R.drawable.ic_pause_black_24dp);
         builder.setContentDescription(R.id.notification_pause, getString(!recording ? R.string.record_button : R.string.pause_button));
 
-        builder.setTheme(getAppTheme())
-                .setChannel(CHANNEL_STATUS)
+        builder.setTheme(AudioApplication.getTheme(this, R.style.RecThemeLight, R.style.RecThemeDark))
+                .setChannel(AudioApplication.from(this).channelStatus)
                 .setImageViewTint(R.id.icon_circle, builder.getThemeColor(R.attr.colorButtonNormal))
                 .setTitle(title)
                 .setText(text)
@@ -268,7 +258,7 @@ public class RecordingService extends PersistentService {
 
     @Override
     public void updateIcon() {
-        super.updateIcon(new Intent());
+        updateIcon(new Intent());
     }
 
     @Override
