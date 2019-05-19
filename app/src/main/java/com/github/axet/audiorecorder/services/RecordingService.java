@@ -18,7 +18,6 @@ import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.app.AlarmManager;
 import com.github.axet.androidlibrary.services.PersistentService;
-import com.github.axet.androidlibrary.widgets.NotificationChannelCompat;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
@@ -88,7 +87,7 @@ public class RecordingService extends PersistentService {
     }
 
     public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
-        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class)
+        start(context, new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
@@ -250,8 +249,9 @@ public class RecordingService extends PersistentService {
                 .setText(text)
                 .setWhen(notification)
                 .setMainIntent(main)
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_mic);
+                .setAdaptiveIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_launcher_notification)
+                .setOngoing(true);
 
         return builder.build();
     }
