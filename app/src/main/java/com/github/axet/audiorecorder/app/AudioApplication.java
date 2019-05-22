@@ -437,7 +437,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                 .setText(text)
                 .setMainIntent(main)
                 .setChannel(channelStatus)
-                .setSmallIcon(R.drawable.ic_mic);
+                .setSmallIcon(R.drawable.ic_launcher_notification);
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.notify((int) System.currentTimeMillis(), builder.build());
     }

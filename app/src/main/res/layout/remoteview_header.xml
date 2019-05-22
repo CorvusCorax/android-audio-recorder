@@ -18,6 +18,7 @@
             android:id="@+id/icon_circle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:src="@drawable/ic_circle" />
 
         <ImageView
@@ -126,8 +127,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="10dp"
         android:contentDescription=""
+        android:padding="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_fiber_manual_record_black_24dp"
         android:tint="#ff0000"

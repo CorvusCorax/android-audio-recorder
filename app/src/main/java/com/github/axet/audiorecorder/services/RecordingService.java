@@ -3,7 +3,6 @@ package com.github.axet.audiorecorder.services;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.github.axet.androidlibrary.app.AlarmManager;
-import com.github.axet.androidlibrary.app.NotificationManagerCompat;
+import com.github.axet.androidlibrary.services.PersistentService;
 import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.ProximityShader;
 import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
@@ -34,7 +33,7 @@ import java.io.File;
 /**
  * Sometimes RecordingActivity started twice when launched from lockscreen. We need service and move recording into Application object.
  */
-public class RecordingService extends Service {
+public class RecordingService extends PersistentService {
     public static final String TAG = RecordingService.class.getSimpleName();
 
     public static final int NOTIFICATION_RECORDING_ICON = 1;
@@ -43,10 +42,15 @@ public class RecordingService extends Service {
     public static String PAUSE_BUTTON = RecordingService.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static String RECORD_BUTTON = RecordingService.class.getCanonicalName() + ".RECORD_BUTTON";
 
+    static {
+        OptimizationPreferenceCompat.REFRESH = AlarmManager.MIN1;
+        NOTIFICATION_PERSISTENT_ICON = NOTIFICATION_RECORDING_ICON;
+        PREFERENCE_OPTIMIZATION = AudioApplication.PREFERENCE_OPTIMIZATION;
+        PREFERENCE_NEXT = AudioApplication.PREFERENCE_NEXT;
+    }
+
     Storage storage; // for storage path
-    Notification notification;
     Intent notificationIntent;
-    OptimizationPreferenceCompat.ServiceReceiver optimization;
 
     public static void startIfEnabled(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -79,11 +83,11 @@ public class RecordingService extends Service {
     }
 
     public static void start(Context context) {
-        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class));
+        start(context, new Intent(context, RecordingService.class));
     }
 
     public static void startService(Context context, String targetFile, boolean recording, boolean encoding, String duration) {
-        OptimizationPreferenceCompat.startService(context, new Intent(context, RecordingService.class)
+        start(context, new Intent(context, RecordingService.class)
                 .putExtra("targetFile", targetFile)
                 .putExtra("recording", recording)
                 .putExtra("encoding", encoding)
@@ -101,7 +105,7 @@ public class RecordingService extends Service {
     }
 
     public static void stopService(Context context) {
-        context.stopService(new Intent(context, RecordingService.class));
+        stop(context, new Intent(context, RecordingService.class));
     }
 
     public RecordingService() {
@@ -111,10 +115,11 @@ public class RecordingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        storage = new Storage(this);
-        showNotification(new Intent());
-        OptimizationPreferenceCompat.REFRESH = AlarmManager.MIN1;
-        optimization = new OptimizationPreferenceCompat.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
+    }
+
+    @Override
+    public void onCreateOptimization() {
+        optimization = new PersistentService.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
             @Override
             public void register() { // do not call super
                 next();
@@ -129,35 +134,27 @@ public class RecordingService extends Service {
             }
         };
         optimization.create();
+
+        storage = new Storage(this);
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
-
-        if (optimization.onStartCommand(intent, flags, startId)) {
-            Log.d(TAG, "onStartCommand restart");
+    public void onStartCommand(Intent intent) {
+        String a = intent.getAction();
+        if (a == null) {
+            updateIcon(intent);
+        } else if (a.equals(PAUSE_BUTTON)) {
+            Intent i = new Intent(RecordingActivity.PAUSE_BUTTON);
+            sendBroadcast(i);
+        } else if (a.equals(RECORD_BUTTON)) {
+            RecordingActivity.startActivity(this, false);
+        } else if (a.equals(SHOW_ACTIVITY)) {
+            ProximityShader.closeSystemDialogs(this);
+            if (intent.getStringExtra("targetFile") == null)
+                MainActivity.startActivity(this);
+            else
+                RecordingActivity.startActivity(this, !intent.getBooleanExtra("recording", false));
         }
-
-        if (intent != null) {
-            String a = intent.getAction();
-            if (a == null) {
-                showNotification(intent);
-            } else if (a.equals(PAUSE_BUTTON)) {
-                Intent i = new Intent(RecordingActivity.PAUSE_BUTTON);
-                sendBroadcast(i);
-            } else if (a.equals(RECORD_BUTTON)) {
-                RecordingActivity.startActivity(this, false);
-            } else if (a.equals(SHOW_ACTIVITY)) {
-                ProximityShader.closeSystemDialogs(this);
-                if (intent.getStringExtra("targetFile") == null)
-                    MainActivity.startActivity(this);
-                else
-                    RecordingActivity.startActivity(this, !intent.getBooleanExtra("recording", false));
-            }
-        }
-
-        return super.onStartCommand(intent, flags, startId);
     }
 
     @Nullable
@@ -169,13 +166,6 @@ public class RecordingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy");
-        showNotification(null);
-
-        if (optimization != null) {
-            optimization.close();
-            optimization = null;
-        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -259,35 +249,21 @@ public class RecordingService extends Service {
                 .setText(text)
                 .setWhen(notification)
                 .setMainIntent(main)
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_mic);
+                .setAdaptiveIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_launcher_notification)
+                .setOngoing(true);
 
         return builder.build();
     }
 
-    public void showNotification(Intent intent) {
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        if (intent == null) {
-            stopForeground(false);
-            nm.cancel(NOTIFICATION_RECORDING_ICON);
-            notification = null;
-            notificationIntent = null;
-        } else {
-            Notification n = build(intent);
-            if (notification == null) {
-                startForeground(NOTIFICATION_RECORDING_ICON, n);
-            } else {
-                nm.notify(NOTIFICATION_RECORDING_ICON, n);
-            }
-            notification = n;
-            notificationIntent = intent;
-        }
+    @Override
+    public void updateIcon() {
+        updateIcon(new Intent());
     }
 
     @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        Log.d(TAG, "onTaskRemoved");
-        optimization.onTaskRemoved(rootIntent);
+    public void updateIcon(Intent intent) {
+        super.updateIcon(intent);
+        notificationIntent = intent;
     }
 }
