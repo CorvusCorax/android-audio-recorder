@@ -1,0 +1,76 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string-array name="sample_rate_text">
+        <item>48 kHz</item>
+        <item>44.1 kHz (CD)</item>
+        <item>32 kHz</item>
+        <item>22 kHz</item>
+        <item>16 kHz（預設）</item>
+        <item>11 kHz</item>
+        <item>8 kHz（電話）</item>
+    </string-array>
+
+    <string-array name="source_text">
+        <item>麥克風</item>
+        <item>未處理</item>
+        <item>藍牙</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>亮色佈景主題</item>
+        <item>暗色佈景主題</item>
+    </string-array>
+
+    <string-array name="channels_text">
+        <item>單聲道（預設）</item>
+        <item>立體聲</item>
+    </string-array>
+
+    <string name="no_folder_app">資料夾檢視應用程式未安裝</string>
+    <string name="hold_by_call">暫停（通話中）</string>
+    <string name="recording_status_recording">錄音</string>
+    <string name="recording_status_encoding">編碼</string>
+    <string name="recording_status_pause">暫停</string>
+    <string name="recording_status_edit">編輯</string>
+    <string name="confirm_cancel">確認取消</string>
+    <string name="encoding_title">正在編碼...</string>
+    <string name="pause_title">暫停...</string>
+    <string name="recording_title">錄音</string>
+    <string name="open_recording_folder">開啟錄音資料夾</string>
+    <string name="recording_list_is_empty">錄音清單為空\n\n點擊錄音以開始錄製</string>
+    <string name="record_button">錄音</string>
+    <string name="cut_button">剪下</string>
+    <string name="stop_button">停止</string>
+    <string name="cancel_button">取消</string>
+    <string name="pause_button">暫停</string>
+
+    <string name="pref_storage_title">儲存路徑</string>
+    <string name="pref_rate_title">取樣率</string>
+    <string name="pref_encoding_title">編碼</string>
+    <string name="pref_encoding_summary">輸出檔案格式 (.wav, .m4a, ...)</string>
+    <string name="pref_mode_title">模式</string>
+    <string name="pref_mode_summary">錄音頻道</string>
+    <string name="pref_nameformat_title">名稱格式</string>
+    <string name="pref_pausecalls_title">通話時暫停</string>
+    <string name="pref_pausecalls_summary">通話時停止，掛斷恢復</string>
+    <string name="pref_silence_title">靜音模式</string>
+    <string name="pref_silence_summary">錄音時將手機調為「靜音模式」</string>
+    <string name="pref_lockscreen_title">鎖定螢幕控制</string>
+    <string name="pref_lockscreen_summary">手機鎖定時顯示控制</string>
+    <string name="pref_theme_title">應用程式主題</string>
+    <string name="pref_theme_summary">設定應用程式主題（暗 / 亮）</string>
+    <string name="pref_application">應用程式</string>
+    <string name="pref_recordings">錄音</string>
+    <string name="pref_fly_title">即時編碼</string>
+    <string name="pref_fly_summary">啟用即時編碼會停用編輯和當機回復</string>
+    <string name="hold_by_bluetooth">暫停（藍牙未連接）</string>
+    <string name="menu_search">搜尋</string>
+    <string name="save_as_wav">另存為 WAV</string>
+    <string name="auto_close">(%1$d) 後自動關閉</string>
+    <string name="mic_muted_error">麥克風靜音</string>
+    <string name="mic_muted_pie">Android Pie 及以上版本會防止閒置背景應用程式使用麥克風。請停用 selinux 或安裝 Android 舊版本！</string>
+    <string name="mic_paused">麥克風被作業系統暫停，錄音時間少於已錄製數據，請確認您的裝置是否支援背景錄音，或支援選取的設定。</string>
+    <string name="tile_start_recording">開始錄音</string>
+    <string name="tile_stop_recording">停止錄音</string>
+</resources>
