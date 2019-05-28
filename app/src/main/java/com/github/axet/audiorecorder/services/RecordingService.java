@@ -44,9 +44,10 @@ public class RecordingService extends PersistentService {
 
     static {
         OptimizationPreferenceCompat.REFRESH = AlarmManager.MIN1;
-        NOTIFICATION_PERSISTENT_ICON = NOTIFICATION_RECORDING_ICON;
-        PREFERENCE_OPTIMIZATION = AudioApplication.PREFERENCE_OPTIMIZATION;
-        PREFERENCE_NEXT = AudioApplication.PREFERENCE_NEXT;
+    }
+
+    {
+        id = NOTIFICATION_RECORDING_ICON;
     }
 
     Storage storage; // for storage path
@@ -114,23 +115,14 @@ public class RecordingService extends PersistentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate");
     }
 
     @Override
     public void onCreateOptimization() {
-        optimization = new PersistentService.ServiceReceiver(this, getClass(), AudioApplication.PREFERENCE_OPTIMIZATION) {
+        optimization = new PersistentService.ServiceReceiver(null, AudioApplication.PREFERENCE_NEXT) {
             @Override
-            public void register() { // do not call super
-                next();
-                am.set(next, OptimizationPreferenceCompat.serviceCheck(context, service));
-                OptimizationPreferenceCompat.setKillCheck(RecordingService.this, next, AudioApplication.PREFERENCE_NEXT);
-            }
-
-            @Override
-            public void unregister() {
-                super.unregister();
-                OptimizationPreferenceCompat.setKillCheck(RecordingService.this, 0, AudioApplication.PREFERENCE_NEXT);
+            public boolean isOptimization() {
+                return true; // we not using optimization preference
             }
         };
         optimization.create();
