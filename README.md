@@ -32,3 +32,4 @@ If you want to translate 'Audio Recorder' to your language  please read this:
   * Indonesian thanks to @ditokp
   * polish thanks to @krkk
   * Chinese thanks to @itoy
+  * Chinese (Taiwan) translation thanks to @cges30901
