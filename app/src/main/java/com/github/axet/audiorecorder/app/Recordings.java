@@ -2,6 +2,7 @@ package com.github.axet.audiorecorder.app;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -17,9 +18,12 @@ public class Recordings extends com.github.axet.audiolibrary.app.Recordings {
     public TextView progressText;
     public View refresh;
 
-    public Recordings(Context context, ListView list) {
+    public Recordings(Context context, RecyclerView list) {
         super(context, list);
-        View empty = list.getEmptyView();
+    }
+
+    public void setEmptyView(View empty) {
+        this.empty.setEmptyView(empty);
         progressEmpty = empty.findViewById(R.id.progress_empty);
         progressText = (TextView) empty.findViewById(android.R.id.text1);
         refresh = empty.findViewById(R.id.refresh);
@@ -35,8 +39,8 @@ public class Recordings extends com.github.axet.audiolibrary.app.Recordings {
     public void load(Uri mount, boolean clean, Runnable done) {
         refresh.setVisibility(View.GONE);
         progressText.setText(R.string.recording_list_is_empty);
-        if (!Storage.exists(getContext(), mount)) {
-            clear();
+        if (!Storage.exists(context, mount)) {
+            items.clear();
             if (done != null)
                 done.run();
             return;
@@ -47,7 +51,7 @@ public class Recordings extends com.github.axet.audiolibrary.app.Recordings {
             Log.e(TAG, "load", e);
             progressText.setText(ErrorDialog.toMessage(e));
             refresh.setVisibility(View.VISIBLE);
-            clear();
+            items.clear();
             if (done != null)
                 done.run();
         }
