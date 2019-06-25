@@ -13,6 +13,9 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -20,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
     FloatingActionButton fab;
 
-    ListView list;
+    RecyclerView list;
     Recordings recordings;
     Storage storage;
 
@@ -86,12 +88,12 @@ public class MainActivity extends AppCompatThemeActivity {
             }
         });
 
-        list = (ListView) findViewById(R.id.list);
-        list.setEmptyView(findViewById(R.id.empty_list));
+
+        list = (RecyclerView) findViewById(R.id.list);
         recordings = new Recordings(this, list) {
             @Override
             public boolean getPrefCall() {
-                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getContext());
+                final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
                 return shared.getBoolean(AudioApplication.PREFERENCE_CALL, false);
             }
 
@@ -102,7 +104,10 @@ public class MainActivity extends AppCompatThemeActivity {
                 d.show();
             }
         };
-        list.setAdapter(recordings);
+        recordings.setEmptyView(findViewById(R.id.empty_list));
+        list.setAdapter(recordings.empty);
+        list.setLayoutManager(new LinearLayoutManager(this));
+        list.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recordings.setToolbar((ViewGroup) findViewById(R.id.recording_toolbar));
 
         receiver = new ScreenReceiver() {
@@ -227,7 +232,7 @@ public class MainActivity extends AppCompatThemeActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            list.setSelection(selected);
+                            list.scrollToPosition(selected);
                         }
                     });
                 }
@@ -260,7 +265,7 @@ public class MainActivity extends AppCompatThemeActivity {
 
     int getLastRecording(String last) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        for (int i = 0; i < recordings.getCount(); i++) {
+        for (int i = 0; i < recordings.getItemCount(); i++) {
             Storage.RecordingUri f = recordings.getItem(i);
             if (f.name.equals(last)) {
                 SharedPreferences.Editor edit = shared.edit();
@@ -295,12 +300,6 @@ public class MainActivity extends AppCompatThemeActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                list.smoothScrollToPosition(recordings.getSelected());
-            }
-        });
     }
 
     @Override
