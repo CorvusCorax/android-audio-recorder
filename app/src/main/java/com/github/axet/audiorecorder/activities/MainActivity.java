@@ -188,7 +188,6 @@ public class MainActivity extends AppCompatThemeActivity {
         if (recordings.onOptionsItemSelected(this, item))
             return true;
 
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
