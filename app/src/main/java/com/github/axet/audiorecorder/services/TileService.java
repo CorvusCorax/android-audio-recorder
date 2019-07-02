@@ -38,6 +38,8 @@ public class TileService extends android.service.quicksettings.TileService {
 
     void updateTile() {
         Tile tile = getQsTile();
+        if (tile == null)
+            return; // some broken devices has tile == null within onStartListening()
         if (AudioApplication.from(this).recording != null) {
             tile.setIcon(Icon.createWithResource(this, R.drawable.ic_stop_black_24dp));
             tile.setLabel(getString(R.string.tile_stop_recording));
