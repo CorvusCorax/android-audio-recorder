@@ -506,9 +506,8 @@ public class RecordingActivity extends AppCompatThemeActivity {
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
         }
-        if (a != null && a.equals(ERROR)) {
+        if (a != null && a.equals(ERROR))
             muted = new ErrorDialog(this, intent.getStringExtra("msg")).setTitle(intent.getStringExtra("title")).show();
-        }
     }
 
     @Override

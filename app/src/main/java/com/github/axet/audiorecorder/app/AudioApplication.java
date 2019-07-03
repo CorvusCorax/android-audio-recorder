@@ -399,7 +399,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     else
                         edit.putString(AudioApplication.PREFERENCE_ENCODING, FormatFLAC.EXT);
                 }
-                edit.putInt(PREFERENCE_VERSION, 3);
+                edit.putInt(PREFERENCE_VERSION, 4);
                 edit.commit();
                 break;
             case 0:
@@ -411,6 +411,9 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                 break;
             case 2:
                 version_2_to_3();
+                break;
+            case 3:
+                version_3_to_4();
                 break;
         }
     }
@@ -466,6 +469,15 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt(PREFERENCE_VERSION, 3);
+        edit.commit();
+    }
+
+    @SuppressLint("RestrictedApi")
+    void version_3_to_4() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = shared.edit();
+        edit.remove(PREFERENCE_SORT);
+        edit.putInt(PREFERENCE_VERSION, 4);
         edit.commit();
     }
 }

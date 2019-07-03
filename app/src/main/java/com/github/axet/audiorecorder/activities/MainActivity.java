@@ -178,27 +178,27 @@ public class MainActivity extends AppCompatThemeActivity {
             }
         });
 
+        recordings.onCreateOptionsMenu(menu);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+        if (recordings.onOptionsItemSelected(this, item))
             return true;
-        }
 
-        if (id == R.id.action_about) {
-            AboutPreferenceCompat.showDialog(this, R.raw.about);
-            return true;
-        }
-
-        if (id == R.id.action_show_folder) {
-            Intent intent = item.getIntent();
-            startActivity(intent);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_about:
+                AboutPreferenceCompat.showDialog(this, R.raw.about);
+                return true;
+            case R.id.action_show_folder:
+                Intent intent = item.getIntent();
+                startActivity(intent);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

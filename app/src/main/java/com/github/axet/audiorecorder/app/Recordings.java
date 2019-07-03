@@ -5,13 +5,10 @@ import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.audiorecorder.R;
-
-import java.util.ArrayList;
 
 public class Recordings extends com.github.axet.audiolibrary.app.Recordings {
     public View progressEmpty;
