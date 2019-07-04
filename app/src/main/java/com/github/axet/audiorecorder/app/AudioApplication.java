@@ -6,7 +6,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -24,7 +23,6 @@ import com.github.axet.androidlibrary.widgets.RemoteNotificationCompat;
 import com.github.axet.audiolibrary.app.RawSamples;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Encoder;
-import com.github.axet.audiolibrary.encoders.EncoderInfo;
 import com.github.axet.audiolibrary.encoders.FormatFLAC;
 import com.github.axet.audiolibrary.encoders.FormatM4A;
 import com.github.axet.audiolibrary.encoders.FormatOGG;
@@ -332,10 +330,8 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
             sound.unsilent();
         }
 
-        public EncoderInfo getInfo() {
-            final int channels = Sound.getChannels(context);
-            final int bps = Sound.DEFAULT_AUDIOFORMAT == AudioFormat.ENCODING_PCM_16BIT ? 16 : 8;
-            return new EncoderInfo(channels, sampleRate, bps);
+        public RawSamples.Info getInfo() {
+            return new RawSamples.Info(sampleRate, Sound.getChannels(context));
         }
 
         // calcuale buffer length dynamically, this way we can reduce thread cycles when activity in background
@@ -353,8 +349,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
                     // resumeRecording we have to apply rest of samplesUpdate or reload all samples again
                     // from file. better then confusing user we cut them on next resumeRecording.
 
-                    long l = 1000;
-                    l = l / pitchTime * pitchTime;
+                    long l = 1000L / pitchTime * pitchTime;
                     samplesUpdate = (int) (l * sampleRate / 1000.0);
                 } else {
                     samplesUpdate = this.samplesUpdate;
