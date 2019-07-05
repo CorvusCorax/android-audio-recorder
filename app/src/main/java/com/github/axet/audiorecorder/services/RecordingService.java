@@ -102,10 +102,10 @@ public class RecordingService extends PersistentService {
             start(context);
             return;
         }
-        stopService(context);
+        stop(context);
     }
 
-    public static void stopService(Context context) {
+    public static void stop(Context context) {
         stop(context, new Intent(context, RecordingService.class));
     }
 
@@ -126,7 +126,6 @@ public class RecordingService extends PersistentService {
             }
         };
         optimization.create();
-
         storage = new Storage(this);
     }
 
