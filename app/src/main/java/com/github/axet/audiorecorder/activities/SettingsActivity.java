@@ -101,20 +101,17 @@ public class SettingsActivity extends AppCompatSettingsThemeActivity implements 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         super.onSharedPreferenceChanged(sharedPreferences, key);
         if (key.equals(AudioApplication.PREFERENCE_CONTROLS)) {
-            if (sharedPreferences.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false)) {
+            if (sharedPreferences.getBoolean(AudioApplication.PREFERENCE_CONTROLS, false))
                 RecordingService.start(this);
-            } else {
-                RecordingService.stopService(this);
-            }
+            else
+                RecordingService.stop(this);
         }
-        if (key.equals(AudioApplication.PREFERENCE_STORAGE)) {
+        if (key.equals(AudioApplication.PREFERENCE_STORAGE))
             storage.migrateLocalStorageDialog(this);
-        }
         if (key.equals(AudioApplication.PREFERENCE_RATE)) {
             int sampleRate = Integer.parseInt(sharedPreferences.getString(AudioApplication.PREFERENCE_RATE, ""));
-            if (sampleRate != Sound.getValidRecordRate(Sound.getInMode(this), sampleRate)) {
+            if (sampleRate != Sound.getValidRecordRate(Sound.getInMode(this), sampleRate))
                 Toast.Error(this, "Not supported Hz");
-            }
         }
     }
 
