@@ -36,7 +36,7 @@ import android.widget.TextView;
 
 import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
 import com.github.axet.androidlibrary.sound.AudioTrack;
-import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.activities.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupWindowCompat;

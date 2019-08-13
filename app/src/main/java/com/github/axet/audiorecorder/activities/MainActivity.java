@@ -27,10 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.services.StorageProvider;
-import com.github.axet.androidlibrary.widgets.AboutPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.preferences.AboutPreferenceCompat;
+import com.github.axet.androidlibrary.activities.AppCompatThemeActivity;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
-import com.github.axet.androidlibrary.widgets.OptimizationPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.OptimizationPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.SearchView;
 import com.github.axet.audiolibrary.app.Storage;
 import com.github.axet.audiorecorder.R;
