@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/pref_recordings">
-        <com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat
+        <com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat
             android:defaultValue="Audio Recorder"
             android:key="storage_path"
             android:summary="/sdcard/some/"
@@ -87,7 +87,7 @@
             android:summary="@string/pref_pausecalls_summary"
             android:title="@string/pref_pausecalls_title" />
 
-        <com.github.axet.androidlibrary.widgets.SilencePreferenceCompat
+        <com.github.axet.androidlibrary.preferences.SilencePreferenceCompat
             android:defaultValue="false"
             android:key="silence"
             android:summary="@string/pref_silence_summary"

@@ -14,6 +14,7 @@ import com.github.axet.audiorecorder.app.AudioApplication;
 
 @TargetApi(24)
 public class TileService extends android.service.quicksettings.TileService {
+    IntentFilter filters = new IntentFilter();
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -24,10 +25,9 @@ public class TileService extends android.service.quicksettings.TileService {
     @Override
     public void onCreate() {
         super.onCreate();
-        IntentFilter ff = new IntentFilter();
-        ff.addAction(RecordingActivity.START_RECORDING);
-        ff.addAction(RecordingActivity.STOP_RECORDING);
-        registerReceiver(receiver, ff);
+        filters.addAction(RecordingActivity.START_RECORDING);
+        filters.addAction(RecordingActivity.STOP_RECORDING);
+        registerReceiver(receiver, filters);
     }
 
     @Override

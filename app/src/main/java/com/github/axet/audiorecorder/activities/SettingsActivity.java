@@ -1,16 +1,12 @@
 package com.github.axet.audiorecorder.activities;
 
-
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.ListPreference;
@@ -21,11 +17,11 @@ import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.MenuItem;
 
-import com.github.axet.androidlibrary.widgets.AppCompatSettingsThemeActivity;
-import com.github.axet.androidlibrary.widgets.NameFormatPreferenceCompat;
-import com.github.axet.androidlibrary.widgets.SeekBarPreference;
-import com.github.axet.androidlibrary.widgets.SilencePreferenceCompat;
-import com.github.axet.androidlibrary.widgets.StoragePathPreferenceCompat;
+import com.github.axet.androidlibrary.activities.AppCompatSettingsThemeActivity;
+import com.github.axet.androidlibrary.preferences.NameFormatPreferenceCompat;
+import com.github.axet.androidlibrary.preferences.SeekBarPreference;
+import com.github.axet.androidlibrary.preferences.SilencePreferenceCompat;
+import com.github.axet.androidlibrary.preferences.StoragePathPreferenceCompat;
 import com.github.axet.androidlibrary.widgets.Toast;
 import com.github.axet.audiolibrary.app.Sound;
 import com.github.axet.audiolibrary.encoders.Factory;
