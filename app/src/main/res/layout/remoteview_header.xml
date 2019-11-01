@@ -127,7 +127,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:contentDescription=""
+        android:contentDescription="@string/record_button"
         android:padding="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_fiber_manual_record_black_24dp"
