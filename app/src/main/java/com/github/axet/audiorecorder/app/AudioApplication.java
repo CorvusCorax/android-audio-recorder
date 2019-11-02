@@ -85,34 +85,15 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
 
         public int pitchTime; // screen width
 
-        public RecordingStorage(Context context, int pitchTime) {
+        public RecordingStorage(Context context, int pitchTime, Uri targetUri) {
             this.context = context;
             this.pitchTime = pitchTime;
+            this.targetUri = targetUri;
             storage = new Storage(context);
             sound = new Sound(context);
-
             sampleRate = Sound.getSampleRate(context);
             samplesUpdate = (int) (pitchTime * sampleRate / 1000f);
             samplesUpdateStereo = samplesUpdate * Sound.getChannels(context);
-
-            final SharedPreferences shared = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
-
-            if (storage.recordingPending()) {
-                String file = shared.getString(AudioApplication.PREFERENCE_TARGET, null);
-                if (file != null) {
-                    if (file.startsWith(ContentResolver.SCHEME_CONTENT))
-                        targetUri = Uri.parse(file);
-                    else if (file.startsWith(ContentResolver.SCHEME_FILE))
-                        targetUri = Uri.parse(file);
-                    else
-                        targetUri = Uri.fromFile(new File(file));
-                }
-            }
-            if (targetUri == null)
-                targetUri = storage.getNewFile();
-            SharedPreferences.Editor editor = shared.edit();
-            editor.putString(AudioApplication.PREFERENCE_TARGET, targetUri.toString());
-            editor.commit();
         }
 
         public void startRecording() {

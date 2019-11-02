@@ -4,17 +4,20 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.media.AudioFormat;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -34,9 +37,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
-import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.activities.AppCompatThemeActivity;
+import com.github.axet.androidlibrary.animations.MarginBottomAnimation;
+import com.github.axet.androidlibrary.services.FileProvider;
+import com.github.axet.androidlibrary.services.StorageProvider;
+import com.github.axet.androidlibrary.sound.AudioTrack;
 import com.github.axet.androidlibrary.widgets.ErrorDialog;
 import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.PopupWindowCompat;
@@ -75,12 +80,13 @@ public class RecordingActivity extends AppCompatThemeActivity {
     public static final String PAUSE_BUTTON = RecordingActivity.class.getCanonicalName() + ".PAUSE_BUTTON";
     public static final String ACTION_FINISH_RECORDING = BuildConfig.APPLICATION_ID + ".STOP_RECORDING";
 
-    public static String START_RECORDING = RecordingService.class.getCanonicalName() + ".START_RECORDING";
-    public static String STOP_RECORDING = RecordingService.class.getCanonicalName() + ".STOP_RECORDING";
+    public static final String START_RECORDING = RecordingService.class.getCanonicalName() + ".START_RECORDING";
+    public static final String STOP_RECORDING = RecordingService.class.getCanonicalName() + ".STOP_RECORDING";
 
     PhoneStateChangeListener pscl = new PhoneStateChangeListener();
     FileEncoder encoder;
     MediaSessionCompat msc;
+    Intent recordSoundIntent = null;
 
     boolean start = true; // do we need to start recording immidiatly?
 
@@ -208,6 +214,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
             touchListener(w);
         }
 
+        @SuppressWarnings("RestrictedApi")
         public void touchListener(final Window w) {
             final Window.Callback c = w.getCallback();
             w.setCallback(new WindowCallbackWrapper(c) {
@@ -404,36 +411,13 @@ public class RecordingActivity extends AppCompatThemeActivity {
         receiver.filter.addAction(ACTION_FINISH_RECORDING);
         receiver.registerReceiver(this);
 
-        AudioApplication app = AudioApplication.from(this);
-        try {
-            if (app.recording == null)
-                app.recording = new AudioApplication.RecordingStorage(this, pitch.getPitchTime());
-            recording = app.recording;
-            synchronized (recording.handlers) {
-                recording.handlers.add(handler);
-            }
-        } catch (RuntimeException e) {
-            Log.d(TAG, "onCreate", e);
-            Toast.Error(this, e);
-            finish();
-            return;
-        }
-
-        sendBroadcast(new Intent(START_RECORDING));
-
         edit(false, false);
-
-        title.setText(Storage.getName(this, recording.targetUri));
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         if (shared.getBoolean(AudioApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
-
-        recording.updateBufferSize(false);
-
-        loadSamples();
 
         final View cancel = findViewById(R.id.recording_cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -482,15 +466,19 @@ public class RecordingActivity extends AppCompatThemeActivity {
                 if (encoder != null)
                     return;
                 String msg;
-                if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {
+                if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false))
                     msg = getString(R.string.recording_status_recording);
-                } else
+                else
                     msg = getString(R.string.recording_status_encoding);
                 stopRecording(msg);
                 try {
                     encoding(new Runnable() {
                         @Override
                         public void run() {
+                            if (recordSoundIntent != null) {
+                                recordSoundIntent.setDataAndType(StorageProvider.getProvider().share(recording.targetUri), Storage.getTypeByExt(Storage.getExt(RecordingActivity.this, recording.targetUri)));
+                                FileProvider.grantPermissions(RecordingActivity.this, recordSoundIntent, FileProvider.RW);
+                            }
                             finish();
                         }
                     });
@@ -500,20 +488,83 @@ public class RecordingActivity extends AppCompatThemeActivity {
             }
         });
 
+        onCreateRecording();
+
         Intent intent = getIntent();
         String a = intent.getAction();
         if (a != null && a.equals(START_PAUSE)) { // pretend we already start it
             start = false;
             stopRecording(getString(R.string.recording_status_pause));
         }
-        if (a != null && a.equals(ERROR))
-            muted = new ErrorDialog(this, intent.getStringExtra("msg")).setTitle(intent.getStringExtra("title")).show();
+        onIntent(intent);
+    }
+
+    public void onCreateRecording() {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        Intent intent = getIntent();
+        String a = intent.getAction();
+
+        AudioApplication app = AudioApplication.from(this);
+        try {
+            if (app.recording == null) {
+                Uri targetUri = null;
+                Storage storage = new Storage(this);
+                if (a != null && a.equals(MediaStore.Audio.Media.RECORD_SOUND_ACTION)) {
+                    if (storage.recordingPending()) {
+                        String file = shared.getString(AudioApplication.PREFERENCE_TARGET, null);
+                        if (file != null) // else pending recording comes from intent recording, resume recording
+                            throw new RuntimeException("finish pending recording first");
+                    }
+                    targetUri = storage.getNewIntentRecording();
+                    recordSoundIntent = new Intent();
+                } else {
+                    if (storage.recordingPending()) {
+                        String file = shared.getString(AudioApplication.PREFERENCE_TARGET, null);
+                        if (file != null) {
+                            if (file.startsWith(ContentResolver.SCHEME_CONTENT))
+                                targetUri = Uri.parse(file);
+                            else if (file.startsWith(ContentResolver.SCHEME_FILE))
+                                targetUri = Uri.parse(file);
+                            else
+                                targetUri = Uri.fromFile(new File(file));
+                        }
+                    }
+                    if (targetUri == null)
+                        targetUri = storage.getNewFile();
+                    SharedPreferences.Editor editor = shared.edit();
+                    editor.putString(AudioApplication.PREFERENCE_TARGET, targetUri.toString());
+                    editor.commit();
+                }
+                Log.d(TAG, "create recording at: " + targetUri);
+                app.recording = new AudioApplication.RecordingStorage(this, pitch.getPitchTime(), targetUri);
+            }
+            recording = app.recording;
+            synchronized (recording.handlers) {
+                recording.handlers.add(handler);
+            }
+        } catch (RuntimeException e) {
+            Toast.Error(this, e);
+            finish();
+            return;
+        }
+        sendBroadcast(new Intent(START_RECORDING));
+        title.setText(Storage.getName(this, recording.targetUri));
+        recording.updateBufferSize(false);
+        loadSamples();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        onIntent(intent);
+    }
+
+    public void onIntent(Intent intent) {
+        String a = intent.getAction();
+        if (a != null && a.equals(ERROR))
+            muted = new ErrorDialog(this, intent.getStringExtra("msg")).setTitle(intent.getStringExtra("title")).show();
     }
 
     void loadSamples() {
@@ -1013,8 +1064,16 @@ public class RecordingActivity extends AppCompatThemeActivity {
 
     @Override
     public void finish() {
-        super.finish();
-        MainActivity.startActivity(this);
+        if (recordSoundIntent != null) {
+            if (recordSoundIntent.getData() == null)
+                setResult(RESULT_CANCELED);
+            else
+                setResult(Activity.RESULT_OK, recordSoundIntent);
+            super.finish();
+        } else {
+            super.finish();
+            MainActivity.startActivity(this);
+        }
     }
 
     public void headset(boolean b, final boolean recording) {
