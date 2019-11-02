@@ -9,7 +9,8 @@
   * turkish thanks to @tneonflo
   * spanish thanks to @sguinetti
   * greek tanks to @cryoranger
-  * Indonesian thanks to @ditokp
+  * Indonesian thanks to @ditokp, @zmni
   * polish thanks to @krkk
   * Chinese thanks to @itoy
   * Chinese (Taiwan) translation thanks to @cges30901
+  * Danish translation thanks to @lianergoist
