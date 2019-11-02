@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "com.github.axet.audiorecorder"
         minSdkVersion 9
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 333
         versionName "3.3.8"
     }
