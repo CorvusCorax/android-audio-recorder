@@ -411,8 +411,6 @@ public class RecordingActivity extends AppCompatThemeActivity {
         receiver.filter.addAction(ACTION_FINISH_RECORDING);
         receiver.registerReceiver(this);
 
-        edit(false, false);
-
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         if (shared.getBoolean(AudioApplication.PREFERENCE_CALL, false)) {
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -551,6 +549,7 @@ public class RecordingActivity extends AppCompatThemeActivity {
         sendBroadcast(new Intent(START_RECORDING));
         title.setText(Storage.getName(this, recording.targetUri));
         recording.updateBufferSize(false);
+        edit(false, false);
         loadSamples();
     }
 
