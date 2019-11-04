@@ -27,7 +27,7 @@
         <item>Stereo</item>
     </string-array>
 
-    <string name="no_folder_app">No folder view application installed</string>
+    <string name="no_folder_app">No folder view application is installed</string>
     <string name="hold_by_call">pause (hold by call)</string>
     <string name="recording_status_recording">recording</string>
     <string name="recording_status_encoding">encoding</string>
@@ -45,32 +45,32 @@
     <string name="cancel_button">Cancel</string>
     <string name="pause_button">Pause</string>
 
-    <string name="pref_storage_title">Storage Path</string>
+    <string name="pref_storage_title">Recordings Folder</string>
     <string name="pref_rate_title">Sample Rate</string>
     <string name="pref_encoding_title">Encoding</string>
     <string name="pref_encoding_summary">Output file formats (.wav, .m4a, ...)</string>
-    <string name="pref_mode_title">Mode</string>
+    <string name="pref_mode_title">Audio Channels</string>
     <string name="pref_mode_summary">Recording channels</string>
-    <string name="pref_nameformat_title">Name Format</string>
-    <string name="pref_pausecalls_title">Pause During Calls</string>
+    <string name="pref_nameformat_title">Filename Format</string>
+    <string name="pref_pausecalls_title">Pause During a Call</string>
     <string name="pref_pausecalls_summary">Stop recording on answering and continue on hangup</string>
-    <string name="pref_silence_title">Silence Mode</string>
-    <string name="pref_silence_summary">Put phone in \'silence mode\' during recording</string>
+    <string name="pref_silence_title">Silent Mode</string>
+    <string name="pref_silence_summary">Enable \'silent mode\' during recording</string>
     <string name="pref_lockscreen_title">Lockscreen Controls</string>
-    <string name="pref_lockscreen_summary">Show controls when phone is locked</string>
+    <string name="pref_lockscreen_summary">Show the controls when the phone is locked</string>
     <string name="pref_theme_title">Application Theme</string>
-    <string name="pref_theme_summary">Set application theme (dark / light)</string>
+    <string name="pref_theme_summary">Set the application theme (dark/light)</string>
     <string name="pref_application">Application</string>
     <string name="pref_recordings">Recordings</string>
-    <string name="pref_fly_title">Encoding on Fly</string>
-    <string name="pref_fly_summary">Enabling encoding on fly disables editing, and crash recovery</string>
+    <string name="pref_fly_title">Encoding on the Fly</string>
+    <string name="pref_fly_summary">Enabling encoding on the fly disables editing, and crash recovery</string>
     <string name="hold_by_bluetooth">pause (bluetooth disconnected)</string>
     <string name="menu_search">Search</string>
     <string name="save_as_wav">Save as WAV</string>
     <string name="auto_close">Auto close in (%1$d)</string>
     <string name="mic_muted_error">Mic muted</string>
-    <string name="mic_muted_pie">Android Pie and above prevent idle background apps from using microphone. Please disable selinux or install previous android version!</string>
-    <string name="mic_paused">Mic paused by OS, recording time is less then data recorded, check if you device supports background recording or it is fast enough for selected settings</string>
+    <string name="mic_muted_pie">Android 9 (Pie) and above prevent idle background apps from using the microphone. Please disable SeLinux or downgrade to an earlier Android release!</string>
+    <string name="mic_paused">Mic was paused by Android, the recording time is shorter then the data recorded. Check if you device supports background recording or it is fast enough for the selected settings</string>
     <string name="tile_start_recording">Start Recording</string>
     <string name="tile_stop_recording">Stop Recording</string>
 </resources>
