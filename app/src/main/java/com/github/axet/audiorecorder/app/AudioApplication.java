@@ -2,7 +2,6 @@ package com.github.axet.audiorecorder.app;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,7 +30,6 @@ import com.github.axet.audiorecorder.BuildConfig;
 import com.github.axet.audiorecorder.R;
 import com.github.axet.audiorecorder.activities.MainActivity;
 
-import java.io.File;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
