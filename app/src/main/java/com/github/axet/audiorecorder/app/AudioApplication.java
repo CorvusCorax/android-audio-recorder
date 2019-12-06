@@ -116,7 +116,7 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
             } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_recognition))) {
                 user = MediaRecorder.AudioSource.VOICE_RECOGNITION;
             } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_communication))) {
-                user = MediaRecorder.AudioSource.VOICE_COMUNICATION;
+                user = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
             } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_remote_submix))) {
                 user = MediaRecorder.AudioSource.REMOTE_SUBMIX;
             } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_unprocessed))) {
