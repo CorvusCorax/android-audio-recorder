@@ -11,12 +11,6 @@
         <item>8 kHz (通话)</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>话筒</item>
-        <item>未处理</item>
-        <item>蓝牙</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>亮色主题</item>
         <item>暗色主题</item>

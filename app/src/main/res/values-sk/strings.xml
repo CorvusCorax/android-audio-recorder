@@ -11,12 +11,6 @@
         <item>8 kHz (telefón)</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>Mikrofón</item>
-        <item>Bez spracovania (surové)</item>
-        <item>Bluetooth</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>Svetlý vzhľad</item>
         <item>Tmavý vzhľad</item>

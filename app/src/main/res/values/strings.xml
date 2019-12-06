@@ -12,8 +12,17 @@
     </string-array>
 
     <string-array name="source_text">
-        <item>Mic</item>
+	<item>Default</item>
+	<item>Mic</item>
+	<item>Voice_Uplink</item>
+	<item>Voice_Downlink</item>
+	<item>Voice_Call</item>
+	<item>Camcorder</item>
+	<item>Voice_Recognition</item>
+	<item>Voice_Communication</item>
+	<item>Remote_Submix</item>
         <item>Unprocessed</item>
+	<item>Voice_Performance</item>
         <item>Bluetooth</item>
     </string-array>
 

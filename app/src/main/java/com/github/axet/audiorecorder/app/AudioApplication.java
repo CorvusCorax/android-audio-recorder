@@ -101,19 +101,36 @@ public class AudioApplication extends com.github.axet.audiolibrary.app.MainAppli
 
             int user;
 
-            if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_mic)).equals(context.getString(R.string.source_raw))) {
-                if (Sound.isUnprocessedSupported(context))
-                    user = MediaRecorder.AudioSource.UNPROCESSED;
-                else
-                    user = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+            if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_default))) {
+                user = MediaRecorder.AudioSource.DEFAULT;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_mic))) {
+                user = MediaRecorder.AudioSource.MIC;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_uplink))) {
+                user = MediaRecorder.AudioSource.VOICE_UPLINK;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_downlink))) {
+                user = MediaRecorder.AudioSource.VOICE_DOWNLINK;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_call))) {
+                user = MediaRecorder.AudioSource.VOICE_CALL;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_camcorder))) {
+                user = MediaRecorder.AudioSource.CAMCORDER;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_recognition))) {
+                user = MediaRecorder.AudioSource.VOICE_RECOGNITION;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_communication))) {
+                user = MediaRecorder.AudioSource.VOICE_COMUNICATION;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_remote_submix))) {
+                user = MediaRecorder.AudioSource.REMOTE_SUBMIX;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_unprocessed))) {
+                user = MediaRecorder.AudioSource.UNPROCESSED;
+            } else if (shared.getString(AudioApplication.PREFERENCE_SOURCE, context.getString(R.string.source_default)).equals(context.getString(R.string.source_voice_performance))) {
+                user = MediaRecorder.AudioSource.VOICE_PERFORMANCE;
             } else {
                 user = MediaRecorder.AudioSource.MIC;
             }
 
             int[] ss = new int[]{
-                    user,
-                    MediaRecorder.AudioSource.MIC,
-                    MediaRecorder.AudioSource.DEFAULT
+                    user //,
+                    //MediaRecorder.AudioSource.MIC,
+                    //MediaRecorder.AudioSource.DEFAULT
             };
 
             if (shared.getBoolean(AudioApplication.PREFERENCE_FLY, false)) {

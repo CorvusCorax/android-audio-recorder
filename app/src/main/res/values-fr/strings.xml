@@ -11,12 +11,6 @@
         <item>8 kHz (téléphone)</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>Mic</item>
-        <item>Unprocessed</item>
-        <item>Bluetooth</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>Thème Clair</item>
         <item>Thème Sombre</item>

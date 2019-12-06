@@ -16,12 +16,6 @@
         <item>8 kHz (телефон)</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>Микрофон</item>
-        <item>Необработанный</item>
-        <item>Bluetooth</item>
-    </string-array>
-
     <string-array name="channels_text">
         <item>Моно (по умолчанию)</item>
         <item>Стерео</item>

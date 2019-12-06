@@ -11,12 +11,6 @@
         <item>8 kHz（電話）</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>麥克風</item>
-        <item>未處理</item>
-        <item>藍牙</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>亮色佈景主題</item>
         <item>暗色佈景主題</item>

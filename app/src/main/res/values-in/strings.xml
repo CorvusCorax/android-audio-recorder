@@ -11,12 +11,6 @@
         <item>8 kHz (telepon)</item>
     </string-array>
 
-    <string-array name="source_text">
-        <item>Mik</item>
-        <item>Tidak diproses</item>
-        <item>Bluetooth</item>
-    </string-array>
-
     <string-array name="themes_text">
         <item>Tema Terang</item>
         <item>Tema Gelap</item>

@@ -3,9 +3,17 @@
     <attr name="recColor" format="color" />
     <attr name="cutColor" format="color" />
 
-    <string name="source_mic" translatable="false">mic</string>
-    <string name="source_default" translatable="false">default</string>
-    <string name="source_raw" translatable="false">raw</string>
+    <string name="source_default">default</string>
+    <string name="source_mic">mic</string>
+    <string name="source_voice_uplink">voice_uplink</string>
+    <string name="source_voice_downlink">voice_downlink</string>
+    <string name="source_voice_call">voice_call</string>
+    <string name="source_camcorder">camcorder</string>
+    <string name="source_voice_recognition">voice_recognition</string>
+    <string name="source_voice_communication">voice_communication</string>
+    <string name="source_remote_submix">remote_submix</string>
+    <string name="source_unprocessed">unprocessed</string>
+    <string name="source_voice_performance">voice_performance</string>
     <string name="source_bluetooth" translatable="false">bluetooth</string>
 
     <string-array name="sample_rate_values" translatable="false">
@@ -19,8 +27,17 @@
     </string-array>
 
     <string-array name="source_values" translatable="false">
-        <item>@string/source_mic</item>
-        <item>@string/source_raw</item>
+        <item>@string/source_default</item>
+	<item>@string/source_mic</item>
+	<item>@string/source_voice_uplink</item>
+	<item>@string/source_voice_downlink</item>
+	<item>@string/source_voice_call</item>
+	<item>@string/source_camcorder</item>
+	<item>@string/source_voice_recognition</item>
+	<item>@string/source_voice_communication</item>
+	<item>@string/source_remote_submix</item>
+        <item>@string/source_unprocessed</item>
+	<item>@string/source_voice_performance</item>
         <item>@string/source_bluetooth</item>
     </string-array>
 
